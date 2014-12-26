@@ -1,0 +1,9 @@
+﻿Build started 24-12-2014 PM 10:36:54.
+     1>Project "D:\Gaurav\VoidStarIndia\Anti_virus\scanner2\scanner2\Scanner\C++\filter\scanner.vcxproj" on node 2 (Build target(s)).
+     1>Link:
+         scanner.vcxproj -> D:\Gaurav\VoidStarIndia\Anti_virus\scanner2\scanner2\Scanner\C++\filter\x64\Win7Release\scanner.sys
+     1>Done Building Project "D:\Gaurav\VoidStarIndia\Anti_virus\scanner2\scanner2\Scanner\C++\filter\scanner.vcxproj" (Build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:00.72
