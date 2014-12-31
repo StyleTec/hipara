@@ -1,10 +1,10 @@
-﻿Build started 24-12-2014 PM 10:45:15.
-     1>Project "D:\Gaurav\VoidStarIndia\Anti_virus\scanner2\scanner2\Scanner\C++\Package\package.VcxProj" on node 2 (Build target(s)).
-     1>Inf2Cat:
-         Inf2Cat task was skipped as there were no inf files to process
-         
-     1>Done Building Project "D:\Gaurav\VoidStarIndia\Anti_virus\scanner2\scanner2\Scanner\C++\Package\package.VcxProj" (Build target(s)).
+﻿Build started 12/31/2014 9:21:40 AM.
+Project "C:\hipara\Scanner\C++\Package\package.VcxProj" on node 2 (Build target(s)).
+Inf2Cat:
+  Inf2Cat task was skipped as there were no inf files to process
+  
+Done Building Project "C:\hipara\Scanner\C++\Package\package.VcxProj" (Build target(s)).
 
 Build succeeded.
 
-Time Elapsed 00:00:00.24
+Time Elapsed 00:00:00.05
