@@ -6,7 +6,7 @@ Host intrusion prevention with the power of Yara
 To Install
 ======
 Right-click and install the scanner.inf file.
-Open the command line as administrator and go to Scanner/compiled. Type "fltmc load scanner.sys". 
+Open the command line as administrator and go to Scanner/compiled. Type "fltmc load scanner". 
 
 To Run
 ======
