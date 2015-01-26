@@ -25,6 +25,10 @@ Environment:
 #include "scanuk.h"
 #include "scanner.h"
 
+#pragma warning(disable : 4995)
+#include <ntstrsafe.h>
+#include <strsafe.h>
+
 #pragma prefast(disable:__WARNING_ENCODE_MEMBER_FUNCTION_POINTER, "Not valid for kernel mode drivers")
 
 #define SCANNER_REG_TAG       'Rncs'
@@ -94,6 +98,15 @@ ScannerpScanFileInUserMode (
     _Out_ PBOOLEAN SafeToOpen
     );
 
+
+NTSTATUS
+ScannerpScanFileInUserModeEx(
+	_In_ PFLT_INSTANCE Instance,
+	_In_ PFILE_OBJECT FileObject,
+	_In_ PWCHAR pszFilePath,
+	_Out_ PBOOLEAN SafeToOpne
+	);
+
 BOOLEAN
 ScannerpCheckExtension (
     _In_ PUNICODE_STRING Extension
@@ -157,9 +170,14 @@ const FLT_CONTEXT_REGISTRATION ContextRegistration[] = {
 
     { FLT_STREAMHANDLE_CONTEXT,
       0,
-      NULL,
+	  ScannerContextCleanup,
       sizeof(SCANNER_STREAM_HANDLE_CONTEXT),
       'chBS' },
+	{ FLT_INSTANCE_CONTEXT,
+	  0,
+	  ScannerContextCleanup,
+	  sizeof(SCANNER_INSTANCE_CONTEXT),
+	  'chBS'},
 
     { FLT_CONTEXT_END }
 };
@@ -794,6 +812,8 @@ Return Value:
 
 --*/
 {
+	NTSTATUS ntStatus;
+	PSCANNER_INSTANCE_CONTEXT pInstanceContext = NULL;
     UNREFERENCED_PARAMETER( FltObjects );
     UNREFERENCED_PARAMETER( Flags );
     UNREFERENCED_PARAMETER( VolumeFilesystemType );
@@ -801,7 +821,7 @@ Return Value:
     PAGED_CODE();
 
     FLT_ASSERT( FltObjects->Filter == ScannerData.Filter );
-
+	DbgPrint("ScannerInstanceSetup: Entry.\n\n");
     //
     //  Don't attach to network volumes.
     //
@@ -811,6 +831,32 @@ Return Value:
        return STATUS_FLT_DO_NOT_ATTACH;
     }
 
+	ntStatus = FltAllocateContext(FltObjects->Filter, FLT_INSTANCE_CONTEXT, sizeof(SCANNER_INSTANCE_CONTEXT), NonPagedPool, &pInstanceContext);
+	if (!NT_SUCCESS(ntStatus))
+	{
+		DbgPrint("ScannerInstanceSetup: FltAllocateContext failed with error (0x%08X)\n", ntStatus);
+		return STATUS_FLT_DO_NOT_ATTACH;
+	}
+
+	RtlZeroMemory(pInstanceContext, sizeof(SCANNER_INSTANCE_CONTEXT));
+
+	ntStatus = FltSetInstanceContext(FltObjects->Instance, FLT_SET_CONTEXT_REPLACE_IF_EXISTS, pInstanceContext, NULL);
+	if (!NT_SUCCESS(ntStatus))
+	{
+		// Free usDosVolumeName
+		DbgPrint("ScannerInstanceSetup: FltSetInstanceContext failed(0x%08x)\n", ntStatus);
+		FltReleaseContext(pInstanceContext);		// For FltAllocateContext
+		return STATUS_FLT_DO_NOT_ATTACH;
+	}
+
+	ntStatus = getDosVolumeName(FltObjects, pInstanceContext);
+	if (!NT_SUCCESS(ntStatus))
+	{
+		DbgPrint("ScannerInstanceSetup: getDosVolumeName failed(0x%08x)\n", ntStatus);
+	}
+
+	FltReleaseContext(pInstanceContext);	// For FltAllocateContext
+	DbgPrint("ScannerInstancesetup: Exit.\n");
     return STATUS_SUCCESS;
 }
 
@@ -985,6 +1031,8 @@ Return Value:
 
 --*/
 {
+	BOOLEAN bRetVal;
+	WCHAR szFilePath[MAX_FILE_PATH] = { 0 };
     PSCANNER_STREAM_HANDLE_CONTEXT scannerContext;
     FLT_POSTOP_CALLBACK_STATUS returnStatus = FLT_POSTOP_FINISHED_PROCESSING;
     PFLT_FILE_NAME_INFORMATION nameInfo;
@@ -1030,19 +1078,35 @@ Return Value:
     //  Release file name info, we're done with it
     //
 
-    FltReleaseFileNameInformation( nameInfo );
+    /*FltReleaseFileNameInformation( nameInfo );*/
 
     if (!scanFile) {
 
         //
         //  Not an extension we are interested in
         //
+		FltReleaseFileNameInformation(nameInfo);
         return FLT_POSTOP_FINISHED_PROCESSING;
     }
 
-    (VOID) ScannerpScanFileInUserMode( FltObjects->Instance,
+	bRetVal = getFilePath(FltObjects, nameInfo, szFilePath);
+	if (FALSE == bRetVal)
+	{
+		DbgPrint("ScannerPostCreate: getFilePath failed.\n");
+	}
+	else
+	{
+		DbgPrint("ScannerPostCreate: File Path (%ws)\n", szFilePath);
+	}
+	FltReleaseFileNameInformation(nameInfo);
+    /*(VOID) ScannerpScanFileInUserMode( FltObjects->Instance,
                                        FltObjects->FileObject,
-                                       &safeToOpen );
+                                       &safeToOpen );*/
+
+	(VOID) ScannerpScanFileInUserModeEx(FltObjects->Instance,
+								FltObjects->FileObject,
+								szFilePath,
+								&safeToOpen);
 
     if (!safeToOpen) {
 
@@ -1050,7 +1114,8 @@ Return Value:
         //  Ask the filter manager to undo the create.
         //
 
-        DbgPrint( "!!! scanner.sys -- foul language detected in postcreate !!!\n" );
+        //DbgPrint( "!!! scanner.sys -- foul language detected in postcreate !!!\n" );
+		DbgPrint("!!! scanner.sys -- yara signature detected in postCreate !!!\n");
 
         DbgPrint( "!!! scanner.sys -- undoing create \n" );
 
@@ -1068,6 +1133,8 @@ Return Value:
         //  The create has requested write access, mark to rescan the file.
         //  Allocate the context.
         //
+
+		DbgPrint("scanner.sys : yara signature not detected....\n");
 
         status = FltAllocateContext( ScannerData.Filter,
                                      FLT_STREAMHANDLE_CONTEXT,
@@ -1139,10 +1206,12 @@ Return Value:
 --*/
 {
     NTSTATUS status;
+	BOOLEAN bRetVal;
+	PFLT_FILE_NAME_INFORMATION nameInfo;
+	WCHAR szFilePath[MAX_FILE_PATH] = { 0 };
     PSCANNER_STREAM_HANDLE_CONTEXT context;
     BOOLEAN safe;
 
-    UNREFERENCED_PARAMETER( Data );
     UNREFERENCED_PARAMETER( CompletionContext );
 
     status = FltGetStreamHandleContext( FltObjects->Instance,
@@ -1153,14 +1222,44 @@ Return Value:
 
         if (context->RescanRequired) {
 
-            (VOID) ScannerpScanFileInUserMode( FltObjects->Instance,
+			status = FltGetFileNameInformation(Data,
+												FLT_FILE_NAME_NORMALIZED |
+												FLT_FILE_NAME_QUERY_DEFAULT,
+												&nameInfo);
+
+			if (!NT_SUCCESS(status)) {
+
+				return FLT_POSTOP_FINISHED_PROCESSING;
+			}
+
+			FltParseFileNameInformation(nameInfo);
+
+			bRetVal = getFilePath(FltObjects, nameInfo, szFilePath);
+			if (FALSE == bRetVal)
+			{
+				DbgPrint("ScannerPreCleanup: getFilePath failed.\n");
+			}
+			else
+			{
+				DbgPrint("ScannerPreCleanup: File Path (%ws)\n", szFilePath);
+			}
+			FltReleaseFileNameInformation(nameInfo);
+            /*(VOID) ScannerpScanFileInUserMode( FltObjects->Instance,
                                                FltObjects->FileObject,
-                                               &safe );
+                                               &safe );*/
+			(VOID)ScannerpScanFileInUserModeEx(FltObjects->Instance,
+												FltObjects->FileObject,
+												szFilePath,
+												&safe);
 
             if (!safe) {
 
                 DbgPrint( "!!! scanner.sys -- yara signature detected in precleanup !!!\n" );
             }
+			else
+			{
+				DbgPrint("ScannerPreCleanup : yara signature not detected....\n");
+			}
         }
 
         FltReleaseContext( context );
@@ -1290,8 +1389,9 @@ Return Value:
                 returnStatus = FLT_PREOP_COMPLETE;
                 leave;
             }
-
+			RtlZeroMemory(notification, sizeof(SCANNER_NOTIFICATION));
             notification->BytesToScan = min( Data->Iopb->Parameters.Write.Length, SCANNER_READ_BUFFER_SIZE );
+			notification->ushFlag = notification->ushFlag | FILE_CONTENTS_STORED;
 
             //
             //  The buffer can be a raw user buffer. Protect access to it
@@ -1490,6 +1590,77 @@ Return Value:
 //
 /////////////////////////////////////////////////////////////////////////
 
+
+NTSTATUS
+ScannerpScanFileInUserModeEx(
+	_In_ PFLT_INSTANCE Instance,
+	_In_ PFILE_OBJECT FileObject,
+	_In_ PWCHAR pszFilePath,
+	_Out_ PBOOLEAN SafeToOpne
+)
+{
+	HRESULT hrRetVal;
+	ULONG ulReplyLength;
+	NTSTATUS ntStatus = STATUS_SUCCESS;
+	PSCANNER_NOTIFICATION pNotificaiton;
+
+	if (NULL == Instance || NULL == FileObject || NULL == pszFilePath || NULL == SafeToOpne)
+	{
+		DbgPrint("ScannerpScanFileInUserModeEx: Invalid parameter.\n");
+		return STATUS_UNSUCCESSFUL;
+	}
+	
+	*SafeToOpne = TRUE;
+
+	if (NULL == ScannerData.ClientPort)
+	{
+		DbgPrint("ScannerpScanFileInUserModeEx: Client is not connected.\n");
+		return STATUS_SUCCESS;
+	}
+
+	pNotificaiton = ExAllocatePoolWithTag(NonPagedPool, sizeof(SCANNER_NOTIFICATION), 'nacS');
+	if (NULL == pNotificaiton)
+	{
+		DbgPrint("ScannerpScanFileInUserModeEx: Memory allocation to pNotification failed.\n");
+		return STATUS_INSUFFICIENT_RESOURCES;
+	}
+	RtlZeroMemory(pNotificaiton, sizeof(SCANNER_NOTIFICATION));
+
+	hrRetVal = StringCchCopyW(pNotificaiton->szFilePath, 
+							  sizeof(pNotificaiton->szFilePath) / sizeof(pNotificaiton->szFilePath[0]), 
+							  pszFilePath
+							  );
+	if (FAILED(hrRetVal))
+	{
+		DbgPrint("ScannerpScanFileInUserModeEx: COpying file failed.\n");
+		ExFreePool(pNotificaiton);
+		return STATUS_SUCCESS;
+	}
+	pNotificaiton->ushFlag |= FILE_PATH_STORED;
+	ulReplyLength = sizeof(SCANNER_REPLY);
+	DbgPrint("ScannerpScanFileInUserModeEx: File path to User mode(%S)\n", pNotificaiton->szFilePath);
+
+	ntStatus = FltSendMessage(ScannerData.Filter,
+							&ScannerData.ClientPort,
+							pNotificaiton,
+							sizeof(SCANNER_NOTIFICATION),
+							pNotificaiton,
+							&ulReplyLength,
+							NULL
+							);
+	if (STATUS_SUCCESS == ntStatus)
+	{
+		*SafeToOpne = ((PSCANNER_REPLY)pNotificaiton)->SafeToOpen;
+	}
+	else
+	{
+		DbgPrint("ScannerpScanFileInUserModeEx: FltSendMessage failed(0x%08x).\n", ntStatus);
+	}
+	
+	ExFreePool(pNotificaiton);
+	return ntStatus;
+}
+
 NTSTATUS
 ScannerpScanFileInUserMode (
     _In_ PFLT_INSTANCE Instance,
@@ -1532,7 +1703,7 @@ Return Value:
     ULONG bytesRead;
     PSCANNER_NOTIFICATION notification = NULL;
     FLT_VOLUME_PROPERTIES volumeProps;
-    LARGE_INTEGER offset;
+	LARGE_INTEGER offset = { 0 };
     ULONG replyLength, length;
     PFLT_VOLUME volume = NULL;
 
@@ -1549,9 +1720,9 @@ Return Value:
 
     try {
 
-        //
-        //  Obtain the volume object .
-        //
+        ////
+        ////  Obtain the volume object .
+        ////
 
         status = FltGetVolumeFromInstance( Instance, &volume );
 
@@ -1607,57 +1778,57 @@ Return Value:
             leave;
         }
 
-        //
+        
         //  Read the beginning of the file and pass the contents to user mode.
-        //
+        
+		offset.QuadPart = bytesRead = 0;
+		status = FltReadFile(Instance,
+			FileObject,
+			&offset,
+			length,
+			buffer,
+			FLTFL_IO_OPERATION_NON_CACHED |
+			FLTFL_IO_OPERATION_DO_NOT_UPDATE_BYTE_OFFSET,
+			&bytesRead,
+			NULL,
+			NULL);
 
-        offset.QuadPart = bytesRead = 0;
-        status = FltReadFile( Instance,
-                              FileObject,
-                              &offset,
-                              length,
-                              buffer,
-                              FLTFL_IO_OPERATION_NON_CACHED |
-                              FLTFL_IO_OPERATION_DO_NOT_UPDATE_BYTE_OFFSET,
-                              &bytesRead,
-                              NULL,
-                              NULL );
+		if (NT_SUCCESS(status) && (0 != bytesRead)) {
 
-        if (NT_SUCCESS( status ) && (0 != bytesRead)) {
+			notification->BytesToScan = (ULONG)bytesRead;
 
-            notification->BytesToScan = (ULONG) bytesRead;
+			//
+			//  Copy only as much as the buffer can hold
+			//
 
-            //
-            //  Copy only as much as the buffer can hold
-            //
+			RtlCopyMemory(&notification->Contents,
+				buffer,
+				min(notification->BytesToScan, SCANNER_READ_BUFFER_SIZE));
 
-            RtlCopyMemory( &notification->Contents,
-                           buffer,
-                           min( notification->BytesToScan, SCANNER_READ_BUFFER_SIZE ) );
+			replyLength = sizeof(SCANNER_REPLY);
 
-            replyLength = sizeof( SCANNER_REPLY );
+			status = FltSendMessage(ScannerData.Filter,
+				&ScannerData.ClientPort,
+				notification,
+				sizeof(SCANNER_NOTIFICATION),
+				notification,
+				&replyLength,
+				NULL);
 
-            status = FltSendMessage( ScannerData.Filter,
-                                     &ScannerData.ClientPort,
-                                     notification,
-                                     sizeof(SCANNER_NOTIFICATION),
-                                     notification,
-                                     &replyLength,
-                                     NULL );
+			if (STATUS_SUCCESS == status) {
 
-            if (STATUS_SUCCESS == status) {
+				*SafeToOpen = ((PSCANNER_REPLY)notification)->SafeToOpen;
+				DbgPrint("ScannerpScanFileInUserMode: SafeToOpen value: (%d)\n", *SafeToOpen);
+			}
+			else {
 
-                *SafeToOpen = ((PSCANNER_REPLY) notification)->SafeToOpen;
+				//
+				//  Couldn't send message
+				//
 
-            } else {
-
-                //
-                //  Couldn't send message
-                //
-
-                DbgPrint( "!!! scanner.sys --- couldn't send message to user-mode to scan file, status 0x%X\n", status );
-            }
-        }
+				DbgPrint("!!! scanner.sys --- couldn't send message to user-mode to scan file, status 0x%X\n", status);
+			}
+		}
 
     } finally {
 
@@ -1680,3 +1851,179 @@ Return Value:
     return status;
 }
 
+
+VOID
+ScannerContextCleanup(
+	PFLT_CONTEXT Context,
+	FLT_CONTEXT_TYPE ContextType
+)
+{
+	PSCANNER_INSTANCE_CONTEXT pInstanceContext;
+	if (NULL == Context)
+	{
+		DbgPrint("ScannerContextCleanup: Invalid Parameter.\n");
+		return;
+	}
+
+	switch (ContextType)
+	{
+	case FLT_INSTANCE_CONTEXT:
+		pInstanceContext = (PSCANNER_INSTANCE_CONTEXT)Context;
+		
+		if (NULL != pInstanceContext->usDosVolumeName.Buffer)
+		{
+			DbgPrint("ScannerContextCallback: Memory for Volume Dos Name freed.\n");
+			ExFreePool(pInstanceContext->usDosVolumeName.Buffer);
+			pInstanceContext->usDosVolumeName.Buffer = NULL;
+			pInstanceContext->usDosVolumeName.Length = 0;
+			pInstanceContext->usDosVolumeName.MaximumLength = 0;
+		}
+		break;
+	case FLT_STREAMHANDLE_CONTEXT:
+		DbgPrint("ScannerContextCallback: Context cleanup for STREAMHANDLE_CONTEXT.\n");
+		break;
+	default:
+		break;
+	}
+}
+
+
+NTSTATUS
+getDosVolumeName(
+	PCFLT_RELATED_OBJECTS pFltObject,
+	/*PUNICODE_STRING pusDosName*/
+	PSCANNER_INSTANCE_CONTEXT pInstanceContext
+)
+{
+	NTSTATUS ntStatus;
+	PDEVICE_OBJECT pDiskDeviceObj;
+
+	if (NULL == pFltObject || NULL == pInstanceContext)
+	{
+		DbgPrint("getDosVolumeName: Invalid parameter\n");
+		return STATUS_INVALID_PARAMETER;
+	}
+
+	ntStatus = FltGetDiskDeviceObject(pFltObject->Volume, &pDiskDeviceObj);
+	if (!NT_SUCCESS(ntStatus))
+	{
+		DbgPrint("getDosVolumeName: FltGetDiskDeviceObject failed(0x%08x)", ntStatus);
+		return ntStatus;
+	}
+
+	ntStatus = IoVolumeDeviceToDosName(pDiskDeviceObj, &pInstanceContext->usDosVolumeName);
+	if (!NT_SUCCESS(ntStatus))
+	{
+		DbgPrint("getDosVolumeName: IoVolumeDeviceToDosName failed(0x%08x)", ntStatus);
+		RtlZeroMemory(&pInstanceContext->usDosVolumeName, sizeof(UNICODE_STRING));
+		ObDereferenceObject(pDiskDeviceObj);
+		return ntStatus;
+	}
+	
+	DbgPrint("getDosVolumeName: Dos name is(%S)\n", pInstanceContext->usDosVolumeName.Buffer);
+	ObDereferenceObject(pDiskDeviceObj);
+	return STATUS_SUCCESS;
+}
+
+
+
+BOOLEAN
+getFilePath(
+	PCFLT_RELATED_OBJECTS pFltObject,
+	PFLT_FILE_NAME_INFORMATION pFileNameInfo,
+	PWCHAR pszFilePath
+)
+{
+	//BOOLEAN bRetVal;
+	NTSTATUS ntStatus;
+	PSCANNER_INSTANCE_CONTEXT pInstanceContext;
+
+	if (NULL == pFltObject || NULL == pFileNameInfo || NULL == pszFilePath)
+	{
+		DbgPrint("getFilepath: Invalid Parameter.\n");
+		return FALSE;
+	}
+
+	ntStatus = FltGetInstanceContext(pFltObject->Instance, &pInstanceContext);
+	if (!NT_SUCCESS(ntStatus))
+	{
+		DbgPrint("ScannerPostCreate: FltGetInstanceContext failed(0x%08x)", ntStatus);
+		return FLT_POSTOP_FINISHED_PROCESSING;
+	}
+	if (NULL == pInstanceContext->usDosVolumeName.Buffer)
+	{
+		DbgPrint("getFilePath: Volume Dos name not available.\n");
+		FltReleaseContext(pInstanceContext);
+		return FALSE;
+	}
+
+	ntStatus = RtlStringCchCatNW(pszFilePath, 
+								MAX_FILE_PATH, 
+								pInstanceContext->usDosVolumeName.Buffer, 
+								pInstanceContext->usDosVolumeName.Length/sizeof(WCHAR)
+								);
+	if (!NT_SUCCESS(ntStatus))
+	{
+		DbgPrint("getFilePath: Appending dos name failed(0x%08x)\n", ntStatus);
+		FltReleaseContext(pInstanceContext);
+		return FALSE;
+	}
+
+	FltReleaseContext(pInstanceContext);	// For FltGetInstanceContext.
+
+	ntStatus = RtlStringCchCatNW(pszFilePath,
+								MAX_FILE_PATH,
+								pFileNameInfo->ParentDir.Buffer,
+								pFileNameInfo->ParentDir.Length/sizeof(WCHAR)
+								);
+	if (!NT_SUCCESS(ntStatus))
+	{
+		DbgPrint("getFilePath: Appending ParentDir path failed(0x%08x)\n", ntStatus);
+		return FALSE;
+	}
+
+	ntStatus = RtlStringCchCatNW(pszFilePath,
+								MAX_FILE_PATH,
+								pFileNameInfo->FinalComponent.Buffer,
+								pFileNameInfo->FinalComponent.Length/sizeof(WCHAR)
+								);
+	if (!NT_SUCCESS(ntStatus))
+	{
+		DbgPrint("getFilePath: Appending FinalComponent failed(0x%08x)\n", ntStatus);
+		return FALSE;
+	}
+	DbgPrint("getFilePath: File Path is (%S)\n", pszFilePath);
+
+	return TRUE;
+}
+
+
+BOOLEAN
+IsSubstringPresentInString(
+	PUNICODE_STRING pusString,
+	PUNICODE_STRING pusSubString
+)
+{
+	ULONG ulIndex;
+	BOOLEAN bRetVal;
+	if (NULL == pusString || NULL == pusSubString)
+	{
+		DbgPrint("IsSubstringPresentInString: Invalid parameter.\n");
+		return FALSE;
+	}
+
+	bRetVal = RtlEqualUnicodeString(pusString, pusSubString, TRUE);
+	if (TRUE == bRetVal)
+	{
+		return TRUE;
+	}
+
+	for (ulIndex = 0; ulIndex + pusSubString->Length <= pusString->Length; ulIndex++)
+	{
+		if (0 == _wcsnicmp(&pusString->Buffer[ulIndex], pusSubString->Buffer, (pusSubString->Length / sizeof(WCHAR))))
+		{
+			return TRUE;
+		}
+	}
+	return FALSE;
+}

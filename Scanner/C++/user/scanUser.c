@@ -144,6 +144,54 @@ Return Value
 }
 
 
+BOOLEAN
+ScanFile(
+	PWCHAR pszFilePath
+)
+{
+	int iRetVal;
+	errno_t errVal;
+	size_t charsConverted;
+	YARA_CONTEXT yaraContext;
+	CHAR szFileName[MAX_FILE_PATH];
+
+	yaraContext.bScanResult = FALSE;
+	yaraContext.hStopEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+	if (NULL == yaraContext.hStopEvent)
+	{
+		return FALSE;
+	}
+
+	if (NULL == pszFilePath)
+	{
+		return FALSE;
+	}
+	//printf("ScanFile: File Path is(%S)\n", pszFilePath);
+	errVal = wcstombs_s(&charsConverted, szFileName, sizeof(szFileName), pszFilePath, MAX_FILE_PATH);
+	if (0 != errVal)
+	{
+		printf("ScanFile: wcstombs_s failed.\n");
+		return FALSE;
+	}
+	printf("ScanFile: File Path is(%s)\n", szFileName);
+	iRetVal = yr_rules_scan_file(g_pYrRules, szFileName, 0, yaraScanCallback, &yaraContext, 0);
+	if (ERROR_SUCCESS != iRetVal)
+	{
+		printf("ScanFile: yr_rules_scan_file failed(%d).\n", iRetVal);
+		return FALSE;
+	}
+
+	//
+	// Wait till scanning is finished.
+	// event will be set in yaraScanCallback function once scanning is finished.
+	//
+	WaitForSingleObject(yaraContext.hStopEvent, INFINITE);
+
+	CloseHandle(yaraContext.hStopEvent);
+	return yaraContext.bScanResult;
+}
+
+
 DWORD
 ScannerWorker(
 _In_ PSCANNER_THREAD_CONTEXT Context
@@ -207,26 +255,40 @@ Return Value
             break;
         }
 
-        printf( "Received message, size %d\n", pOvlp->InternalHigh );
+        //printf( "Received message, size %d\n", pOvlp->InternalHigh );
 
         notification = &message->Notification;
 
-        assert(notification->BytesToScan <= SCANNER_READ_BUFFER_SIZE);
-        _Analysis_assume_(notification->BytesToScan <= SCANNER_READ_BUFFER_SIZE);
+		if (notification->ushFlag & FILE_CONTENTS_STORED)
+		{
 
-		result = ScanBuffer(notification->Contents, notification->BytesToScan);
+			assert(notification->BytesToScan <= SCANNER_READ_BUFFER_SIZE);
+			_Analysis_assume_(notification->BytesToScan <= SCANNER_READ_BUFFER_SIZE);
 
-        replyMessage.ReplyHeader.Status = 0;
-        replyMessage.ReplyHeader.MessageId = message->MessageHeader.MessageId;
+			result = ScanBuffer(notification->Contents, notification->BytesToScan);
 
-        //
-        //  Need to invert the boolean -- result is true if found
-        //  foul language, in which case SafeToOpen should be set to false.
-        //
+			replyMessage.ReplyHeader.Status = 0;
+			replyMessage.ReplyHeader.MessageId = message->MessageHeader.MessageId;
 
-        replyMessage.Reply.SafeToOpen = !result;
+			//
+			//  Need to invert the boolean -- result is true if found
+			//  foul language, in which case SafeToOpen should be set to false.
+			//
 
-        printf( "Replying message, SafeToOpen: %d\n", replyMessage.Reply.SafeToOpen );
+			replyMessage.Reply.SafeToOpen = !result;
+
+			//printf("Replying message, SafeToOpen: %d\n", replyMessage.Reply.SafeToOpen);
+		}
+		else
+		{
+			result = ScanFile(notification->szFilePath);
+
+			replyMessage.ReplyHeader.Status = 0;
+			replyMessage.ReplyHeader.MessageId = message->MessageHeader.MessageId;
+
+			replyMessage.Reply.SafeToOpen = !result;
+			printf("ScannerWorker: Scan result is(%d)\n", result);
+		}
 
         hr = FilterReplyMessage( Context->Port,
                                  (PFILTER_REPLY_HEADER) &replyMessage,
@@ -305,7 +367,7 @@ yaraScanCallback(
 	}
 	else if (CALLBACK_MSG_RULE_NOT_MATCHING == message)
 	{
-		printf("yaraScanCallback: CALLBACK_MSG_RULE_NOT_MATCHING.\n");
+		//printf("yaraScanCallback: CALLBACK_MSG_RULE_NOT_MATCHING.\n");
 	}
 	else if (CALLBACK_MSG_IMPORT_MODULE == message)
 	{
@@ -316,6 +378,7 @@ yaraScanCallback(
 		SetEvent(pyaraContext->hStopEvent);
 		printf("yaraScanCallback: CALLBACK_MSG_SCAN_FINISHED.\n");
 	}
+	return ERROR_SUCCESS;
 }
 
 

@@ -20,6 +20,8 @@ Environment:
 #ifndef __SCANUSER_H__
 #define __SCANUSER_H__
 
+#define MAX_FILE_PATH					512
+
 #pragma pack(1)
 
 typedef struct _SCANNER_MESSAGE {

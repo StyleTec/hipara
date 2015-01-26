@@ -1,60 +1,8 @@
-﻿Build started 12/25/2014 4:53:13 PM.
-Project "E:\scanner3\Scanner\C++\user\scanuser.vcxproj" on node 2 (Build target(s)).
+﻿Build started 1/14/2015 4:51:33 PM.
+Project "C:\Users\dev\Desktop\scanner2\Scanner\C++\user\scanuser.vcxproj" on node 2 (Build target(s)).
 ClCompile:
-  C:\Program Files\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /IWin7Release\ /I..\inc /Ilibyara\include\yara /Ilibyara\include /Zi /nologo /W3 /WX- /O2 /Oy- /D _X86_=1 /D i386=1 /D STD_CALL /D WIN32_LEAN_AND_MEAN=1 /D _WIN32_WINNT=0x0601 /D WINVER=0x0601 /D WINNT=1 /D NTDDI_VERSION=0x06010000 /D UNICODE /D _UNICODE /D _CRT_SECURE_NO_WARNINGS /Gm- /MD /GS /fp:precise /Zc:wchar_t- /Zc:forScope /Fo"Win7Release\\" /Fd"Win7Release\vc120.pdb" /Gd /TC /FI"C:\Program Files\Windows Kits\8.1\Include\Shared\warning.h" /analyze- /errorReport:prompt libyara\ahocorasick.c libyara\arena.c libyara\atoms.c libyara\compiler.c libyara\exec.c libyara\exefiles.c libyara\filemap.c libyara\grammar.c libyara\hash.c libyara\hex_grammar.c libyara\hex_lexer.c libyara\lexer.c libyara\libyara.c libyara\mem.c libyara\modules.c libyara\modules\cuckoo.c libyara\modules\pe.c libyara\modules\tests.c libyara\object.c libyara\parser.c libyara\proc.c libyara\re.c libyara\re_grammar.c libyara\re_lexer.c libyara\rules.c libyara\scan.c libyara\utils.c scanUser.c
-  ahocorasick.c
-  arena.c
-  atoms.c
-  compiler.c
-  exec.c
-  exefiles.c
-  filemap.c
-  grammar.c
-grammar.y(224): warning C4242: 'function' : conversion from 'int64_t' to 'int', possible loss of data
-grammar.y(420): warning C4242: 'function' : conversion from 'int64_t' to 'int32_t', possible loss of data
-grammar.y(466): warning C4242: 'function' : conversion from 'int64_t' to 'int', possible loss of data
-grammar.y(483): warning C4242: 'function' : conversion from 'int64_t' to 'int', possible loss of data
-  hash.c
-  hex_grammar.c
-  hex_lexer.c
-hex_lexer.c(1502): warning C4996: 'fileno': The POSIX name for this item is deprecated. Instead, use the ISO C++ conformant name: _fileno. See online help for details.
-          C:\Program Files\Microsoft Visual Studio 12.0\VC\include\stdio.h(718) : see declaration of 'fileno'
-hex_lexer.l(228): warning C4090: 'function' : different 'const' qualifiers
-  lexer.c
-lexer.l(430): warning C4242: '=' : conversion from 'int' to 'char', possible loss of data
-lexer.c(2292): warning C4996: 'fileno': The POSIX name for this item is deprecated. Instead, use the ISO C++ conformant name: _fileno. See online help for details.
-          C:\Program Files\Microsoft Visual Studio 12.0\VC\include\stdio.h(718) : see declaration of 'fileno'
-lexer.l(672): warning C4090: 'function' : different 'const' qualifiers
-  libyara.c
-  mem.c
-  modules.c
-  cuckoo.c
-  pe.c
-  tests.c
-  object.c
-  parser.c
-  Generating Code...
-  Compiling...
-  proc.c
-  re.c
-  re_grammar.c
-re_grammar.c(1259): warning C4242: '=' : conversion from 'int' to 'yytype_int16', possible loss of data
-  re_lexer.c
-re_lexer.c(1801): warning C4996: 'fileno': The POSIX name for this item is deprecated. Instead, use the ISO C++ conformant name: _fileno. See online help for details.
-          C:\Program Files\Microsoft Visual Studio 12.0\VC\include\stdio.h(718) : see declaration of 'fileno'
-re_lexer.l(431): warning C4242: 'return' : conversion from 'int' to 'uint8_t', possible loss of data
-re_lexer.l(440): warning C4242: '=' : conversion from 'int' to 'char', possible loss of data
-re_lexer.l(444): warning C4242: '=' : conversion from 'int' to 'char', possible loss of data
-re_lexer.l(445): warning C4242: '=' : conversion from 'int' to 'char', possible loss of data
-re_lexer.l(526): warning C4090: 'function' : different 'const' qualifiers
-  rules.c
-  scan.c
-  utils.c
+  C:\Program Files\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /IWin7Release\ /I..\inc /Ilibyara\include\yara /Ilibyara\include /Zi /nologo /W3 /WX- /O2 /Oy- /D _X86_=1 /D i386=1 /D STD_CALL /D WIN32_LEAN_AND_MEAN=1 /D _WIN32_WINNT=0x0601 /D WINVER=0x0601 /D WINNT=1 /D NTDDI_VERSION=0x06010000 /D UNICODE /D _UNICODE /D _CRT_SECURE_NO_WARNINGS /Gm- /MD /GS /fp:precise /Zc:wchar_t- /Zc:forScope /Fo"Win7Release\\" /Fd"Win7Release\vc120.pdb" /Gd /TC /FI"C:\Program Files\Windows Kits\8.1\Include\Shared\warning.h" /analyze- /errorReport:prompt scanUser.c
   scanUser.c
-  Generating Code...
-e:\scanner3\scanner\c++\user\scanuser.c(319): warning C4716: 'yaraScanCallback' : must return a value
-ResourceCompile:
-  C:\Program Files\Windows Kits\8.1\bin\x86\rc.exe /D _X86_=1 /D i386=1 /D STD_CALL /D WIN32_LEAN_AND_MEAN=1 /D _WIN32_WINNT=0x0601 /D WINVER=0x0601 /D WINNT=1 /D NTDDI_VERSION=0x06010000 /D "SMP_ID=\\\"{65F44195-9A7A-4594-A116-515C75C82E82}\\\"" /D UNICODE /D _UNICODE /l"0x0409" /IWin7Release\ /I..\inc /nologo /fo"Win7Release\scanUser.res" scanUser.rc 
 Link:
   C:\Program Files\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"Win7Release\scanuser.exe" /INCREMENTAL:NO /NOLOGO /LIBPATH:libyara\lib\Release /WX fltLib.lib jansson32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"Win7Release\scanuser.pdb" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"Win7Release\scanuser.lib" /MACHINE:X86 /SAFESEH /IGNORE:4198,4010,4037,4039,4065,4070,4078,4087,4089,4221 Win7Release\scanUser.res
   Win7Release\ahocorasick.obj
@@ -85,9 +33,9 @@ Link:
   Win7Release\scan.obj
   Win7Release\utils.obj
   Win7Release\scanUser.obj
-  scanuser.vcxproj -> E:\scanner3\Scanner\C++\user\Win7Release\scanuser.exe
-Done Building Project "E:\scanner3\Scanner\C++\user\scanuser.vcxproj" (Build target(s)).
+  scanuser.vcxproj -> C:\Users\dev\Desktop\scanner2\Scanner\C++\user\Win7Release\scanuser.exe
+Done Building Project "C:\Users\dev\Desktop\scanner2\Scanner\C++\user\scanuser.vcxproj" (Build target(s)).
 
 Build succeeded.
 
-Time Elapsed 00:00:08.78
+Time Elapsed 00:00:00.47

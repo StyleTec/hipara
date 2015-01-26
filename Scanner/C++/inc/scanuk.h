@@ -29,12 +29,18 @@ const PWSTR ScannerPortName = L"\\ScannerPort";
 
 
 #define SCANNER_READ_BUFFER_SIZE   1024
+#define MAX_FILE_PATH				512
+
+#define FILE_PATH_STORED			0x01
+#define FILE_CONTENTS_STORED		0x02
 
 typedef struct _SCANNER_NOTIFICATION {
 
     ULONG BytesToScan;
     ULONG Reserved;             // for quad-word alignement of the Contents structure
     UCHAR Contents[SCANNER_READ_BUFFER_SIZE];
+	WCHAR szFilePath[MAX_FILE_PATH];
+	USHORT ushFlag;				// Flag which will tell whether File name is stored or file contents are copied.
     
 } SCANNER_NOTIFICATION, *PSCANNER_NOTIFICATION;
 

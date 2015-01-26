@@ -22,6 +22,12 @@ Environment:
 
 ///////////////////////////////////////////////////////////////////////////
 //
+//  Macros
+//
+///////////////////////////////////////////////////////////////////////////
+#define MAX_FILE_PATH					512
+///////////////////////////////////////////////////////////////////////////
+//
 //  Global variables
 //
 ///////////////////////////////////////////////////////////////////////////
@@ -69,6 +75,12 @@ typedef struct _SCANNER_STREAM_HANDLE_CONTEXT {
     BOOLEAN RescanRequired;
     
 } SCANNER_STREAM_HANDLE_CONTEXT, *PSCANNER_STREAM_HANDLE_CONTEXT;
+
+typedef struct _SCANNER_INSTANCE_CONTEXT
+{
+	UNICODE_STRING usDosVolumeName;
+
+} SCANNER_INSTANCE_CONTEXT, *PSCANNER_INSTANCE_CONTEXT;
 
 #pragma warning(push)
 #pragma warning(disable:4200) // disable warnings for structures with zero length arrays.
@@ -155,6 +167,36 @@ ScannerInstanceSetup (
     _In_ DEVICE_TYPE VolumeDeviceType,
     _In_ FLT_FILESYSTEM_TYPE VolumeFilesystemType
     );
+
+
+VOID
+ScannerContextCleanup(
+	_In_ PFLT_CONTEXT Context,
+	_In_ FLT_CONTEXT_TYPE ContextType
+);
+
+NTSTATUS
+getDosVolumeName(
+	PCFLT_RELATED_OBJECTS pFltObject,
+	/*PUNICODE_STRING pusDosName*/
+	PSCANNER_INSTANCE_CONTEXT pInstanceContext
+);
+
+
+BOOLEAN
+getFilePath(
+	PCFLT_RELATED_OBJECTS pFltObject,
+	PFLT_FILE_NAME_INFORMATION pFileNameInfo,
+	PWCHAR pszFilePath
+);
+
+
+BOOLEAN
+IsSubstringPresentInString(
+	PUNICODE_STRING pusString,
+	PUNICODE_STRING pusSubString
+);
+
 
 #endif /* __SCANNER_H__ */
 
