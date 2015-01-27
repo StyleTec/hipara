@@ -10,7 +10,7 @@ Open the command line as administrator and go to the 'compiled' directory. Type 
 
 To Run
 ======
-Run "scanuser.exe C:\yarasigs\\[SignatureFile].yar". Example: scanuser.exe  C:\Samples\test.yar
+While still running as administrator, run "scanuser.exe C:\yarasigs\\[SignatureFile].yar". Example: scanuser.exe  C:\Samples\test.yar
 
 Results
 ======
@@ -18,5 +18,5 @@ If a match is found, it will log to C:\yaraLog.txt. Currently it will only log t
 
 To Do/Roadmap
 ======
-Add 64-bit support
+Add 64-bit support <br>
 More detailed logging: file name/patch, Yara rule that matched
