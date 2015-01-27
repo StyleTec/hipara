@@ -5,7 +5,7 @@ Host intrusion prevention with the power of Yara
 
 To Install
 ======
-The easiest way is to download the "compiled" directory and all files inside. <br>
+The easiest way is to download the "compiled" directory at https://github.com/jbc22/hipara/raw/master/compiled/hipara.zip and unzip. <br>
 Then right-click and install the scanner.inf file. <br>
 Open the command line as administrator and go to the 'compiled' directory. Type "fltmc load scanner". 
 
