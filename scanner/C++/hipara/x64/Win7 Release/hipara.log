@@ -1,0 +1,387 @@
+﻿Build started 03-03-2016 23:36:14.
+     1>Project "F:\VoidStarIndia\Anti_virus\Repository\hipara-private\scanner\C++\hipara\hipara.vcxproj" on node 2 (Rebuild target(s)).
+     1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V120\Microsoft.CppClean.targets(76,5): warning : The process cannot access the file 'f:\voidstarindia\anti_virus\repository\hipara-private\scanner\c++\hipara\x64\win7 release\hipara.pch' because it is being used by another process.
+     1>Midl:
+         C:\Program Files (x86)\Windows Kits\8.1\bin\x86\midl.exe /D NDEBUG /W1 /nologo /char signed /env x64 /h "hipara_h.h" /tlb "x64\Win7 Release\hipara.tlb" hipara.idl 
+         64 bit Processing .\hipara.idl
+         hipara.idl
+         64 bit Processing C:\Program Files (x86)\Windows Kits\8.1\Include\um\oaidl.idl
+         oaidl.idl
+         64 bit Processing C:\Program Files (x86)\Windows Kits\8.1\Include\um\objidl.idl
+         objidl.idl
+         64 bit Processing C:\Program Files (x86)\Windows Kits\8.1\Include\um\unknwn.idl
+         unknwn.idl
+         64 bit Processing C:\Program Files (x86)\Windows Kits\8.1\Include\shared\wtypes.idl
+         wtypes.idl
+         64 bit Processing C:\Program Files (x86)\Windows Kits\8.1\Include\shared\wtypesbase.idl
+         wtypesbase.idl
+         64 bit Processing C:\Program Files (x86)\Windows Kits\8.1\Include\shared\basetsd.h
+         basetsd.h
+         64 bit Processing C:\Program Files (x86)\Windows Kits\8.1\Include\shared\guiddef.h
+         guiddef.h
+         64 bit Processing C:\Program Files (x86)\Windows Kits\8.1\Include\um\oaidl.acf
+         oaidl.acf
+       ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\CL.exe /c /I.\inc /I.\hipara\libyara\include\yara /I.\hipara\libyara\include /I.\hipara\libyara\modules /I.\hipara\libyara\include\yara\openssl /I.\update\include /I.\update\include\curl /Zi /nologo /W3 /WX- /sdl- /Od /Oi /GL /D WIN32 /D _WINDOWS /D NDEBUG /D _CRT_SECURE_NO_WARNINGS /D _UNICODE /D UNICODE /D _AFXDLL /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Yc"stdafx.h" /Fp"x64\Win7 Release\hipara.pch" /Fo"x64\Win7 Release\\" /Fd"x64\Win7 Release\vc120.pdb" /Gd /TP /errorReport:prompt stdafx.cpp
+         stdafx.cpp
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\CL.exe /c /I.\inc /I.\hipara\libyara\include\yara /I.\hipara\libyara\include /I.\hipara\libyara\modules /I.\hipara\libyara\include\yara\openssl /I.\update\include /I.\update\include\curl /Zi /nologo /W3 /WX- /sdl- /Od /Oi /GL /D WIN32 /D _WINDOWS /D NDEBUG /D _CRT_SECURE_NO_WARNINGS /D _UNICODE /D UNICODE /D _AFXDLL /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"x64\Win7 Release\\" /Fd"x64\Win7 Release\vc120.pdb" /Gd /TP /errorReport:prompt DlgProxy.cpp hipara.cpp hiparaDlg.cpp libyara\ahocorasick.c libyara\arena.c libyara\atoms.c libyara\compiler.c libyara\exec.c libyara\exefiles.c libyara\filemap.c libyara\grammar.c libyara\hash.c libyara\hex_grammar.c libyara\hex_lexer.c libyara\lexer.c libyara\libyara.c libyara\mem.c libyara\modules.c libyara\modules\cuckoo.c libyara\modules\elf.c libyara\modules\math.c libyara\modules\pe.c libyara\modules\tests.c libyara\object.c libyara\parser.c libyara\proc.c libyara\re.c libyara\re_grammar.c libyara\re_lexer.c libyara\rules.c libyara\scan.c libyara\sizedstr.c libyara\strutils.c liveScan.cpp misc.c yara.cpp
+         DlgProxy.cpp
+         hipara.cpp
+         hiparaDlg.cpp
+     1>hiparaDlg.cpp(327): warning C4101: 'boRetVal' : unreferenced local variable
+     1>hiparaDlg.cpp(500): warning C4267: 'argument' : conversion from 'size_t' to 'UINT', possible loss of data
+     1>hiparaDlg.cpp(519): warning C4267: 'argument' : conversion from 'size_t' to 'UINT', possible loss of data
+     1>hiparaDlg.cpp(556): warning C4267: 'argument' : conversion from 'size_t' to 'UINT', possible loss of data
+     1>hiparaDlg.cpp(567): warning C4267: 'argument' : conversion from 'size_t' to 'UINT', possible loss of data
+     1>hiparaDlg.cpp(691): warning C4996: 'swprintf': swprintf has been changed to conform with the ISO C standard, adding an extra character count parameter. To use traditional Microsoft swprintf, set _CRT_NON_CONFORMING_SWPRINTFS.
+                 C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\swprintf.inl(85) : see declaration of 'swprintf'
+     1>hiparaDlg.cpp(733): warning C4267: 'argument' : conversion from 'size_t' to 'UINT', possible loss of data
+     1>hiparaDlg.cpp(1051): warning C4101: 'tempBuf' : unreferenced local variable
+     1>hiparaDlg.cpp(1644): warning C4267: '=' : conversion from 'size_t' to 'DWORD', possible loss of data
+         ahocorasick.c
+     1>C:\Program Files (x86)\Windows Kits\8.1\Include\shared\minwindef.h(60): warning C4005: 'MAX_PATH' : macro redefinition
+                 f:\voidstarindia\anti_virus\repository\hipara-private\scanner\c++\hipara\libyara\include\yara\yr_limits.h(29) : see previous definition of 'MAX_PATH'
+         arena.c
+     1>libyara\arena.c(186): warning C4267: '=' : conversion from 'size_t' to 'int32_t', possible loss of data
+     1>libyara\arena.c(354): warning C4267: '-=' : conversion from 'size_t' to 'int', possible loss of data
+     1>libyara\arena.c(362): warning C4267: '-=' : conversion from 'size_t' to 'int', possible loss of data
+     1>libyara\arena.c(368): warning C4267: '+=' : conversion from 'size_t' to 'int', possible loss of data
+     1>libyara\arena.c(376): warning C4267: '+=' : conversion from 'size_t' to 'int', possible loss of data
+     1>libyara\arena.c(414): warning C4267: '+=' : conversion from 'size_t' to 'int', possible loss of data
+     1>libyara\arena.c(436): warning C4267: '+=' : conversion from 'size_t' to 'int32_t', possible loss of data
+     1>libyara\arena.c(937): warning C4267: '=' : conversion from 'size_t' to 'uint32_t', possible loss of data
+     1>libyara\arena.c(1022): warning C4018: '>=' : signed/unsigned mismatch
+         atoms.c
+     1>C:\Program Files (x86)\Windows Kits\8.1\Include\shared\minwindef.h(60): warning C4005: 'MAX_PATH' : macro redefinition
+                 f:\voidstarindia\anti_virus\repository\hipara-private\scanner\c++\hipara\libyara\include\yara\yr_limits.h(29) : see previous definition of 'MAX_PATH'
+     1>C:\Program Files (x86)\Windows Kits\8.1\Include\shared\winerror.h(209): warning C4005: 'ERROR_SUCCESS' : macro redefinition
+                 f:\voidstarindia\anti_virus\repository\hipara-private\scanner\c++\hipara\libyara\include/yara/error.h(23) : see previous definition of 'ERROR_SUCCESS'
+         compiler.c
+     1>C:\Program Files (x86)\Windows Kits\8.1\Include\shared\minwindef.h(60): warning C4005: 'MAX_PATH' : macro redefinition
+                 f:\voidstarindia\anti_virus\repository\hipara-private\scanner\c++\hipara\libyara\include\yara\yr_limits.h(29) : see previous definition of 'MAX_PATH'
+     1>libyara\compiler.c(373): warning C4309: 'initializing' : truncation of constant value
+         exec.c
+     1>C:\Program Files (x86)\Windows Kits\8.1\Include\shared\minwindef.h(60): warning C4005: 'MAX_PATH' : macro redefinition
+                 f:\voidstarindia\anti_virus\repository\hipara-private\scanner\c++\hipara\libyara\include\yara\yr_limits.h(29) : see previous definition of 'MAX_PATH'
+     1>f:\voidstarindia\anti_virus\repository\hipara-private\scanner\c++\hipara\libyara\include\yara\object.h(23): warning C4005: 'INFINITY' : macro redefinition
+                 C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\math.h(102) : see previous definition of 'INFINITY'
+     1>f:\voidstarindia\anti_virus\repository\hipara-private\scanner\c++\hipara\libyara\include\yara\object.h(24): warning C4005: 'NAN' : macro redefinition
+                 C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\math.h(106) : see previous definition of 'NAN'
+     1>libyara\exec.c(451): warning C4244: 'argument' : conversion from 'int64_t' to 'int', possible loss of data
+     1>libyara\exec.c(479): warning C4267: '=' : conversion from 'size_t' to 'int', possible loss of data
+     1>libyara\exec.c(791): warning C4244: '=' : conversion from 'int64_t' to 'double', possible loss of data
+         exefiles.c
+     1>f:\voidstarindia\anti_virus\repository\hipara-private\scanner\c++\hipara\libyara\include/yara/pe.h(426): warning C4200: nonstandard extension used : zero-sized array in struct/union
+                 Cannot generate copy-ctor or copy-assignment operator when UDT contains a zero-sized array
+         filemap.c
+     1>libyara\filemap.c(138): warning C4018: '>' : signed/unsigned mismatch
+         grammar.c
+     1>C:\Program Files (x86)\Windows Kits\8.1\Include\shared\minwindef.h(60): warning C4005: 'MAX_PATH' : macro redefinition
+                 f:\voidstarindia\anti_virus\repository\hipara-private\scanner\c++\hipara\libyara\include\yara\yr_limits.h(29) : see previous definition of 'MAX_PATH'
+     1>grammar.c(1049): warning C4065: switch statement contains 'default' but no 'case' labels
+     1>grammar.y(222): warning C4244: 'argument' : conversion from 'int64_t' to 'int', possible loss of data
+     1>grammar.y(365): warning C4267: 'argument' : conversion from 'size_t' to 'int', possible loss of data
+     1>grammar.y(414): warning C4244: 'argument' : conversion from 'int64_t' to 'int32_t', possible loss of data
+     1>grammar.y(462): warning C4244: 'argument' : conversion from 'int64_t' to 'int', possible loss of data
+     1>grammar.y(479): warning C4244: 'argument' : conversion from 'int64_t' to 'int', possible loss of data
+     1>grammar.y(1439): warning C4244: 'argument' : conversion from 'int64_t' to 'int8_t', possible loss of data
+     1>grammar.y(1598): warning C4309: 'argument' : truncation of constant value
+         hash.c
+     1>libyara\hash.c(155): warning C4267: 'argument' : conversion from 'size_t' to 'int', possible loss of data
+     1>libyara\hash.c(158): warning C4267: 'argument' : conversion from 'size_t' to 'int', possible loss of data
+     1>libyara\hash.c(219): warning C4267: 'argument' : conversion from 'size_t' to 'int', possible loss of data
+     1>libyara\hash.c(222): warning C4267: 'argument' : conversion from 'size_t' to 'int', possible loss of data
+         hex_grammar.c
+     1>hex_grammar.c(703): warning C4065: switch statement contains 'default' but no 'case' labels
+         hex_lexer.c
+     1>C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdint.h(57): warning C4005: 'INT8_MIN' : macro redefinition
+                 hex_lexer.c(61) : see previous definition of 'INT8_MIN'
+     1>C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdint.h(58): warning C4005: 'INT16_MIN' : macro redefinition
+                 hex_lexer.c(64) : see previous definition of 'INT16_MIN'
+     1>C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdint.h(59): warning C4005: 'INT32_MIN' : macro redefinition
+                 hex_lexer.c(67) : see previous definition of 'INT32_MIN'
+     1>C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdint.h(61): warning C4005: 'INT8_MAX' : macro redefinition
+                 hex_lexer.c(70) : see previous definition of 'INT8_MAX'
+     1>C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdint.h(62): warning C4005: 'INT16_MAX' : macro redefinition
+                 hex_lexer.c(73) : see previous definition of 'INT16_MAX'
+     1>C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdint.h(63): warning C4005: 'INT32_MAX' : macro redefinition
+                 hex_lexer.c(76) : see previous definition of 'INT32_MAX'
+     1>C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdint.h(65): warning C4005: 'UINT8_MAX' : macro redefinition
+                 hex_lexer.c(79) : see previous definition of 'UINT8_MAX'
+     1>C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdint.h(66): warning C4005: 'UINT16_MAX' : macro redefinition
+                 hex_lexer.c(82) : see previous definition of 'UINT16_MAX'
+     1>C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdint.h(67): warning C4005: 'UINT32_MAX' : macro redefinition
+                 hex_lexer.c(85) : see previous definition of 'UINT32_MAX'
+     1>hex_lexer.l(72): warning C4244: '=' : conversion from 'uint64_t' to 'int', possible loss of data
+     1>hex_lexer.l(79): warning C4244: '=' : conversion from 'uint64_t' to 'int', possible loss of data
+     1>hex_lexer.l(86): warning C4244: '=' : conversion from 'uint64_t' to 'int', possible loss of data
+     1>C:\Program Files (x86)\Windows Kits\8.1\Include\shared\minwindef.h(60): warning C4005: 'MAX_PATH' : macro redefinition
+                 f:\voidstarindia\anti_virus\repository\hipara-private\scanner\c++\hipara\libyara\include\yara\yr_limits.h(29) : see previous definition of 'MAX_PATH'
+     1>C:\Program Files (x86)\Windows Kits\8.1\Include\shared\winerror.h(209): warning C4005: 'ERROR_SUCCESS' : macro redefinition
+                 f:\voidstarindia\anti_virus\repository\hipara-private\scanner\c++\hipara\libyara\include\yara\error.h(23) : see previous definition of 'ERROR_SUCCESS'
+         lexer.c
+     1>C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdint.h(57): warning C4005: 'INT8_MIN' : macro redefinition
+                 lexer.c(62) : see previous definition of 'INT8_MIN'
+     1>C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdint.h(58): warning C4005: 'INT16_MIN' : macro redefinition
+                 lexer.c(65) : see previous definition of 'INT16_MIN'
+     1>C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdint.h(59): warning C4005: 'INT32_MIN' : macro redefinition
+                 lexer.c(68) : see previous definition of 'INT32_MIN'
+     1>C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdint.h(61): warning C4005: 'INT8_MAX' : macro redefinition
+                 lexer.c(71) : see previous definition of 'INT8_MAX'
+     1>C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdint.h(62): warning C4005: 'INT16_MAX' : macro redefinition
+                 lexer.c(74) : see previous definition of 'INT16_MAX'
+     1>C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdint.h(63): warning C4005: 'INT32_MAX' : macro redefinition
+                 lexer.c(77) : see previous definition of 'INT32_MAX'
+     1>C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdint.h(65): warning C4005: 'UINT8_MAX' : macro redefinition
+                 lexer.c(80) : see previous definition of 'UINT8_MAX'
+     1>C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdint.h(66): warning C4005: 'UINT16_MAX' : macro redefinition
+                 lexer.c(83) : see previous definition of 'UINT16_MAX'
+     1>C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdint.h(67): warning C4005: 'UINT32_MAX' : macro redefinition
+                 lexer.c(86) : see previous definition of 'UINT32_MAX'
+     1>C:\Program Files (x86)\Windows Kits\8.1\Include\shared\minwindef.h(60): warning C4005: 'MAX_PATH' : macro redefinition
+                 f:\voidstarindia\anti_virus\repository\hipara-private\scanner\c++\hipara\libyara\include\yara\yr_limits.h(29) : see previous definition of 'MAX_PATH'
+     1>lexer.l(571): warning C4267: '=' : conversion from 'size_t' to 'int', possible loss of data
+         libyara.c
+     1>C:\Program Files (x86)\Windows Kits\8.1\Include\shared\minwindef.h(60): warning C4005: 'MAX_PATH' : macro redefinition
+                 f:\voidstarindia\anti_virus\repository\hipara-private\scanner\c++\hipara\libyara\include\yara\yr_limits.h(29) : see previous definition of 'MAX_PATH'
+     1>C:\Program Files (x86)\Windows Kits\8.1\Include\shared\winerror.h(209): warning C4005: 'ERROR_SUCCESS' : macro redefinition
+                 f:\voidstarindia\anti_virus\repository\hipara-private\scanner\c++\hipara\libyara\include\yara\error.h(23) : see previous definition of 'ERROR_SUCCESS'
+     1>f:\voidstarindia\anti_virus\repository\hipara-private\scanner\c++\hipara\libyara\include\yara\object.h(23): warning C4005: 'INFINITY' : macro redefinition
+                 C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\math.h(102) : see previous definition of 'INFINITY'
+     1>f:\voidstarindia\anti_virus\repository\hipara-private\scanner\c++\hipara\libyara\include\yara\object.h(24): warning C4005: 'NAN' : macro redefinition
+                 C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\math.h(106) : see previous definition of 'NAN'
+         mem.c
+         modules.c
+     1>C:\Program Files (x86)\Windows Kits\8.1\Include\shared\minwindef.h(60): warning C4005: 'MAX_PATH' : macro redefinition
+                 f:\voidstarindia\anti_virus\repository\hipara-private\scanner\c++\hipara\libyara\include\yara\yr_limits.h(29) : see previous definition of 'MAX_PATH'
+     1>f:\voidstarindia\anti_virus\repository\hipara-private\scanner\c++\hipara\libyara\include\yara\object.h(23): warning C4005: 'INFINITY' : macro redefinition
+                 C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\math.h(102) : see previous definition of 'INFINITY'
+     1>f:\voidstarindia\anti_virus\repository\hipara-private\scanner\c++\hipara\libyara\include\yara\object.h(24): warning C4005: 'NAN' : macro redefinition
+                 C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\math.h(106) : see previous definition of 'NAN'
+         cuckoo.c
+     1>C:\Program Files (x86)\Windows Kits\8.1\Include\shared\minwindef.h(60): warning C4005: 'MAX_PATH' : macro redefinition
+                 f:\voidstarindia\anti_virus\repository\hipara-private\scanner\c++\hipara\libyara\include\yara\yr_limits.h(29) : see previous definition of 'MAX_PATH'
+     1>C:\Program Files (x86)\Windows Kits\8.1\Include\shared\winerror.h(209): warning C4005: 'ERROR_SUCCESS' : macro redefinition
+                 f:\voidstarindia\anti_virus\repository\hipara-private\scanner\c++\hipara\libyara\include\yara\error.h(23) : see previous definition of 'ERROR_SUCCESS'
+     1>f:\voidstarindia\anti_virus\repository\hipara-private\scanner\c++\hipara\libyara\include\yara\object.h(23): warning C4005: 'INFINITY' : macro redefinition
+                 C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\math.h(102) : see previous definition of 'INFINITY'
+     1>f:\voidstarindia\anti_virus\repository\hipara-private\scanner\c++\hipara\libyara\include\yara\object.h(24): warning C4005: 'NAN' : macro redefinition
+                 C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\math.h(106) : see previous definition of 'NAN'
+         elf.c
+     1>C:\Program Files (x86)\Windows Kits\8.1\Include\shared\minwindef.h(60): warning C4005: 'MAX_PATH' : macro redefinition
+                 f:\voidstarindia\anti_virus\repository\hipara-private\scanner\c++\hipara\libyara\include\yara\yr_limits.h(29) : see previous definition of 'MAX_PATH'
+     1>C:\Program Files (x86)\Windows Kits\8.1\Include\shared\winerror.h(209): warning C4005: 'ERROR_SUCCESS' : macro redefinition
+                 f:\voidstarindia\anti_virus\repository\hipara-private\scanner\c++\hipara\libyara\include\yara\error.h(23) : see previous definition of 'ERROR_SUCCESS'
+     1>f:\voidstarindia\anti_virus\repository\hipara-private\scanner\c++\hipara\libyara\include\yara\object.h(23): warning C4005: 'INFINITY' : macro redefinition
+                 C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\math.h(102) : see previous definition of 'INFINITY'
+     1>f:\voidstarindia\anti_virus\repository\hipara-private\scanner\c++\hipara\libyara\include\yara\object.h(24): warning C4005: 'NAN' : macro redefinition
+                 C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\math.h(106) : see previous definition of 'NAN'
+         Compiling...
+         math.c
+     1>C:\Program Files (x86)\Windows Kits\8.1\Include\shared\minwindef.h(60): warning C4005: 'MAX_PATH' : macro redefinition
+                 f:\voidstarindia\anti_virus\repository\hipara-private\scanner\c++\hipara\libyara\include\yara\yr_limits.h(29) : see previous definition of 'MAX_PATH'
+     1>C:\Program Files (x86)\Windows Kits\8.1\Include\shared\winerror.h(209): warning C4005: 'ERROR_SUCCESS' : macro redefinition
+                 f:\voidstarindia\anti_virus\repository\hipara-private\scanner\c++\hipara\libyara\include\yara\error.h(23) : see previous definition of 'ERROR_SUCCESS'
+     1>f:\voidstarindia\anti_virus\repository\hipara-private\scanner\c++\hipara\libyara\include\yara\object.h(23): warning C4005: 'INFINITY' : macro redefinition
+                 C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\math.h(102) : see previous definition of 'INFINITY'
+     1>f:\voidstarindia\anti_virus\repository\hipara-private\scanner\c++\hipara\libyara\include\yara\object.h(24): warning C4005: 'NAN' : macro redefinition
+                 C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\math.h(106) : see previous definition of 'NAN'
+     1>libyara\modules\math.c(31): warning C4273: 'log2' : inconsistent dll linkage
+                 C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\math.h(504) : see previous definition of 'log2'
+     1>libyara\modules\math.c(76): warning C4018: '<' : signed/unsigned mismatch
+     1>libyara\modules\math.c(91): warning C4018: '>=' : signed/unsigned mismatch
+     1>libyara\modules\math.c(92): warning C4018: '<' : signed/unsigned mismatch
+     1>libyara\modules\math.c(95): warning C4018: '<' : signed/unsigned mismatch
+     1>libyara\modules\math.c(121): warning C4018: '>' : signed/unsigned mismatch
+     1>libyara\modules\math.c(171): warning C4018: '<' : signed/unsigned mismatch
+     1>libyara\modules\math.c(181): warning C4018: '>=' : signed/unsigned mismatch
+     1>libyara\modules\math.c(182): warning C4018: '<' : signed/unsigned mismatch
+     1>libyara\modules\math.c(185): warning C4018: '<' : signed/unsigned mismatch
+     1>libyara\modules\math.c(206): warning C4018: '>' : signed/unsigned mismatch
+     1>libyara\modules\math.c(238): warning C4018: '<' : signed/unsigned mismatch
+     1>libyara\modules\math.c(249): warning C4018: '>=' : signed/unsigned mismatch
+     1>libyara\modules\math.c(250): warning C4018: '<' : signed/unsigned mismatch
+     1>libyara\modules\math.c(253): warning C4018: '<' : signed/unsigned mismatch
+     1>libyara\modules\math.c(274): warning C4018: '>' : signed/unsigned mismatch
+     1>libyara\modules\math.c(296): warning C4018: '<' : signed/unsigned mismatch
+     1>libyara\modules\math.c(309): warning C4018: '>=' : signed/unsigned mismatch
+     1>libyara\modules\math.c(310): warning C4018: '<' : signed/unsigned mismatch
+     1>libyara\modules\math.c(313): warning C4018: '<' : signed/unsigned mismatch
+     1>libyara\modules\math.c(340): warning C4018: '>' : signed/unsigned mismatch
+     1>libyara\modules\math.c(402): warning C4018: '<' : signed/unsigned mismatch
+     1>libyara\modules\math.c(416): warning C4018: '>=' : signed/unsigned mismatch
+     1>libyara\modules\math.c(417): warning C4018: '<' : signed/unsigned mismatch
+     1>libyara\modules\math.c(420): warning C4018: '<' : signed/unsigned mismatch
+     1>libyara\modules\math.c(461): warning C4018: '>' : signed/unsigned mismatch
+         pe.c
+     1>f:\voidstarindia\anti_virus\repository\hipara-private\scanner\c++\hipara\libyara\modules\..\include\yara\pe.h(426): warning C4200: nonstandard extension used : zero-sized array in struct/union
+                 Cannot generate copy-ctor or copy-assignment operator when UDT contains a zero-sized array
+     1>f:\voidstarindia\anti_virus\repository\hipara-private\scanner\c++\hipara\libyara\include\yara\object.h(23): warning C4005: 'INFINITY' : macro redefinition
+                 C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\math.h(102) : see previous definition of 'INFINITY'
+     1>f:\voidstarindia\anti_virus\repository\hipara-private\scanner\c++\hipara\libyara\include\yara\object.h(24): warning C4005: 'NAN' : macro redefinition
+                 C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\math.h(106) : see previous definition of 'NAN'
+     1>libyara\modules\pe.c(227): warning C4101: 'pe_header' : unreferenced local variable
+     1>libyara\modules\pe.c(1404): warning C4018: '<' : signed/unsigned mismatch
+         tests.c
+     1>C:\Program Files (x86)\Windows Kits\8.1\Include\shared\minwindef.h(60): warning C4005: 'MAX_PATH' : macro redefinition
+                 f:\voidstarindia\anti_virus\repository\hipara-private\scanner\c++\hipara\libyara\include\yara\yr_limits.h(29) : see previous definition of 'MAX_PATH'
+     1>C:\Program Files (x86)\Windows Kits\8.1\Include\shared\winerror.h(209): warning C4005: 'ERROR_SUCCESS' : macro redefinition
+                 f:\voidstarindia\anti_virus\repository\hipara-private\scanner\c++\hipara\libyara\include\yara\error.h(23) : see previous definition of 'ERROR_SUCCESS'
+     1>f:\voidstarindia\anti_virus\repository\hipara-private\scanner\c++\hipara\libyara\include\yara\object.h(23): warning C4005: 'INFINITY' : macro redefinition
+                 C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\math.h(102) : see previous definition of 'INFINITY'
+     1>f:\voidstarindia\anti_virus\repository\hipara-private\scanner\c++\hipara\libyara\include\yara\object.h(24): warning C4005: 'NAN' : macro redefinition
+                 C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\math.h(106) : see previous definition of 'NAN'
+         object.c
+     1>f:\voidstarindia\anti_virus\repository\hipara-private\scanner\c++\hipara\libyara\include\yara\object.h(23): warning C4005: 'INFINITY' : macro redefinition
+                 C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\math.h(102) : see previous definition of 'INFINITY'
+     1>f:\voidstarindia\anti_virus\repository\hipara-private\scanner\c++\hipara\libyara\include\yara\object.h(24): warning C4005: 'NAN' : macro redefinition
+                 C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\math.h(106) : see previous definition of 'NAN'
+     1>C:\Program Files (x86)\Windows Kits\8.1\Include\shared\minwindef.h(60): warning C4005: 'MAX_PATH' : macro redefinition
+                 f:\voidstarindia\anti_virus\repository\hipara-private\scanner\c++\hipara\libyara\include\yara\yr_limits.h(29) : see previous definition of 'MAX_PATH'
+     1>C:\Program Files (x86)\Windows Kits\8.1\Include\shared\winerror.h(209): warning C4005: 'ERROR_SUCCESS' : macro redefinition
+                 f:\voidstarindia\anti_virus\repository\hipara-private\scanner\c++\hipara\libyara\include\yara\error.h(23) : see previous definition of 'ERROR_SUCCESS'
+     1>libyara\object.c(894): warning C4002: too many actual parameters for macro 'assertf'
+     1>libyara\object.c(921): warning C4002: too many actual parameters for macro 'assertf'
+     1>libyara\object.c(948): warning C4002: too many actual parameters for macro 'assertf'
+     1>libyara\object.c(1043): warning C4267: '=' : conversion from 'size_t' to 'int', possible loss of data
+         parser.c
+     1>C:\Program Files (x86)\Windows Kits\8.1\Include\shared\minwindef.h(60): warning C4005: 'MAX_PATH' : macro redefinition
+                 f:\voidstarindia\anti_virus\repository\hipara-private\scanner\c++\hipara\libyara\include\yara\yr_limits.h(29) : see previous definition of 'MAX_PATH'
+     1>C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\math.h(102): warning C4005: 'INFINITY' : macro redefinition
+                 f:\voidstarindia\anti_virus\repository\hipara-private\scanner\c++\hipara\libyara\include\yara\object.h(23) : see previous definition of 'INFINITY'
+     1>C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\math.h(106): warning C4005: 'NAN' : macro redefinition
+                 f:\voidstarindia\anti_virus\repository\hipara-private\scanner\c++\hipara\libyara\include\yara\object.h(24) : see previous definition of 'NAN'
+         proc.c
+         re.c
+     1>libyara\re.c(1582): warning C4267: '=' : conversion from 'size_t' to 'int', possible loss of data
+         re_grammar.c
+     1>re_grammar.c(737): warning C4065: switch statement contains 'default' but no 'case' labels
+         re_lexer.c
+     1>C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdint.h(57): warning C4005: 'INT8_MIN' : macro redefinition
+                 re_lexer.c(95) : see previous definition of 'INT8_MIN'
+     1>C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdint.h(58): warning C4005: 'INT16_MIN' : macro redefinition
+                 re_lexer.c(98) : see previous definition of 'INT16_MIN'
+     1>C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdint.h(59): warning C4005: 'INT32_MIN' : macro redefinition
+                 re_lexer.c(101) : see previous definition of 'INT32_MIN'
+     1>C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdint.h(61): warning C4005: 'INT8_MAX' : macro redefinition
+                 re_lexer.c(104) : see previous definition of 'INT8_MAX'
+     1>C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdint.h(62): warning C4005: 'INT16_MAX' : macro redefinition
+                 re_lexer.c(107) : see previous definition of 'INT16_MAX'
+     1>C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdint.h(63): warning C4005: 'INT32_MAX' : macro redefinition
+                 re_lexer.c(110) : see previous definition of 'INT32_MAX'
+     1>C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdint.h(65): warning C4005: 'UINT8_MAX' : macro redefinition
+                 re_lexer.c(113) : see previous definition of 'UINT8_MAX'
+     1>C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdint.h(66): warning C4005: 'UINT16_MAX' : macro redefinition
+                 re_lexer.c(116) : see previous definition of 'UINT16_MAX'
+     1>C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdint.h(67): warning C4005: 'UINT32_MAX' : macro redefinition
+                 re_lexer.c(119) : see previous definition of 'UINT32_MAX'
+     1>re_lexer.l(281): warning C4309: 'initializing' : truncation of constant value
+     1>re_lexer.l(293): warning C4309: 'initializing' : truncation of constant value
+     1>C:\Program Files (x86)\Windows Kits\8.1\Include\shared\minwindef.h(60): warning C4005: 'MAX_PATH' : macro redefinition
+                 f:\voidstarindia\anti_virus\repository\hipara-private\scanner\c++\hipara\libyara\include\yara\yr_limits.h(29) : see previous definition of 'MAX_PATH'
+     1>C:\Program Files (x86)\Windows Kits\8.1\Include\shared\winerror.h(209): warning C4005: 'ERROR_SUCCESS' : macro redefinition
+                 f:\voidstarindia\anti_virus\repository\hipara-private\scanner\c++\hipara\libyara\include\yara\error.h(23) : see previous definition of 'ERROR_SUCCESS'
+         rules.c
+     1>C:\Program Files (x86)\Windows Kits\8.1\Include\shared\minwindef.h(60): warning C4005: 'MAX_PATH' : macro redefinition
+                 f:\voidstarindia\anti_virus\repository\hipara-private\scanner\c++\hipara\libyara\include\yara\yr_limits.h(29) : see previous definition of 'MAX_PATH'
+     1>C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\math.h(102): warning C4005: 'INFINITY' : macro redefinition
+                 f:\voidstarindia\anti_virus\repository\hipara-private\scanner\c++\hipara\libyara\include\yara\object.h(23) : see previous definition of 'INFINITY'
+     1>C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\math.h(106): warning C4005: 'NAN' : macro redefinition
+                 f:\voidstarindia\anti_virus\repository\hipara-private\scanner\c++\hipara\libyara\include\yara\object.h(24) : see previous definition of 'NAN'
+         scan.c
+     1>C:\Program Files (x86)\Windows Kits\8.1\Include\shared\minwindef.h(60): warning C4005: 'MAX_PATH' : macro redefinition
+                 f:\voidstarindia\anti_virus\repository\hipara-private\scanner\c++\hipara\libyara\include\yara\yr_limits.h(29) : see previous definition of 'MAX_PATH'
+     1>libyara\scan.c(341): warning C4018: '>=' : signed/unsigned mismatch
+     1>libyara\scan.c(342): warning C4018: '<=' : signed/unsigned mismatch
+     1>libyara\scan.c(521): warning C4267: '=' : conversion from 'size_t' to 'int32_t', possible loss of data
+     1>libyara\scan.c(771): warning C4267: 'argument' : conversion from 'size_t' to 'int', possible loss of data
+     1>libyara\scan.c(780): warning C4267: 'argument' : conversion from 'size_t' to 'int', possible loss of data
+     1>libyara\scan.c(791): warning C4267: 'argument' : conversion from 'size_t' to 'int', possible loss of data
+     1>libyara\scan.c(800): warning C4267: 'argument' : conversion from 'size_t' to 'int', possible loss of data
+         sizedstr.c
+         strutils.c
+     1>libyara\strutils.c(27): warning C4267: 'initializing' : conversion from 'size_t' to 'int', possible loss of data
+         liveScan.cpp
+         misc.c
+     1>misc.c(34): warning C4002: too many actual parameters for macro '_T'
+     1>misc.c(69): warning C4996: 'swprintf': swprintf has been changed to conform with the ISO C standard, adding an extra character count parameter. To use traditional Microsoft swprintf, set _CRT_NON_CONFORMING_SWPRINTFS.
+                 C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\swprintf.inl(85) : see declaration of 'swprintf'
+     1>misc.c(79): warning C4996: 'swprintf': swprintf has been changed to conform with the ISO C standard, adding an extra character count parameter. To use traditional Microsoft swprintf, set _CRT_NON_CONFORMING_SWPRINTFS.
+                 C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\swprintf.inl(85) : see declaration of 'swprintf'
+     1>misc.c(86): warning C4996: 'swprintf': swprintf has been changed to conform with the ISO C standard, adding an extra character count parameter. To use traditional Microsoft swprintf, set _CRT_NON_CONFORMING_SWPRINTFS.
+                 C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\swprintf.inl(85) : see declaration of 'swprintf'
+     1>misc.c(92): warning C4996: 'swprintf': swprintf has been changed to conform with the ISO C standard, adding an extra character count parameter. To use traditional Microsoft swprintf, set _CRT_NON_CONFORMING_SWPRINTFS.
+                 C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\swprintf.inl(85) : see declaration of 'swprintf'
+     1>misc.c(110): warning C4996: 'swprintf': swprintf has been changed to conform with the ISO C standard, adding an extra character count parameter. To use traditional Microsoft swprintf, set _CRT_NON_CONFORMING_SWPRINTFS.
+                 C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\swprintf.inl(85) : see declaration of 'swprintf'
+     1>misc.c(116): warning C4996: 'swprintf': swprintf has been changed to conform with the ISO C standard, adding an extra character count parameter. To use traditional Microsoft swprintf, set _CRT_NON_CONFORMING_SWPRINTFS.
+                 C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\swprintf.inl(85) : see declaration of 'swprintf'
+     1>misc.c(123): warning C4996: 'swprintf': swprintf has been changed to conform with the ISO C standard, adding an extra character count parameter. To use traditional Microsoft swprintf, set _CRT_NON_CONFORMING_SWPRINTFS.
+                 C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\swprintf.inl(85) : see declaration of 'swprintf'
+     1>misc.c(132): warning C4996: 'swprintf': swprintf has been changed to conform with the ISO C standard, adding an extra character count parameter. To use traditional Microsoft swprintf, set _CRT_NON_CONFORMING_SWPRINTFS.
+                 C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\swprintf.inl(85) : see declaration of 'swprintf'
+     1>misc.c(144): warning C4996: 'swprintf': swprintf has been changed to conform with the ISO C standard, adding an extra character count parameter. To use traditional Microsoft swprintf, set _CRT_NON_CONFORMING_SWPRINTFS.
+                 C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\swprintf.inl(85) : see declaration of 'swprintf'
+     1>misc.c(167): warning C4996: 'swprintf': swprintf has been changed to conform with the ISO C standard, adding an extra character count parameter. To use traditional Microsoft swprintf, set _CRT_NON_CONFORMING_SWPRINTFS.
+                 C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\swprintf.inl(85) : see declaration of 'swprintf'
+     1>misc.c(177): warning C4996: 'swprintf': swprintf has been changed to conform with the ISO C standard, adding an extra character count parameter. To use traditional Microsoft swprintf, set _CRT_NON_CONFORMING_SWPRINTFS.
+                 C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\swprintf.inl(85) : see declaration of 'swprintf'
+     1>misc.c(211): warning C4996: 'swprintf': swprintf has been changed to conform with the ISO C standard, adding an extra character count parameter. To use traditional Microsoft swprintf, set _CRT_NON_CONFORMING_SWPRINTFS.
+                 C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\swprintf.inl(85) : see declaration of 'swprintf'
+     1>misc.c(221): warning C4996: 'swprintf': swprintf has been changed to conform with the ISO C standard, adding an extra character count parameter. To use traditional Microsoft swprintf, set _CRT_NON_CONFORMING_SWPRINTFS.
+                 C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\swprintf.inl(85) : see declaration of 'swprintf'
+     1>misc.c(232): warning C4996: 'swprintf': swprintf has been changed to conform with the ISO C standard, adding an extra character count parameter. To use traditional Microsoft swprintf, set _CRT_NON_CONFORMING_SWPRINTFS.
+                 C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\swprintf.inl(85) : see declaration of 'swprintf'
+     1>misc.c(244): warning C4996: 'swprintf': swprintf has been changed to conform with the ISO C standard, adding an extra character count parameter. To use traditional Microsoft swprintf, set _CRT_NON_CONFORMING_SWPRINTFS.
+                 C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\swprintf.inl(85) : see declaration of 'swprintf'
+         yara.cpp
+       ResourceCompile:
+         C:\Program Files (x86)\Windows Kits\8.1\bin\x86\rc.exe /D NDEBUG /D _UNICODE /D UNICODE /D _AFXDLL /l"0x0409" /I"x64\Win7 Release\\" /nologo /fo"x64\Win7 Release\hipara.res" hipara.rc 
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"F:\VoidStarIndia\Anti_virus\Repository\hipara-private\scanner\C++\x64\Win7 Release\hipara.exe" /INCREMENTAL:NO /NOLOGO /LIBPATH:.\hipara\libyara\lib\Release /LIBPATH:..\C++\hipara\libyara\lib\Release /LIBPATH:lib\Release /LIBPATH:..\update\lib\Release\x64 /LIBPATH:lib\Release\64 fltLib.lib jansson64.lib libcurlx64.lib VirusSignatureUpdate.lib hiparamemscandll.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /manifestinput:"C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\Include\Manifest\dpiaware.manifest" /DEBUG /PDB:"F:\VoidStarIndia\Anti_virus\Repository\hipara-private\scanner\C++\x64\Win7 Release\hipara.pdb" /SUBSYSTEM:WINDOWS /OPT:REF /OPT:ICF /LTCG /TLBID:1 /ENTRY:"wWinMainCRTStartup" /DYNAMICBASE /NXCOMPAT /IMPLIB:"F:\VoidStarIndia\Anti_virus\Repository\hipara-private\scanner\C++\x64\Win7 Release\hipara.lib" /MACHINE:X64 "x64\Win7 Release\hipara.res"
+         "x64\Win7 Release\DlgProxy.obj"
+         "x64\Win7 Release\hipara.obj"
+         "x64\Win7 Release\hiparaDlg.obj"
+         "x64\Win7 Release\ahocorasick.obj"
+         "x64\Win7 Release\arena.obj"
+         "x64\Win7 Release\atoms.obj"
+         "x64\Win7 Release\compiler.obj"
+         "x64\Win7 Release\exec.obj"
+         "x64\Win7 Release\exefiles.obj"
+         "x64\Win7 Release\filemap.obj"
+         "x64\Win7 Release\grammar.obj"
+         "x64\Win7 Release\hash.obj"
+         "x64\Win7 Release\hex_grammar.obj"
+         "x64\Win7 Release\hex_lexer.obj"
+         "x64\Win7 Release\lexer.obj"
+         "x64\Win7 Release\libyara.obj"
+         "x64\Win7 Release\mem.obj"
+         "x64\Win7 Release\modules.obj"
+         "x64\Win7 Release\cuckoo.obj"
+         "x64\Win7 Release\elf.obj"
+         "x64\Win7 Release\math.obj"
+         "x64\Win7 Release\pe.obj"
+         "x64\Win7 Release\tests.obj"
+         "x64\Win7 Release\object.obj"
+         "x64\Win7 Release\parser.obj"
+         "x64\Win7 Release\proc.obj"
+         "x64\Win7 Release\re.obj"
+         "x64\Win7 Release\re_grammar.obj"
+         "x64\Win7 Release\re_lexer.obj"
+         "x64\Win7 Release\rules.obj"
+         "x64\Win7 Release\scan.obj"
+         "x64\Win7 Release\sizedstr.obj"
+         "x64\Win7 Release\strutils.obj"
+         "x64\Win7 Release\liveScan.obj"
+         "x64\Win7 Release\misc.obj"
+         "x64\Win7 Release\stdafx.obj"
+         "x64\Win7 Release\yara.obj"
+            Creating library F:\VoidStarIndia\Anti_virus\Repository\hipara-private\scanner\C++\x64\Win7 Release\hipara.lib and object F:\VoidStarIndia\Anti_virus\Repository\hipara-private\scanner\C++\x64\Win7 Release\hipara.exp
+         Generating code
+         Finished generating code
+         hipara.vcxproj -> F:\VoidStarIndia\Anti_virus\Repository\hipara-private\scanner\C++\x64\Win7 Release\hipara.exe
+     1>Done Building Project "F:\VoidStarIndia\Anti_virus\Repository\hipara-private\scanner\C++\hipara\hipara.vcxproj" (Rebuild target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:01:32.28

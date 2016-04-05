@@ -1,0 +1,29 @@
+// hipara.idl : type library source for hipara.exe
+
+// This file will be processed by the MIDL compiler to produce the
+// type library (hipara.tlb).
+
+[ uuid(D18C4939-B387-4FAC-82FB-149271C50BA7), version(1.0) ]
+library hipara
+{
+	importlib("stdole32.tlb");
+	importlib("stdole2.tlb");
+
+	//  Primary dispatch interface for ChiparaDoc
+	
+	[ uuid(646AA8B3-6B4C-40DE-9221-A2FB94763E69) ]
+	dispinterface Ihipara
+	{
+		properties:
+			
+		methods:
+	};
+
+	//  Class information for ChiparaDoc
+	
+	[ uuid(F8B449ED-5131-4EF3-B49A-B7F0BDBA5FC3) ]
+	coclass hipara
+	{
+		[default] dispinterface Ihipara;
+	};
+};

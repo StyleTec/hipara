@@ -1,0 +1,46 @@
+﻿Build started 27-01-2015 PM 11:38:25.
+     1>Project "D:\Gaurav\VoidStarIndia\Anti_virus\scanner2_new\scanner2\jansson\jansson\jansson.vcxproj" on node 2 (Build target(s)).
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\CL.exe /c /Zi /nologo /W3 /WX- /sdl /Od /D WIN32 /D _DEBUG /D _WINDOWS /D _USRDLL /D JANSSON_EXPORTS /D _CRT_SECURE_NO_WARNINGS /D _WINDLL /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"x64\Debug\\" /Fd"x64\Debug\vc120.pdb" /Gd /TP /errorReport:prompt dump.c error.c hashtable.c hashtable_seed.c load.c memory.c pack_unpack.c strbuffer.c strconv.c utf.c value.c
+         value.c
+         utf.c
+         strconv.c
+         strbuffer.c
+         pack_unpack.c
+         memory.c
+         load.c
+     1>load.c(174): warning C4267: '=' : conversion from 'size_t' to 'int', possible loss of data
+     1>load.c(903): warning C4267: '=' : conversion from 'size_t' to 'int', possible loss of data
+         hashtable_seed.c
+         hashtable.c
+     1>hashtable.c(157): warning C4334: '<<' : result of 32-bit shift implicitly converted to 64 bits (was 64-bit shift intended?)
+     1>hashtable.c(163): warning C4334: '<<' : result of 32-bit shift implicitly converted to 64 bits (was 64-bit shift intended?)
+     1>hashtable.c(189): warning C4334: '<<' : result of 32-bit shift implicitly converted to 64 bits (was 64-bit shift intended?)
+     1>hashtable.c(195): warning C4334: '<<' : result of 32-bit shift implicitly converted to 64 bits (was 64-bit shift intended?)
+     1>hashtable.c(219): warning C4334: '<<' : result of 32-bit shift implicitly converted to 64 bits (was 64-bit shift intended?)
+     1>hashtable.c(290): warning C4334: '<<' : result of 32-bit shift implicitly converted to 64 bits (was 64-bit shift intended?)
+         error.c
+     1>error.c(63): warning C4267: '=' : conversion from 'size_t' to 'int', possible loss of data
+         dump.c
+     1>dump.c(238): warning C4267: '=' : conversion from 'size_t' to 'int', possible loss of data
+         Generating Code...
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"D:\Gaurav\VoidStarIndia\Anti_virus\scanner2_new\scanner2\jansson\x64\Debug\jansson64.dll" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /DEF:"jansson.def" /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"D:\Gaurav\VoidStarIndia\Anti_virus\scanner2_new\scanner2\jansson\x64\Debug\jansson64.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:\Gaurav\VoidStarIndia\Anti_virus\scanner2_new\scanner2\jansson\x64\Debug\jansson64.lib" /MACHINE:X64 /DLL x64\Debug\dump.obj
+         x64\Debug\error.obj
+         x64\Debug\hashtable.obj
+         x64\Debug\hashtable_seed.obj
+         x64\Debug\load.obj
+         x64\Debug\memory.obj
+         x64\Debug\pack_unpack.obj
+         x64\Debug\strbuffer.obj
+         x64\Debug\strconv.obj
+         x64\Debug\utf.obj
+         x64\Debug\value.obj
+            Creating library D:\Gaurav\VoidStarIndia\Anti_virus\scanner2_new\scanner2\jansson\x64\Debug\jansson64.lib and object D:\Gaurav\VoidStarIndia\Anti_virus\scanner2_new\scanner2\jansson\x64\Debug\jansson64.exp
+     1>jansson64.exp : warning LNK4070: /OUT:jansson32.dll directive in .EXP differs from output filename 'D:\Gaurav\VoidStarIndia\Anti_virus\scanner2_new\scanner2\jansson\x64\Debug\jansson64.dll'; ignoring directive
+         jansson.vcxproj -> D:\Gaurav\VoidStarIndia\Anti_virus\scanner2_new\scanner2\jansson\x64\Debug\jansson64.dll
+     1>Done Building Project "D:\Gaurav\VoidStarIndia\Anti_virus\scanner2_new\scanner2\jansson\jansson\jansson.vcxproj" (Build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:04.79

@@ -1,0 +1,48 @@
+﻿Build started 27-01-2015 PM 11:24:11.
+     1>Project "D:\Gaurav\VoidStarIndia\Anti_virus\scanner2_new\scanner2\jansson\jansson\jansson.vcxproj" on node 2 (Build target(s)).
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\CL.exe /c /Zi /nologo /W3 /WX- /sdl /O2 /Oi /GL /D WIN32 /D NDEBUG /D _WINDOWS /D _USRDLL /D JANSSON_EXPORTS /D _CRT_SECURE_NO_WARNINGS /D _WINDLL /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"x64\Release\\" /Fd"x64\Release\vc120.pdb" /Gd /TP /errorReport:prompt dump.c error.c hashtable.c hashtable_seed.c load.c memory.c pack_unpack.c strbuffer.c strconv.c utf.c value.c
+         dump.c
+     1>dump.c(238): warning C4267: '=' : conversion from 'size_t' to 'int', possible loss of data
+         error.c
+     1>error.c(63): warning C4267: '=' : conversion from 'size_t' to 'int', possible loss of data
+         hashtable.c
+     1>hashtable.c(157): warning C4334: '<<' : result of 32-bit shift implicitly converted to 64 bits (was 64-bit shift intended?)
+     1>hashtable.c(163): warning C4334: '<<' : result of 32-bit shift implicitly converted to 64 bits (was 64-bit shift intended?)
+     1>hashtable.c(189): warning C4334: '<<' : result of 32-bit shift implicitly converted to 64 bits (was 64-bit shift intended?)
+     1>hashtable.c(195): warning C4334: '<<' : result of 32-bit shift implicitly converted to 64 bits (was 64-bit shift intended?)
+     1>hashtable.c(219): warning C4334: '<<' : result of 32-bit shift implicitly converted to 64 bits (was 64-bit shift intended?)
+     1>hashtable.c(290): warning C4334: '<<' : result of 32-bit shift implicitly converted to 64 bits (was 64-bit shift intended?)
+         hashtable_seed.c
+         load.c
+     1>load.c(174): warning C4267: '=' : conversion from 'size_t' to 'int', possible loss of data
+     1>load.c(903): warning C4267: '=' : conversion from 'size_t' to 'int', possible loss of data
+         memory.c
+         pack_unpack.c
+         strbuffer.c
+         strconv.c
+         utf.c
+         value.c
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"D:\Gaurav\VoidStarIndia\Anti_virus\scanner2_new\scanner2\jansson\x64\Release\jansson64.dll" /INCREMENTAL:NO /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /DEF:"jansson.def" /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"D:\Gaurav\VoidStarIndia\Anti_virus\scanner2_new\scanner2\jansson\x64\Release\jansson64.pdb" /SUBSYSTEM:WINDOWS /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:\Gaurav\VoidStarIndia\Anti_virus\scanner2_new\scanner2\jansson\x64\Release\jansson64.lib" /MACHINE:X64 /DLL x64\Release\dump.obj
+         x64\Release\error.obj
+         x64\Release\hashtable.obj
+         x64\Release\hashtable_seed.obj
+         x64\Release\load.obj
+         x64\Release\memory.obj
+         x64\Release\pack_unpack.obj
+         x64\Release\strbuffer.obj
+         x64\Release\strconv.obj
+         x64\Release\utf.obj
+         x64\Release\value.obj
+            Creating library D:\Gaurav\VoidStarIndia\Anti_virus\scanner2_new\scanner2\jansson\x64\Release\jansson64.lib and object D:\Gaurav\VoidStarIndia\Anti_virus\scanner2_new\scanner2\jansson\x64\Release\jansson64.exp
+     1>jansson64.exp : warning LNK4070: /OUT:jansson32.dll directive in .EXP differs from output filename 'D:\Gaurav\VoidStarIndia\Anti_virus\scanner2_new\scanner2\jansson\x64\Release\jansson64.dll'; ignoring directive
+         Generating code
+         Finished generating code
+     1>jansson64.exp : warning LNK4070: /OUT:jansson32.dll directive in .EXP differs from output filename 'D:\Gaurav\VoidStarIndia\Anti_virus\scanner2_new\scanner2\jansson\x64\Release\jansson64.dll'; ignoring directive
+         jansson.vcxproj -> D:\Gaurav\VoidStarIndia\Anti_virus\scanner2_new\scanner2\jansson\x64\Release\jansson64.dll
+     1>Done Building Project "D:\Gaurav\VoidStarIndia\Anti_virus\scanner2_new\scanner2\jansson\jansson\jansson.vcxproj" (Build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:06.32
