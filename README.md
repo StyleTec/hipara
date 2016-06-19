@@ -9,18 +9,18 @@ You may either ask me for a signed MSI package by emailing brett@hipara.org or c
 
 ## Compilation
 
-Instructions were created using a VirtualBox instance running Windows 7 Professional x64.
+Instructions were created using a VirtualBox instance running Windows 7 Professional x64. Some people say to install the Windows Driver Kit (WDK) before Visual Studio. The official documentation says otherwise. I installed WDK first, then VS. It takes too long to install both products, so I did not test to see if this makes a difference.
 
 Software needed:
-- Microsoft Visual Studio 2012 Professional. Only optional feature installed was "Microsoft Foundation Classes for C++", presented during VS2012 installation.
-- Download and install Window's Driver Kit (WDK): https://developer.microsoft.com/en-us/windows/hardware/windows-driver-kit
+- Microsoft Visual Studio 2013 Professional. Only optional feature installed was "Microsoft Foundation Classes for C++", presented during VS2013 installation.
+- Download and install Window's Driver Kit (WDK) 8.1: https://www.microsoft.com/en-us/download/details.aspx?id=42273
 
 Optional software:
 - Git for Windows: https://git-scm.com/download/win
 
 Copy the source code by either performing a 'git clone https://github.com/jbc22/hipara.git' or downloading the .zip package from Github (https://github.com/jbc22/hipara/archive/master.zip).
 
-Open hipara\scanner\C++\scanner.sln with Visual Studio 2012 Pro. 
+Open hipara\scanner\C++\scanner.sln with Visual Studio 2013 Pro. Then you may build the project.
 
 
 ## Modules
