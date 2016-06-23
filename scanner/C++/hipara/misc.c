@@ -15,7 +15,7 @@ ConvertFromWideCharToMultiByte(
 
 	if (NULL == pwszInput || NULL == ppszOutput || NULL == puiOutputLen)
 	{
-		OutputDebugString(_T("ConvertFromWideCharToMultiByte: Invalid Parameter.\n"));
+		//OutputDebugString(_T("ConvertFromWideCharToMultiByte: Invalid Parameter.\n"));
 		return FALSE;
 	}
 
@@ -24,14 +24,14 @@ ConvertFromWideCharToMultiByte(
 	*ppszOutput = (CHAR *)malloc(iLen);
 	if (NULL == *ppszOutput)
 	{
-		OutputDebugString(_T("ConvertFromWideCharToMultiByte: Memory allocation failed to ppszOutput.\n"));
+		//OutputDebugString(_T("ConvertFromWideCharToMultiByte: Memory allocation failed to ppszOutput.\n"));
 		return FALSE;
 	}
 
 	iLen = WideCharToMultiByte(CP_UTF8, 0, pwszInput, -1, *ppszOutput, iLen, NULL, NULL);
 	if (0 == iLen)
 	{
-		OutputDebugString(_T("ConvertFromWideCharToMultiByte: WideCharToMultiByte failed(%d)\n", GetLastError()));
+		//OutputDebugString(_T("ConvertFromWideCharToMultiByte: WideCharToMultiByte failed(%d)\n", GetLastError()));
 
 		free(*ppszOutput);
 		return FALSE;
@@ -43,6 +43,8 @@ ConvertFromWideCharToMultiByte(
 
 BOOLEAN
 InstallMemoryScannerDriver(
+	WCHAR *pwszDriverName,
+	WCHAR *pwszServiceName
 	)
 {
 	PVOID pVoid;
@@ -59,7 +61,14 @@ InstallMemoryScannerDriver(
 	WCHAR wszModulePath[MAX_LENGTH_PATH];
 	WCHAR wszDriverImagePath[MAX_LENGTH_PATH];
 
-	OutputDebugString(_T("InstallMemoryScannerDriver: Entry.\n"));
+	//OutputDebugString(_T("InstallMemoryScannerDriver: Entry.\n"));
+
+	if (NULL == pwszDriverName || NULL == pwszServiceName)
+	{
+		//OutputDebugString(L"Invalid parameters.");
+
+		return FALSE;
+	}
 
 	boRetVal = Wow64DisableWow64FsRedirection(&pVoid);
 
@@ -67,30 +76,30 @@ InstallMemoryScannerDriver(
 	if (0 == uiRetVal)
 	{
 		swprintf(wszErrMsg, L"GetSystemWindowsDirectory failed(%d).", GetLastError());
-		OutputDebugString(wszErrMsg);
+		//OutputDebugString(wszErrMsg);
 
 		boRetVal = Wow64RevertWow64FsRedirection(pVoid);
 		return FALSE;
 	}
 	
-	hResult = StringCchPrintf(wszDriverPath, ARRAY_SIZE(wszDriverPath), L"%s%s%s", wszWindowsDir, SYSTEM32_DRIVERS_PATH, HIPARA_MEMORY_SCAN_DRIVER);
+	hResult = StringCchPrintf(wszDriverPath, ARRAY_SIZE(wszDriverPath), L"%s%s%s", wszWindowsDir, SYSTEM32_DRIVERS_PATH, pwszDriverName);
 	if (FAILED(hResult))
 	{
 		swprintf(wszErrMsg, L"StringCchPrintf(1) failed(0x%08X).\n", hResult);
-		OutputDebugString(wszErrMsg);
+		//OutputDebugString(wszErrMsg);
 
 		boRetVal = Wow64RevertWow64FsRedirection(pVoid);
 		return FALSE;
 	}
 
 	swprintf(wszErrMsg, L"Driver Path (%s).", wszDriverPath);
-	OutputDebugString(wszErrMsg);
+	//OutputDebugString(wszErrMsg);
 
 	dwRetVal = GetModuleFileName(NULL, wszModulePath, MAX_LENGTH_PATH);
 	if (0 == dwRetVal)
 	{
 		swprintf(wszErrMsg, L"GetModuleFileName failed(%d).", GetLastError());
-		OutputDebugString(wszErrMsg);
+		//OutputDebugString(wszErrMsg);
 
 		boRetVal = Wow64RevertWow64FsRedirection(pVoid);
 		return FALSE;
@@ -99,7 +108,7 @@ InstallMemoryScannerDriver(
 	pwszTemp = wcsrchr(wszModulePath, L'\\');
 	if (NULL == pwszTemp)
 	{
-		OutputDebugString(_T("GetModuleFileName returned wrong path.\n"));
+		//OutputDebugString(_T("GetModuleFileName returned wrong path.\n"));
 		
 		boRetVal = Wow64RevertWow64FsRedirection(pVoid);
 		return FALSE;
@@ -108,20 +117,20 @@ InstallMemoryScannerDriver(
 	*pwszTemp = L'\0';
 
 	swprintf(wszErrMsg, L"Module Path (%s).", wszModulePath);
-	OutputDebugString(wszErrMsg);
+	//OutputDebugString(wszErrMsg);
 
-	hResult = StringCchPrintf(wszDriverImagePath, ARRAY_SIZE(wszDriverImagePath), L"%s\\%s", wszModulePath, HIPARA_MEMORY_SCAN_DRIVER);
+	hResult = StringCchPrintf(wszDriverImagePath, ARRAY_SIZE(wszDriverImagePath), L"%s\\%s", wszModulePath, pwszDriverName);
 	if (FAILED(hResult))
 	{
 		swprintf(wszErrMsg, L"StringCchPrintf(2) failed(0x%08X).\n", hResult);
-		OutputDebugString(wszErrMsg);
+		//OutputDebugString(wszErrMsg);
 
 		boRetVal = Wow64RevertWow64FsRedirection(pVoid);
 		return FALSE;
 	}
 
 	swprintf(wszErrMsg, L"Driver image Path (%s).", wszDriverImagePath);
-	OutputDebugString(wszErrMsg);
+	//OutputDebugString(wszErrMsg);
 
 	//
 	//	Copy driver file to system32\drivers folder.
@@ -130,7 +139,7 @@ InstallMemoryScannerDriver(
 	if (0 == boRetVal)
 	{
 		swprintf(wszErrMsg, L"CopyFile failed(%d).", GetLastError());
-		OutputDebugString(wszErrMsg);
+		//OutputDebugString(wszErrMsg);
 
 		boRetVal = Wow64RevertWow64FsRedirection(pVoid);
 		return FALSE;
@@ -142,15 +151,15 @@ InstallMemoryScannerDriver(
 	if (NULL == hSCManager)
 	{
 		swprintf(wszErrMsg, L"OpenSCManager failed(%d).", GetLastError());
-		OutputDebugString(wszErrMsg);
+		//OutputDebugString(wszErrMsg);
 
 		return FALSE;
 	}
 
 	hService = CreateService(
 		hSCManager,
-		HIPARA_MEMORY_SCAN_SERVICE,
-		HIPARA_MEMORY_SCAN_SERVICE,
+		pwszServiceName,
+		pwszServiceName,
 		SERVICE_ALL_ACCESS,
 		SERVICE_KERNEL_DRIVER,
 		SERVICE_DEMAND_START,
@@ -165,7 +174,7 @@ InstallMemoryScannerDriver(
 	if (NULL == hService)
 	{
 		swprintf(wszErrMsg, L"CreateService failed(%d).", GetLastError());
-		OutputDebugString(wszErrMsg);
+		//OutputDebugString(wszErrMsg);
 		
 		CloseServiceHandle(hSCManager);
 		return FALSE;
@@ -175,7 +184,7 @@ InstallMemoryScannerDriver(
 	if (0 == boRetVal)
 	{
 		swprintf(wszErrMsg, L"StartService failed(%d).", GetLastError());
-		OutputDebugString(wszErrMsg);
+		//OutputDebugString(wszErrMsg);
 
 		CloseServiceHandle(hService);
 		CloseServiceHandle(hSCManager);
@@ -185,13 +194,14 @@ InstallMemoryScannerDriver(
 	CloseServiceHandle(hService);
 	CloseServiceHandle(hSCManager);
 
-	OutputDebugString(_T("InstallMemoryScannerDriver: Exit.\n"));
+	//OutputDebugString(_T("InstallMemoryScannerDriver: Exit.\n"));
 
 	return TRUE;
 }
 
 BOOLEAN
 UnInstallMemoryScannerDriver(
+	WCHAR *pwszServiceName
 	)
 {
 	PVOID pVoid;
@@ -201,7 +211,14 @@ UnInstallMemoryScannerDriver(
 	SERVICE_STATUS serviceStatus;
 	WCHAR wszErrMsg[MAX_LENGTH_PATH];
 
-	OutputDebugString(_T("UnInstallMemoryScannerDriver: Entry.\n"));
+	//OutputDebugString(_T("UnInstallMemoryScannerDriver: Entry.\n"));
+
+	if (NULL == pwszServiceName)
+	{
+		//OutputDebugString(L"Invalid parameter.");
+
+		return FALSE;
+	}
 
 	boRetVal = Wow64DisableWow64FsRedirection(&pVoid);
 
@@ -209,17 +226,17 @@ UnInstallMemoryScannerDriver(
 	if (NULL == hSCManager)
 	{
 		swprintf(wszErrMsg, L"OpenSCManager failed(%d).", GetLastError());
-		OutputDebugString(wszErrMsg);
+		//OutputDebugString(wszErrMsg);
 
 		boRetVal = Wow64RevertWow64FsRedirection(pVoid);
 		return FALSE;
 	}
 
-	hService = OpenService(hSCManager, HIPARA_MEMORY_SCAN_SERVICE, SERVICE_ALL_ACCESS | DELETE);
+	hService = OpenService(hSCManager, pwszServiceName, SERVICE_ALL_ACCESS | DELETE);
 	if (NULL == hService)
 	{
 		swprintf(wszErrMsg, L"OpenService failed(%d).", GetLastError());
-		OutputDebugString(wszErrMsg);
+		//OutputDebugString(wszErrMsg);
 
 		CloseServiceHandle(hSCManager);
 		boRetVal = Wow64RevertWow64FsRedirection(pVoid);
@@ -230,7 +247,7 @@ UnInstallMemoryScannerDriver(
 	if (0 == boRetVal)
 	{
 		swprintf(wszErrMsg, L"ControlService failed(%d).", GetLastError());
-		OutputDebugString(wszErrMsg);
+		//OutputDebugString(wszErrMsg);
 
 		CloseServiceHandle(hService);
 		CloseServiceHandle(hSCManager);
@@ -242,7 +259,7 @@ UnInstallMemoryScannerDriver(
 	if (0 == boRetVal)
 	{
 		swprintf(wszErrMsg, L"DeleteService failed(%d).", GetLastError());
-		OutputDebugString(wszErrMsg);
+		//OutputDebugString(wszErrMsg);
 
 		CloseServiceHandle(hService);
 		CloseServiceHandle(hSCManager);
@@ -254,6 +271,6 @@ UnInstallMemoryScannerDriver(
 	CloseServiceHandle(hSCManager);
 	boRetVal = Wow64RevertWow64FsRedirection(pVoid);
 
-	OutputDebugString(_T("UnInstallMemoryScannerDriver: Exit.\n"));
+	//OutputDebugString(_T("UnInstallMemoryScannerDriver: Exit.\n"));
 	return TRUE;
 }

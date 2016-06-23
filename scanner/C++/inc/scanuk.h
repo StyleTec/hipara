@@ -26,6 +26,7 @@ Environment:
 //
 
 const PWSTR ScannerPortName = L"\\ScannerPort";
+const PWSTR CmdPortName = L"\\CmdPort";
 
 
 #define SCANNER_READ_BUFFER_SIZE   1024
@@ -44,6 +45,16 @@ typedef struct _SCANNER_NOTIFICATION {
 	BOOLEAN bIsSafeOperation;	// This will tell whether current file or file operation is safe or not.
 
 } SCANNER_NOTIFICATION, *PSCANNER_NOTIFICATION;
+
+//
+//	Process notification data.
+//
+typedef struct _PROCESS_NOTIFICATION
+{
+	ULONG	ulProcessId;
+	BOOLEAN	bCreate;
+
+}	PROCESS_NOTIFICATION, *P_PROCESS_NOTIFICATION;
 
 typedef struct _SCANNER_REPLY {
 

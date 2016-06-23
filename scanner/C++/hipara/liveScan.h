@@ -13,6 +13,10 @@
 #define SCANNER_DEFAULT_THREAD_COUNT		2
 #define SCANNER_MAX_THREAD_COUNT			64
 
+#define CMDFLT_DEFAULT_REQUEST_COUNT		5
+#define CMDFLT_DEFAULT_THREAD_COUNT			1
+#define CMDFLT_MAX_THREAD_COUNT				64
+
 #define MAX_FILE_PATH						512
 
 #pragma pack(1)
@@ -40,6 +44,32 @@ typedef struct _SCANNER_MESSAGE {
 	OVERLAPPED Ovlp;
 
 } SCANNER_MESSAGE, *PSCANNER_MESSAGE;
+
+
+typedef struct _CMD_MESSAGE {
+
+	//
+	//  Required structure header.
+	//
+
+	FILTER_MESSAGE_HEADER MessageHeader;
+
+
+	//
+	//  Private scanner-specific fields begin here.
+	//
+
+	PROCESS_NOTIFICATION ProcessNotification;
+
+	//
+	//  Overlapped structure: this is not really part of the message
+	//  However we embed it instead of using a separately allocated overlap structure
+	//
+
+	OVERLAPPED Ovlp;
+
+} CMD_MESSAGE, *PCMD_MESSAGE;
+
 
 typedef struct _SCANNER_REPLY_MESSAGE {
 

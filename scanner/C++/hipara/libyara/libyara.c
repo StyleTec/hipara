@@ -52,7 +52,7 @@ char altercase[256];
 YR_API int yr_initialize(void)
 {
   int i;
-  OutputDebugStringA("yr_initialize: Entry.\n");
+  //OutputDebugStringA("yr_initialize: Entry.\n");
   for (i = 0; i < 256; i++)
   {
     if (i >= 'a' && i <= 'z')
@@ -77,7 +77,7 @@ YR_API int yr_initialize(void)
 
   FAIL_ON_ERROR(yr_re_initialize());
   FAIL_ON_ERROR(yr_modules_initialize());
-  OutputDebugStringA("yr_initialize: Exit.\n");
+  //OutputDebugStringA("yr_initialize: Exit.\n");
   return ERROR_SUCCESS;
 }
 

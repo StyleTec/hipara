@@ -34,13 +34,13 @@ YR_API int yr_compiler_create(
 {
   int result;
   YR_COMPILER* new_compiler;
-  OutputDebugStringA("yr_compiler_create: Entry.\n");
+  //OutputDebugStringA("yr_compiler_create: Entry.\n");
 
   new_compiler = (YR_COMPILER*) yr_calloc(1, sizeof(YR_COMPILER));
 
   if (new_compiler == NULL)
   {
-	  OutputDebugStringA("========== yr_compiler_create: Insufficient Memory.=============\n");
+	  //OutputDebugStringA("========== yr_compiler_create: Insufficient Memory.=============\n");
 	return ERROR_INSUFICIENT_MEMORY;
   }
 
@@ -105,7 +105,7 @@ YR_API int yr_compiler_create(
   {
     yr_compiler_destroy(new_compiler);
   }
-  OutputDebugStringA("yr_compiler_create: Exit.\n");
+  //OutputDebugStringA("yr_compiler_create: Exit.\n");
 
   return result;
 }
@@ -312,7 +312,7 @@ YR_API int yr_compiler_add_file(
   // yr_compiler_get_rules() has been called.
 
   assert(compiler->compiled_rules_arena == NULL);
-  OutputDebugStringA("yr_compiler_add_file: Entry.\n");
+  //OutputDebugStringA("yr_compiler_add_file: Entry.\n");
   if (file_name != NULL)
     _yr_compiler_push_file_name(compiler, file_name);
 
@@ -323,13 +323,13 @@ YR_API int yr_compiler_add_file(
 
   if (compiler->last_result == ERROR_SUCCESS)
   {
-	  OutputDebugStringA("yr_compiler_add_file: Exit.\n");
+	  //OutputDebugStringA("yr_compiler_add_file: Exit.\n");
     return yr_lex_parse_rules_file(rules_file, compiler);
   }
   else
   {
     compiler->errors++;
-	OutputDebugStringA("yr_compiler_add_file: Exit.\n");
+	//OutputDebugStringA("yr_compiler_add_file: Exit.\n");
     return compiler->errors;
   }
 
@@ -520,7 +520,7 @@ YR_API int yr_compiler_get_rules(
 {
   YR_RULES* yara_rules;
   YARA_RULES_FILE_HEADER* rules_file_header;
-  OutputDebugStringA("yr_compiler_get_rules:: Entry.\n");
+  //OutputDebugStringA("yr_compiler_get_rules:: Entry.\n");
   *rules = NULL;
 
   if (compiler->compiled_rules_arena == NULL)
@@ -530,7 +530,7 @@ YR_API int yr_compiler_get_rules(
 
   if (yara_rules == NULL)
   {
-	  OutputDebugStringA("yr_compiler_get_rules: Insufficient memory.\n");
+	  //OutputDebugStringA("yr_compiler_get_rules: Insufficient memory.\n");
 	  return ERROR_INSUFICIENT_MEMORY;
   }
 
@@ -554,7 +554,7 @@ YR_API int yr_compiler_get_rules(
   #endif
 
   *rules = yara_rules;
-  OutputDebugStringA("yr_compiler_get_rules:: Exit.\n");
+  //OutputDebugStringA("yr_compiler_get_rules:: Exit.\n");
   return ERROR_SUCCESS;
 }
 

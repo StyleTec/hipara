@@ -3,9 +3,10 @@
 Source code for the Hipara endpoint client. Hipara is a modular endpoint agent that scans (very quickly!) files being accessed in realtime with the industry standard Yara framework. If a Yara signature matches a malicious file, an alert is generated and sent to the Hipara Server (https://github.com/jbc22/hipara-server).
 
 
-## How to Install
+## How to Install the Endpoint Client
 
-You may either ask me for a signed MSI package by emailing brett@hipara.org or compiling on your own. If you would like a ready-to-use MSI package, send along the domain name or IP address of your Hipara Server. Instructions to compile are provided in the next section.
+You may either ask me for a signed MSI package by emailing brett@hipara.org or compiling on your own. If you would like a ready-to-use MSI package, send along the domain name or IP address of your Hipara Server. Instructions to compile are provided in the rest of this document.
+
 
 ## Compilation
 
@@ -23,6 +24,44 @@ Copy the source code by either performing a 'git clone https://github.com/jbc22/
 Open hipara\scanner\C++\scanner.sln with Visual Studio 2013 Pro. Then you may build the project.
 
 
+## After compilation - file output
+
+These instructions are for x64 compilation. 
+
+After building (compilation), the necessary files will all be located at hipara\scanner\HiparaInstaller\files\64\.
+
+
+## Generate cat file
+
+If scanner.cat does not exist, you will need to use Inf2Cat.exe from WDK 8.1.
+
+Open cmd.exe and navigate to hipara\scanner\HiparaInstaller\files\64. 
+
+Type the following example: "C:\Program Files (x86)\Windows Kits\8.1\bin\x86\Inf2Cat.exe" /os:7_X64 /driver:.
+
+
+## Signing necessary files
+
+Allsum, LLC (the company behind Hipara) purchased a code signing certificate from DigiCert. To sign the drivers, you will need the Windows Driver Kit (WDK) 8.1 installed as instructed in the "Compilation" section and a pfx certificate file that can perform code signing.
+
+Files to be signed:
+ - scanner.sys
+ - hiparamemscan.sys
+ - scanner.cat
+ - hiparamemscan.cat
+ 
+Use signtool.exe from WDK to sign. Example: "C:\Program Files (x86)\Windows Kits\8.1\bin\x64\signtool.exe" sign /v /s my /n "Allsum, LLC" /t http://timestamp.digicert.com <file to sign>
+
+
+## Creating a MSI package
+
+WiX Toolset is a required download. Currently we support WiX v3.10.2, which can be downloaded here: https://wix.codeplex.com/releases/view/619491
+
+Double-click the hipara\scanner\HiparaInstaller\build.bat file. If there were no errors and the build was successful, your output should be located at hipara\scanner\HiparaInstaller\MSI\Hipara Mini-Filter Driver Setup (x64).msi.
+
+You will want to sign the MSI file with your certificate. Example: "C:\Program Files (x86)\Windows Kits\8.1\bin\x64\signtool.exe" sign /v /s my /n "Allsum, LLC" /t http://timestamp.digicert.com "Hipara Mini-Filter Driver Setup (x64).msi"
+
+
 ## Modules
 
 cmd logging - This module captures every command typed on a box, even if issued from a backdoor. It does so by continually monitoring conhost.exe spawning a cmd.exe process. From there, Hipara will explore the memory pages assigned to those processes looking for the data structure "COMMAND_HISTORY". Inspiration comes from Volatility's "cmd scan" plugin (https://github.com/volatilityfoundation/volatility/wiki/Command%20Reference#cmdscan).
@@ -30,14 +69,15 @@ cmd logging - This module captures every command typed on a box, even if issued 
 
 ## File Types Scanned
 
-The types of files to be scanned are currently defined in ____.inf. This needs some re-evaluation. Hipara can scan any file type; therefore, work needs to be done to compare actor TTPs of file types used, including fake file extensions (think webshells).
+The types of files to be scanned are currently defined in ____.inf. This needs some re-evaluation. Hipara can scan any file type; therefore, work needs to be done to compare actor TTPs of file types used, including fake file extensions (think webshells, text files).
+
 
 ## Roadmap
 
-Anti-Ransomware module - measures the entropy of a file when it is opened and closed. If the difference in entropy is great, a process may be attempting to encrypt files without the user's knowledge. This module will check to see if the process is trusted, as defined by System Admins and/or Incident Responders. If it is not a trusted process, Hipara will suspend the process, prompt the user and generate an alert for Incident Responders.
+Anti-Ransomware module: < 90 days - measures the entropy of a file when it is opened and closed. If the difference in entropy is great, a process may be attempting to encrypt files without the user's knowledge. This module will check to see if the process is trusted, as defined by System Admins and/or Incident Responders. If it is not a trusted process, Hipara will suspend the process, prompt the user and generate an alert for Incident Responders.
 
-HUNT module - This module will generate metadata from files on the endpoint using the popular exiftool library. Output will be sent to the Hipara Server, which acts as a relay to send the logs to a SIEM. Incident Responders can hunt for evil by looking for mispellings of common technology vendors like Microsoft, alert on well-known weaponization tools (Trey De Lah), and other hunting techniques Incident Responders can come up with!
+HUNT module: < 90 days - This module will generate metadata from files on the endpoint using the popular exiftool library. Output will be sent to the Hipara Server, which acts as a relay to send the logs to a SIEM. Incident Responders can hunt for evil by looking for mispellings of common technology vendors like Microsoft, alert on well-known weaponization tools (Trey De Lah), and other hunting techniques Incident Responders can come up with!
 
-Hipara currently can do 100% blocking or 100% alerting. In the future, security professionals will be able to pick and choose which Yara signatures they want to block, which you only want to alert on.
+Pick and choose block/alert: < 90 days - Hipara currently can do 100% blocking or 100% alerting. In the future, security professionals will be able to pick and choose which Yara signatures they want to block, which you only want to alert on.
 
-GRR (Google Rapid Response) integration - Hipara is currently focused on detection of evil. By integrating the world-class GRR package, security teams will have a single product that performs both detection and response.
+GRR (Google Rapid Response) integration: 60-180 days - Hipara is currently focused on detection of evil. By integrating the world-class GRR package, security teams will have a single product that performs both detection and response.

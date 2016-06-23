@@ -52,7 +52,8 @@ typedef struct _SCANNER_DATA {
     //  Listens for incoming connections
     //
 
-    PFLT_PORT ServerPort;
+	PFLT_PORT ServerPort;
+	PFLT_PORT ServerPortCmd;
 
     //
     //  User process that connected to the port
@@ -64,7 +65,8 @@ typedef struct _SCANNER_DATA {
     //  Client port for a connection to user-mode
     //
 
-    PFLT_PORT ClientPort;
+	PFLT_PORT ClientPort;
+	PFLT_PORT ClientPortCmd;
 
 } SCANNER_DATA, *PSCANNER_DATA;
 

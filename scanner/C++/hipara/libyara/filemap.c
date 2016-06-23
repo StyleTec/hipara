@@ -49,7 +49,7 @@ YR_API int yr_filemap_map(
     const char* file_path,
     YR_MAPPED_FILE* pmapped_file)
 {
-	OutputDebugStringA("yr_filemap_map: Entry.\n");
+	//OutputDebugStringA("yr_filemap_map: Entry.\n");
   return yr_filemap_map_ex(file_path, 0, 0, pmapped_file);
 }
 
@@ -87,7 +87,7 @@ YR_API int yr_filemap_map_ex(
 {
 	LARGE_INTEGER fs;
 	size_t file_size;
-	OutputDebugStringA("yr_filemap_map_ex: Entry.\n");
+	//OutputDebugStringA("yr_filemap_map_ex: Entry.\n");
   pmapped_file->file = INVALID_HANDLE_VALUE;
   pmapped_file->mapping = NULL;
   pmapped_file->data = NULL;
@@ -100,7 +100,7 @@ YR_API int yr_filemap_map_ex(
   if (offset >> 20 << 20 != offset)
     return ERROR_INVALID_ARGUMENT;
 
-  OutputDebugStringA("yr_filemap_map_ex: calling CreateFileA.\n");
+  //OutputDebugStringA("yr_filemap_map_ex: calling CreateFileA.\n");
 
   pmapped_file->file = CreateFileA(
       file_path,
@@ -113,10 +113,10 @@ YR_API int yr_filemap_map_ex(
 
   if (pmapped_file->file == INVALID_HANDLE_VALUE)
   {
-	  OutputDebugStringA("yr_filemap_map_ex: CreateFileA failed.\n");
+	  //OutputDebugStringA("yr_filemap_map_ex: CreateFileA failed.\n");
 	  return ERROR_COULD_NOT_OPEN_FILE;
   }
-  OutputDebugStringA("yr_filemap_map_ex: CreateFileA succeed.\n");
+  //OutputDebugStringA("yr_filemap_map_ex: CreateFileA succeed.\n");
   /*LARGE_INTEGER fs;
   size_t file_size;*/
 
@@ -142,7 +142,7 @@ YR_API int yr_filemap_map_ex(
     size = file_size - offset;
 
   pmapped_file->size = min(size, file_size - offset);
-  OutputDebugStringA("yr_filemap_map_ex: Calling CreateFileMapping.\n");
+  //OutputDebugStringA("yr_filemap_map_ex: Calling CreateFileMapping.\n");
   if (pmapped_file->size != 0)
   {
     pmapped_file->mapping = CreateFileMapping(
@@ -159,7 +159,7 @@ YR_API int yr_filemap_map_ex(
       pmapped_file->file = INVALID_HANDLE_VALUE;
       return ERROR_COULD_NOT_MAP_FILE;
     }
-	OutputDebugStringA("yr_filemap_map_ex: CreateFileMapping succeed.\n");
+	//OutputDebugStringA("yr_filemap_map_ex: CreateFileMapping succeed.\n");
     pmapped_file->data = (uint8_t*) MapViewOfFile(
         pmapped_file->mapping,
         FILE_MAP_READ,
@@ -181,7 +181,7 @@ YR_API int yr_filemap_map_ex(
     pmapped_file->mapping = NULL;
     pmapped_file->data = NULL;
   }
-  OutputDebugStringA("yr_filemap_map_ex: Exit.\n");
+  //OutputDebugStringA("yr_filemap_map_ex: Exit.\n");
   return ERROR_SUCCESS;
 }
 

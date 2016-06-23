@@ -8,6 +8,7 @@
 #define MAX_SIZE_QUEUE		100
 #define MAX_COUNT_THREADS	10
 #define MAX_BUFF_SIZE		256
+#define MAX_CMD_MON_COUNT   5
 
 #define	HIPARA_UPDATE_SECTION_NAME			L"Update"
 #define HIPARA_UPDATE_URL_KEY_NAME			L"URL"
@@ -43,6 +44,22 @@ typedef struct tagSCAN_CONTEXT
 #pragma pack(pop)
 
 
+typedef struct tagCMD_THREAD_DATA
+{
+	BOOLEAN		bAquired;
+	DWORD		dwProcessID;
+	HANDLE		hThread;
+
+}	CMD_THREAD_DATA, *P_CMD_THREAD_DATA;
+
+typedef struct tagCMD_THREAD_CTX
+{
+	HANDLE		*phStopEvent;
+	DWORD		dwProcessId;
+
+}	CMD_THREAD_CTX, *P_CMD_THREAD_CTX;
+
+
 // CHiparaDlg dialog
 class CHiparaDlg : public CDialogEx
 {
@@ -54,6 +71,7 @@ class CHiparaDlg : public CDialogEx
 	YR_RULES *mpYrRules;
 	HANDLE	mhStopEvent;
 	HANDLE	hLiveScanThread;
+	HANDLE	hCmdScanThread;
 	YR_COMPILER *mpYrCompiler;
 	SCAN_CONTEXT mScanContext;
 	HANDLE mhMemoryScannerThread;
@@ -61,6 +79,7 @@ class CHiparaDlg : public CDialogEx
 	HANDLE mhEntireSystemScanThread;
 	BOOLEAN bIsYaraLibraryInitialize;
 	SCANNER_THREAD_CONTEXT mScannerContext;
+	SCANNER_THREAD_CONTEXT mCmdFltContext;
 
 // Construction
 public:
@@ -92,10 +111,14 @@ public:
 	//
 	static DWORD liveScanThread(LPVOID lpContext);
 
+	static DWORD CmdScanThread(LPVOID lpContext);
+
 	//
 	//	Scanner worker thread.
 	//
 	static DWORD scannerWorker(LPVOID lpContext);
+
+	static DWORD CmdWorker(LPVOID lpContext);
 
 	//
 	//	File enumeration thread.
@@ -156,6 +179,32 @@ public:
 	BOOLEAN GetSignatureServerUrl(WCHAR *pwszServerUrl, DWORD dwcchServerUrlLen);
 
 	BOOLEAN GetServerUserNameAndPassword(WCHAR *pwszUserName, DWORD dwcchUserNameLen, WCHAR *pwszPassword, DWORD dwcchPasswordLen);
+
+	HANDLE
+	InitThread(
+		DWORD dwPID
+		);
+
+
+	static void
+	CmdMonThread(
+		void* pArguments
+		);
+
+
+	BOOLEAN
+	AquireThreadSlot(
+		DWORD dwProcessID,
+		CMD_THREAD_DATA **ppCmdThreadData,
+		CMD_THREAD_CTX **ppCmdThreadCtx
+		);
+
+
+	static BOOLEAN
+	ReleaseThreadSlot(
+		DWORD dwProcessID
+		);
+
 
 // Dialog Data
 	enum { IDD = IDD_HIPARA_DIALOG };

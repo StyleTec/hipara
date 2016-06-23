@@ -532,9 +532,9 @@ YR_API int yr_rules_scan_file(
 {
   YR_MAPPED_FILE mfile;
   int result;
-  OutputDebugStringA("yr_rules_scan_file: Entry.\n");
+  //OutputDebugStringA("yr_rules_scan_file: Entry.\n");
   result = yr_filemap_map(filename, &mfile);
-  OutputDebugStringA("yr_rules_scan_file: Calling yr_rules_scan_mem.\n");
+  //OutputDebugStringA("yr_rules_scan_file: Calling yr_rules_scan_mem.\n");
   if (result == ERROR_SUCCESS)
   {
     result = yr_rules_scan_mem(
@@ -548,7 +548,7 @@ YR_API int yr_rules_scan_file(
 
     yr_filemap_unmap(&mfile);
   }
-  OutputDebugStringA("yr_rules_scan_file: Exit.\n");
+  //OutputDebugStringA("yr_rules_scan_file: Exit.\n");
   return result;
 }
 

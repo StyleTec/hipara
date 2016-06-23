@@ -19,9 +19,12 @@ ConvertFromWideCharToMultiByte(
 
 BOOLEAN
 InstallMemoryScannerDriver(
+	WCHAR *pwszDriverName,
+	WCHAR *pwszServiceName
 	);
 
 BOOLEAN
 UnInstallMemoryScannerDriver(
-	);
+	WCHAR *pwszServiceName
+);
 #endif		// __MISC_H__

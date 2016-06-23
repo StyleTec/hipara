@@ -17,7 +17,6 @@ CatalogFile = scanner.cat
 [DestinationDirs]
 DefaultDestDir          = 12
 Scanner.DriverFiles     = 12            ;%windir%\system32\drivers
-Scanner.UserFiles       = 10,FltMgr     ;%windir%\FltMgr
 
 ;;
 ;; Default install sections
@@ -25,7 +24,7 @@ Scanner.UserFiles       = 10,FltMgr     ;%windir%\FltMgr
 
 [DefaultInstall]
 OptionDesc          = %ServiceDescription%
-CopyFiles           = Scanner.DriverFiles, Scanner.UserFiles
+CopyFiles           = Scanner.DriverFiles
 
 [DefaultInstall.Services]
 AddService          = %ServiceName%,,Scanner.Service
@@ -35,7 +34,7 @@ AddService          = %ServiceName%,,Scanner.Service
 ;;
 
 [DefaultUninstall]
-DelFiles            = Scanner.DriverFiles, Scanner.UserFiles
+DelFiles            = Scanner.DriverFiles
 
 
 
@@ -75,12 +74,8 @@ HKR,,"Extensions",0x00010000,"exe","doc","txt","bat","cmd","inf","rtf"
 [Scanner.DriverFiles]
 %DriverName%.sys
 
-[Scanner.UserFiles]
-%UserAppName%.exe
-
 [SourceDisksFiles]
 scanner.sys = 1,,
-scanuser.exe = 1,,
 
 [SourceDisksNames]
 1 = %DiskId1%,,,
@@ -94,7 +89,6 @@ Msft                    = "Microsoft Corporation"
 ServiceDescription      = "Scanner mini-filter driver"
 ServiceName             = "Scanner"
 DriverName              = "scanner"
-UserAppName             = "scanuser"
 DiskId1                 = "Scanner Device Installation Disk"
 
 ;Instances specific information.

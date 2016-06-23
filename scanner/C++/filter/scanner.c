@@ -23,6 +23,7 @@ Environment:
 #include <dontuse.h>
 #include <suppress.h>
 #include "scanuk.h"
+#include "process.h"
 #include "scanner.h"
 
 #pragma warning(disable : 4995)
@@ -90,6 +91,23 @@ VOID
 ScannerPortDisconnect (
     _In_opt_ PVOID ConnectionCookie
     );
+
+
+NTSTATUS
+CmdFltPortConnect(
+	__in PFLT_PORT ClientPort,
+	__in_opt PVOID ServerPortCookie,
+	__in_bcount_opt(SizeOfContext) PVOID ConnectionContext,
+	__in ULONG SizeOfContext,
+	__deref_out_opt PVOID *ConnectionCookie
+	);
+
+
+VOID
+CmdFltPortDisconnect(
+	__in_opt PVOID ConnectionCookie
+	);
+
 
 NTSTATUS
 ScannerpScanFileInUserMode (
@@ -232,101 +250,135 @@ Return Value:
 --*/
 {
     OBJECT_ATTRIBUTES oa;
-    UNICODE_STRING uniString;
+	UNICODE_STRING uniString;
+	UNICODE_STRING uniStringCmd;
     PSECURITY_DESCRIPTOR sd;
     NTSTATUS status;
 
     //
     //  Default to NonPagedPoolNx for non paged pool allocations where supported.
     //
-    
     ExInitializeDriverRuntime( DrvRtPoolNxOptIn );
 
     //
     //  Register with filter manager.
     //
-
-    status = FltRegisterFilter( DriverObject,
-                                &FilterRegistration,
-                                &ScannerData.Filter );
-
-
-    if (!NT_SUCCESS( status )) {
-
+    status = FltRegisterFilter(DriverObject, &FilterRegistration, &ScannerData.Filter );
+    if (!NT_SUCCESS( status )) 
+	{
         return status;
     }
 
     //
     // Obtain the extensions to scan from the registry
     //
-
     status = ScannerInitializeScannedExtensions( RegistryPath );
-
-    if (!NT_SUCCESS( status )) {
-
+    if (!NT_SUCCESS( status ))
+	{
         status = STATUS_SUCCESS;
-        
         ScannedExtensions = &ScannedExtensionDefault;
         ScannedExtensionCount = 1;    
     }    
 
+	status = InitProcessPaths();
+	if (!NT_SUCCESS(status))
+	{
+		ScannerFreeExtensions();
+		FltUnregisterFilter(ScannerData.Filter);
+
+		return status;
+	}
+
     //
     //  Create a communication port.
     //
-
-    RtlInitUnicodeString( &uniString, ScannerPortName );
+	RtlInitUnicodeString(&uniString, ScannerPortName);
+	RtlInitUnicodeString(&uniStringCmd, CmdPortName);
 
     //
     //  We secure the port so only ADMINs & SYSTEM can acecss it.
     //
-
     status = FltBuildDefaultSecurityDescriptor( &sd, FLT_PORT_ALL_ACCESS );
+	if (!NT_SUCCESS(status))
+	{
+		ScannerFreeExtensions();
+		FltUnregisterFilter(ScannerData.Filter);
 
-    if (NT_SUCCESS( status )) {
+		return status;
+	}
 
-        InitializeObjectAttributes( &oa,
-                                    &uniString,
-                                    OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE,
-                                    NULL,
-                                    sd );
+	InitializeObjectAttributes(&oa, &uniStringCmd, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, NULL, sd);
 
-        status = FltCreateCommunicationPort( ScannerData.Filter,
-                                             &ScannerData.ServerPort,
-                                             &oa,
-                                             NULL,
-                                             ScannerPortConnect,
-                                             ScannerPortDisconnect,
-                                             NULL,
-                                             1 );
-        //
-        //  Free the security descriptor in all cases. It is not needed once
-        //  the call to FltCreateCommunicationPort() is made.
-        //
+	status = FltCreateCommunicationPort(ScannerData.Filter,
+										&ScannerData.ServerPortCmd,
+										&oa,
+										NULL,
+										CmdFltPortConnect,
+										CmdFltPortDisconnect,
+										NULL,
+										1);
+	if (!NT_SUCCESS(status))
+	{
+		FltFreeSecurityDescriptor(sd);
+		ScannerFreeExtensions();
+		FltUnregisterFilter(ScannerData.Filter);
 
-        FltFreeSecurityDescriptor( sd );
+		return status;
+	}
 
-        if (NT_SUCCESS( status )) {
+	InitializeObjectAttributes(&oa, &uniString, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, NULL, sd);
+	status = FltCreateCommunicationPort(ScannerData.Filter,
+                                            &ScannerData.ServerPort,
+                                            &oa,
+                                            NULL,
+                                            ScannerPortConnect,
+                                            ScannerPortDisconnect,
+                                            NULL,
+                                            1 );  
+	if (!NT_SUCCESS(status))
+	{
+		FltCloseCommunicationPort(ScannerData.ServerPortCmd);
+		FltFreeSecurityDescriptor(sd);
+		ScannerFreeExtensions();
+		FltUnregisterFilter(ScannerData.Filter);
 
-            //
-            //  Start filtering I/O.
-            //
+		return status;
+	}
+			
+	//
+    //  Free the security descriptor in all cases. It is not needed once
+    //  the call to FltCreateCommunicationPort() is made.
+    //
+    FltFreeSecurityDescriptor( sd );
 
-            status = FltStartFiltering( ScannerData.Filter );
 
-            if (NT_SUCCESS( status )) {
+	status = InitProcessNotificationRoutine();
+	if (!NT_SUCCESS(status))
+	{
+		FltCloseCommunicationPort(ScannerData.ServerPort);
+		FltCloseCommunicationPort(ScannerData.ServerPortCmd);
+		ScannerFreeExtensions();
+		FltUnregisterFilter(ScannerData.Filter);
 
-                return STATUS_SUCCESS;
-            }
+		return status;
+	}
 
-            FltCloseCommunicationPort( ScannerData.ServerPort );
-        }
+    //
+    //  Start filtering I/O.
+    //
+    status = FltStartFiltering( ScannerData.Filter );
+    if (!NT_SUCCESS( status ))
+	{
+		DeinitProcessNotificationRoutine();
+		FltCloseCommunicationPort(ScannerData.ServerPort);
+		FltCloseCommunicationPort(ScannerData.ServerPortCmd);
+		ScannerFreeExtensions();
+		FltUnregisterFilter(ScannerData.Filter);
+
+		return status;
     }
-
-    ScannerFreeExtensions();
-
-    FltUnregisterFilter( ScannerData.Filter );
-    
-    return status;
+        
+    return STATUS_SUCCESS;
 }
 
 
@@ -736,6 +788,101 @@ Return value
 }
 
 
+
+NTSTATUS
+CmdFltPortConnect(
+__in PFLT_PORT ClientPort,
+__in_opt PVOID ServerPortCookie,
+__in_bcount_opt(SizeOfContext) PVOID ConnectionContext,
+__in ULONG SizeOfContext,
+__deref_out_opt PVOID *ConnectionCookie
+)
+/*++
+
+Routine Description
+
+This is called when user-mode connects to the server port - to establish a
+connection
+
+Arguments
+
+ClientPort - This is the client connection port that will be used to
+send messages from the filter
+
+ServerPortCookie - The context associated with this port when the
+minifilter created this port.
+
+ConnectionContext - Context from entity connecting to this port (most likely
+your user mode service)
+
+SizeofContext - Size of ConnectionContext in bytes
+
+ConnectionCookie - Context to be passed to the port disconnect routine.
+
+Return Value
+
+STATUS_SUCCESS - to accept the connection
+
+--*/
+{
+	PAGED_CODE();
+
+	UNREFERENCED_PARAMETER(ServerPortCookie);
+	UNREFERENCED_PARAMETER(ConnectionContext);
+	UNREFERENCED_PARAMETER(SizeOfContext);
+	UNREFERENCED_PARAMETER(ConnectionCookie);
+
+	ASSERT(CmdFltData.ClientPort == NULL);
+	ASSERT(CmdFltData.UserProcess == NULL);
+
+	//
+	//  Set the user process and port.
+	//
+
+	ScannerData.ClientPortCmd = ClientPort;
+
+	DbgPrint("!!! CmdFltPortConnect scanner.sys --- connected, port=0x%p\n", ClientPort);
+
+	return STATUS_SUCCESS;
+}
+
+
+VOID
+CmdFltPortDisconnect(
+__in_opt PVOID ConnectionCookie
+)
+/*++
+
+Routine Description
+
+This is called when the connection is torn-down. We use it to close our
+handle to the connection
+
+Arguments
+
+ConnectionCookie - Context from the port connect routine
+
+Return value
+
+None
+
+--*/
+{
+	UNREFERENCED_PARAMETER(ConnectionCookie);
+
+	PAGED_CODE();
+
+	DbgPrint("!!! CmdFltPortDisconnect scanner.sys --- disconnected, port=0x%p\n", ScannerData.ClientPortCmd);
+
+	//
+	//  Close our handle to the connection: note, since we limited max connections to 1,
+	//  another connect will not be allowed until we return from the disconnect routine.
+	//
+
+	FltCloseClientPort(ScannerData.Filter, &ScannerData.ClientPortCmd);
+}
+
+
 NTSTATUS
 ScannerUnload (
     _In_ FLT_FILTER_UNLOAD_FLAGS Flags
@@ -760,13 +907,15 @@ Return Value:
 {
     UNREFERENCED_PARAMETER( Flags );
 
+	DeinitProcessNotificationRoutine();
     ScannerFreeExtensions();
 
     //
     //  Close the server port.
     //
 
-    FltCloseCommunicationPort( ScannerData.ServerPort );
+	FltCloseCommunicationPort(ScannerData.ServerPortCmd);
+	FltCloseCommunicationPort(ScannerData.ServerPort);
 
     //
     //  Unregister the filter
