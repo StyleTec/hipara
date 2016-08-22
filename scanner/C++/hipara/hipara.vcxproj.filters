@@ -182,6 +182,12 @@
     <ClCompile Include="cmdlog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="libyara\stream.c">
+      <Filter>Source Files\libyara</Filter>
+    </ClCompile>
+    <ClCompile Include="libyara\threading.c">
+      <Filter>Source Files\libyara</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Midl Include="hipara.idl">

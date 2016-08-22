@@ -8,25 +8,59 @@
 
 #define	SIGNATURE_FILE			"signatures.yar"
 
+typedef enum ALERT_TYPE
+{
+	ALERT_FILE,
+	ALERT_CMD
+};
+
+typedef struct
+{
+	char* hostName;
+	char* fileName;
+	char* alertMessage;
+	char* timeStamp;
+	char* command;
+	ALERT_TYPE alertType;
+	long parentProcessId;
+}AlertMessage;
+
 using namespace std;
 
-class Update : public MyCurl
+class Update 
 {
 	char* mSignatureDownloadPath;
 	char* mSignatureServerUrl;
-	FileDetails* mFileDetails;
 	char* mAccessToken;
 	int mAccessTokenLen;
 	char* mEmail;
 	char* mPassword;
+	bool mbInitialized;
+
+	int createEventsAndThreads();
+	int addToQueue(AlertMessage* alert);
 
 public:
 	Update(const char* signatureDownloadPath, const char* signatureServerUrl);
 	Update();
 	~Update();
 
-	int updateSignature(const char* email, const char* password);
+	int init();
+
+	char* getSignatureServerUrl()
+	{
+		return mSignatureServerUrl;
+	}
+	char* getAccessToken()
+	{
+		return mAccessToken;
+	}
+	AlertMessage* popAlertMessage();
+	int login(const char* email, const char* password);
+	int updateSignature();
+	int logout();
 	int parseJsonResponse(char* response);
+	int alert(AlertMessage*);
 };
 
 #endif /* __UPDATE__ */

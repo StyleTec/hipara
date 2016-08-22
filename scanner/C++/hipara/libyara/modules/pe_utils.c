@@ -1,6 +1,17 @@
 
 
-#if !HAVE_TIMEGM
+#include <stdio.h>
+
+#include "../include/yara/mem.h"
+#include "../include/yara/integers.h"
+
+#if defined(WIN32)
+#include <string.h>
+#define strncasecmp _strnicmp
+#define timegm _mkgmtime
+#endif
+
+#if !HAVE_TIMEGM && !defined(WIN32)
 
 #include <time.h>
 

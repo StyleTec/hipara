@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include<tchar.h>
 #include<Windows.h>
 #include <ntstatus.h>
@@ -9,10 +10,18 @@
 #include <sys/stat.h>
 #include <io.h>
 #include <stdio.h>
-
+#include <time.h>
 #include "cmdlog.h"
+#include "hipara.h"
+#include "libyara\include\yara\libyara.h"
+#include "libyara\include\yara\compiler.h"
+#include "libyara\include\yara\rules.h"
+#include "hiparaDlg.h"
+
+#pragma comment(lib,"ntdll.lib")
 
 WCHAR gszCmdLogFile[MAX_PATH] = _T("C:\\Program Files\\Allsum\\Hipara\\cmd.txt");
+extern CHiparaDlg *g_pThis;
 
 BOOLEAN
 LogCmdProcess(
@@ -35,6 +44,7 @@ LogCmdProcess(
 	HANDLE hCurrentProcess;
 	WCHAR wszProcessName[MAX_PATH];
 	WCHAR wszCmdProcessName[MAX_PATH];
+	static DWORD dwParentProcessId = 0;
 	PSYSTEM_HANDLE_INFORMATION pSystemHandleInfo;
 	PFN_NTQUERYSYSTEMINFORMATION pfnNtQuerySystemInformation;
 
@@ -99,6 +109,9 @@ LogCmdProcess(
 			continue;
 		}
 
+		sprintf_s(msg, sizeof(msg), "Process Id 1(%u) Process Id 2(%u)\n", dwProcessIdToLog, pSystemHandleInfo->Handles[ulIndex].ProcessId);
+		OutputDebugStringA(msg);
+
 		if (dwProcessIdToLog != pSystemHandleInfo->Handles[ulIndex].ProcessId)
 		{
 			continue;
@@ -115,7 +128,7 @@ LogCmdProcess(
 			continue;
 		}
 
-		//OutputDebugString(_T("==== Found conhost.exe process ====\n"));
+		OutputDebugString(_T("==== Found conhost.exe process ====\n"));
 
 		hCurrentProcess = OpenProcess(PROCESS_DUP_HANDLE | PROCESS_VM_READ | PROCESS_QUERY_INFORMATION, 0, pSystemHandleInfo->Handles[ulIndex].ProcessId);
 		if (NULL == hCurrentProcess)
@@ -145,10 +158,15 @@ LogCmdProcess(
 			continue;
 		}
 
-		//sprintf_s(msg, sizeof(msg), "Found cmd.exe process: (%s) with Process id:(%u)\n", wszCmdProcessName, dwProcessId);
-		//OutputDebugStringA(msg);
+		if (0 == dwParentProcessId)
+		{
+			bRetVal = GetParentProcessID(dwProcessId, &dwParentProcessId);
+		}
 
-		bRetVal = WriteProcessMemoryToFile(hCurrentProcess, (HANDLE)pSystemHandleInfo->Handles[ulIndex].Handle, hStopEvent, hProcessEvent, pushCommandCount);
+		/*sprintf_s(msg, sizeof(msg), "Found cmd.exe process: (%s) with Process id:(%u) Parent(%u)\n", wszCmdProcessName, dwProcessId, dwParentProcessId);
+		OutputDebugStringA(msg);*/
+
+		bRetVal = WriteProcessMemoryToFile(hCurrentProcess, (HANDLE)pSystemHandleInfo->Handles[ulIndex].Handle, hStopEvent, hProcessEvent, pushCommandCount, dwParentProcessId);
 		if (FALSE == bRetVal)
 		{
 			_tprintf(_T("WriteProcessMemoryToFile failed.\n"));
@@ -166,7 +184,7 @@ LogCmdProcess(
 }
 
 
-BOOLEAN WriteProcessMemoryToFile(HANDLE hProcess, HANDLE hHandle, HANDLE hStopEvent, HANDLE hProcessEvent,USHORT *pushCommandCount)
+BOOLEAN WriteProcessMemoryToFile(HANDLE hProcess, HANDLE hHandle, HANDLE hStopEvent, HANDLE hProcessEvent, USHORT *pushCommandCount, DWORD dwParentProcessId)
 {
 	DWORD dwCnt;
 	USHORT ushLen;
@@ -318,10 +336,11 @@ BOOLEAN WriteProcessMemoryToFile(HANDLE hProcess, HANDLE hHandle, HANDLE hStopEv
 							}
 							else
 							{
-								//_stprintf_s(errMsg, sizeof(errMsg), L"wszCommand(%s)", wszCommand);
-								//OutputDebugString(errMsg);
+								/*_stprintf_s(errMsg, sizeof(errMsg), L"wszCommand(%s)", wszCommand);
+								OutputDebugString(errMsg);*/
 								//_tprintf(_T("Command: %s\n"), wszCommand);
-								LogCmdActivityToFile((BYTE *)wszCommand, wcslen(wszCommand) * sizeof(wszCommand[0]));
+								//LogCmdActivityToFile((BYTE *)wszCommand, wcslen(wszCommand) * sizeof(wszCommand[0]));
+								g_pThis->SendAlertMessageToServer(wszCommand, ALERT_CMD, dwParentProcessId);
 							}
 						}
 					}
@@ -342,6 +361,44 @@ BOOLEAN WriteProcessMemoryToFile(HANDLE hProcess, HANDLE hHandle, HANDLE hStopEv
 	OutputDebugString(_T("WriteProcessMemoryToFile: Given back command prompt\n"));
 
 	return TRUE;
+}
+
+
+BOOLEAN
+GetParentProcessID(
+	DWORD dwPID,
+	DWORD *pdwPPID
+)
+{
+	int iPID;
+	HANDLE hToolhelp32;
+	PROCESSENTRY32 ProccessEntry;;
+
+	iPID = -1;
+	ProccessEntry.dwSize = sizeof(PROCESSENTRY32);
+
+	if (NULL == pdwPPID)
+	{
+		return FALSE;
+	}
+
+	hToolhelp32 = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+	if (Process32First(hToolhelp32, &ProccessEntry))
+	{
+		do
+		{
+			if (ProccessEntry.th32ProcessID == dwPID)
+			{
+				*pdwPPID = (DWORD)ProccessEntry.th32ParentProcessID;
+				CloseHandle(hToolhelp32);
+				return TRUE;
+			}
+
+		} while (Process32Next(hToolhelp32, &ProccessEntry));
+	}
+
+	CloseHandle(hToolhelp32);
+	return FALSE;
 }
 
 BOOL SetPrivilege(
@@ -461,6 +518,9 @@ LogCmdActivityToFile(
 {
 	HANDLE hFile;
 	BOOL boRetVal;
+	time_t timer;
+	struct tm* tm_info;
+	WCHAR wszbuffer[26];
 	TCHAR ErrMgg[MAX_PATH];
 	DWORD dwNumberOfBytesReturned;
 	LARGE_INTEGER liDistanceToMove;
@@ -495,6 +555,21 @@ LogCmdActivityToFile(
 		return FALSE;
 	}
 
+	time(&timer);
+	tm_info = localtime(&timer);
+
+	wcsftime(wszbuffer, ARRAY_SIZE(wszbuffer), L"%Y:%m:%d %H:%M:%S ", tm_info);
+
+	boRetVal = WriteFile(hFile, wszbuffer, wcslen(wszbuffer) * sizeof(wszbuffer[0]), &dwNumberOfBytesReturned, NULL);
+	if (FALSE == boRetVal)
+	{
+		_stprintf_s(ErrMgg, sizeof(ErrMgg), L"WriteFile() Failed. Error(%u).", GetLastError());
+		OutputDebugString(ErrMgg);
+
+		CloseHandle(hFile);
+		return FALSE;
+	}
+
 	boRetVal = WriteFile(hFile, pbyCommand, dwcbCommand, &dwNumberOfBytesReturned, NULL);
 	if (FALSE == boRetVal)
 	{
@@ -505,7 +580,7 @@ LogCmdActivityToFile(
 		return FALSE;
 	}
 
-	boRetVal = WriteFile(hFile, L"\r\n", sizeof(L"\r\n"), &dwNumberOfBytesReturned, NULL);
+	boRetVal = WriteFile(hFile, L"\r\n", wcslen(L"\r\n") * sizeof(WCHAR), &dwNumberOfBytesReturned, NULL);
 	if (FALSE == boRetVal)
 	{
 		_stprintf_s(ErrMgg, sizeof(ErrMgg), L"WriteFile() Failed. Error(%u).", GetLastError());

@@ -117,7 +117,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Win7 Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>..\..\HiparaInstaller\files\64</OutDir>
+    <OutDir>..\..\HiparaInstaller\files\64\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -206,6 +206,7 @@
       <RegisterOutput>false</RegisterOutput>
       <AdditionalDependencies>fltLib.lib;jansson32.lib;"libcurlx86.lib";"VirusSignatureUpdate.lib";"hiparamemscandll.lib"</AdditionalDependencies>
       <AdditionalLibraryDirectories>.\hipara\libyara\lib\Release;lib\Release\32;..\C++\hipara\libyara\lib\Debug;lib\Release;..\update\lib\Release\x86</AdditionalLibraryDirectories>
+      <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -297,16 +298,16 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Win7 Release|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <Optimization>Disabled</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>false</SDLCheck>
-      <AdditionalIncludeDirectories>.\inc;.\hipara\libyara\include\yara;.\hipara\libyara\include;.\hipara\libyara\modules;.\hipara\libyara\include\yara\openssl;.\update\include;.\update\include\curl</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\hipara\libyara\include\yara;.\hipara\libyara\include;.\inc;.\hipara\libyara\modules;.\hipara\libyara\include\yara\openssl;.\update\include;.\update\include\curl</AdditionalIncludeDirectories>
       <CompileAs>CompileAsCpp</CompileAs>
       <DisableSpecificWarnings>
       </DisableSpecificWarnings>
+      <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -316,6 +317,7 @@
       <RegisterOutput>false</RegisterOutput>
       <AdditionalDependencies>fltLib.lib;jansson64.lib;"libcurlx64.lib";"VirusSignatureUpdate.lib";"hiparamemscandll.lib"</AdditionalDependencies>
       <AdditionalLibraryDirectories>.\hipara\libyara\lib\Release;..\C++\hipara\libyara\lib\Release;lib\Release;..\update\lib\Release\x64;lib\Release\64</AdditionalLibraryDirectories>
+      <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -349,7 +351,9 @@
     <ClInclude Include="yara.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="cmdlog.cpp" />
+    <ClCompile Include="cmdlog.cpp">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Win7 Release|x64'">stdafx.h</PrecompiledHeaderFile>
+    </ClCompile>
     <ClCompile Include="DlgProxy.cpp" />
     <ClCompile Include="hipara.cpp" />
     <ClCompile Include="hiparaDlg.cpp" />
@@ -382,7 +386,9 @@
     <ClCompile Include="libyara\rules.c" />
     <ClCompile Include="libyara\scan.c" />
     <ClCompile Include="libyara\sizedstr.c" />
+    <ClCompile Include="libyara\stream.c" />
     <ClCompile Include="libyara\strutils.c" />
+    <ClCompile Include="libyara\threading.c" />
     <ClCompile Include="liveScan.cpp" />
     <ClCompile Include="misc.c" />
     <ClCompile Include="stdafx.cpp">

@@ -8,6 +8,7 @@ Class				= System
 Provider			= %HIPARA%
 DriverVer			= 12/02/2015,1.0
 CatalogFile			= hiparamemscan.cat
+DriverVer=08/19/2016,13.19.58.926
 
 ; Section related to driver files and path.
 [DestinationDirs]

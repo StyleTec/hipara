@@ -474,6 +474,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="filecache.c" />
     <ClCompile Include="process.c" />
     <ClCompile Include="scanner.c" />
     <ResourceCompile Include="scanner.rc" />

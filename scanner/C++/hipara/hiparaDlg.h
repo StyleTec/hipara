@@ -1,6 +1,7 @@
 
 // hiparaDlg.h : header file
 //
+#include "..\update\include\Update.h"
 
 #pragma once
 
@@ -9,12 +10,9 @@
 #define MAX_COUNT_THREADS	10
 #define MAX_BUFF_SIZE		256
 #define MAX_CMD_MON_COUNT   5
+#define	MAX_ALERT_MSG_SIZE  512
 
-#define	HIPARA_UPDATE_SECTION_NAME			L"Update"
-#define HIPARA_UPDATE_URL_KEY_NAME			L"URL"
-#define	HIPARA_UPDATE_USERNAME_KEY_NAME		L"USERNAME"
-#define	HIPARA_UPDATE_PASSWORD_KEY_NAME		L"PWD"
-#define	HIPARA_CONFIG_FILE_NAME				L"config.ini"
+#define	FILTER_SCANNER_NAME		L"Scanner"
 
 class CHiparaDlgAutoProxy;
 
@@ -66,6 +64,7 @@ class CHiparaDlg : public CDialogEx
 	DECLARE_DYNAMIC(CHiparaDlg);
 	friend class CHiparaDlgAutoProxy;
 
+	Update *pObjUpdate;
 	FILE	*mpYarFile;
 	static FILE	*mpLogFile;
 	YR_RULES *mpYrRules;
@@ -75,6 +74,7 @@ class CHiparaDlg : public CDialogEx
 	YR_COMPILER *mpYrCompiler;
 	SCAN_CONTEXT mScanContext;
 	HANDLE mhMemoryScannerThread;
+	HANDLE mhUpdateAvailableEvent;
 	HANDLE mhUpdateSignatureThread;
 	HANDLE mhEntireSystemScanThread;
 	BOOLEAN bIsYaraLibraryInitialize;
@@ -205,6 +205,27 @@ public:
 		DWORD dwProcessID
 		);
 
+	BOOLEAN
+	InitUpdateLib();
+
+	BOOLEAN
+	DeInitUpdateLib();
+
+	Update*
+	GetUpdateLibObj();
+
+	BOOLEAN
+	SendAlertMessageToServer(
+		WCHAR *pwszFilePath,
+		ALERT_TYPE alertType,
+		DWORD dwParentProcessId = 0
+		);
+
+	BOOLEAN
+	SendAlertMessageToFile(
+		WCHAR *pwszFilePath,
+		DWORD dwcbFilePathLen
+		);
 
 // Dialog Data
 	enum { IDD = IDD_HIPARA_DIALOG };

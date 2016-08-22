@@ -1,17 +1,30 @@
 /*
 Copyright (c) 2013. The YARA Authors. All Rights Reserved.
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+Redistribution and use in source and binary forms, with or without modification,
+are permitted provided that the following conditions are met:
 
-   http://www.apache.org/licenses/LICENSE-2.0
+1. Redistributions of source code must retain the above copyright notice, this
+list of conditions and the following disclaimer.
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+2. Redistributions in binary form must reproduce the above copyright notice,
+this list of conditions and the following disclaimer in the documentation and/or
+other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its contributors
+may be used to endorse or promote products derived from this software without
+specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 /*
@@ -338,7 +351,7 @@ int _yr_atoms_choose(
   YR_ATOM_LIST_ITEM* tail;
 
   int i, quality;
-  int max_quality = 0;
+  int max_quality = -10000;
   int min_quality = 10000;
 
   *choosen_atoms = NULL;
@@ -401,12 +414,15 @@ int _yr_atoms_choose(
       if (quality < min_quality)
         min_quality = quality;
 
-      tail = item;
-      while (tail->next != NULL)
-        tail = tail->next;
+      if (item != NULL)
+      {
+        tail = item;
+        while (tail->next != NULL)
+          tail = tail->next;
 
-      tail->next = *choosen_atoms;
-      *choosen_atoms = item;
+        tail->next = *choosen_atoms;
+        *choosen_atoms = item;
+      }
 
       child = child->next_sibling;
     }
@@ -591,7 +607,7 @@ int _yr_atoms_wide(
         break;
     }
 
-    new_atom->atom_length = min(atom->atom_length * 2, MAX_ATOM_LENGTH);
+    new_atom->atom_length = yr_min(atom->atom_length * 2, MAX_ATOM_LENGTH);
     new_atom->forward_code = atom->forward_code;
     new_atom->backward_code = atom->backward_code;
     new_atom->backtrack = atom->backtrack * 2;
@@ -771,7 +787,8 @@ ATOM_TREE_NODE* _yr_atoms_extract_from_re_node(
 
     case RE_NODE_RANGE:
 
-      append_current_leaf_to_node(current_node);
+      if (re_node->start == 0)
+        append_current_leaf_to_node(current_node);
 
       for (i = 0; i < re_node->start; i++)
       {
@@ -782,7 +799,7 @@ ATOM_TREE_NODE* _yr_atoms_extract_from_re_node(
           return NULL;
       }
 
-      if (re_node->start > 0)
+      if (re_node->start != re_node->end)
         append_current_leaf_to_node(current_node);
 
       return current_node;
@@ -845,6 +862,9 @@ int yr_atoms_extract_triplets(
     RE_NODE* left_child;
     RE_NODE* left_grand_child;
 
+	int i;
+	int shift;
+
     *atoms = NULL;
 
     if (re_node->type == RE_NODE_CONCAT)
@@ -863,7 +883,7 @@ int yr_atoms_extract_triplets(
     if (left_child->left->type == RE_NODE_LITERAL &&
         (left_child->right->type == RE_NODE_ANY))
     {
-      for (int i = 0; i < 256; i++)
+      for (i = 0; i < 256; i++)
       {
         YR_ATOM_LIST_ITEM* atom = (YR_ATOM_LIST_ITEM*)
             yr_malloc(sizeof(YR_ATOM_LIST_ITEM));
@@ -890,15 +910,13 @@ int yr_atoms_extract_triplets(
     if (left_child->left->type == RE_NODE_LITERAL &&
         (left_child->right->type == RE_NODE_MASKED_LITERAL))
     {
-      for (int i = 0; i < 16; i++)
+      for (i = 0; i < 16; i++)
       {
         YR_ATOM_LIST_ITEM* atom = (YR_ATOM_LIST_ITEM*)
             yr_malloc(sizeof(YR_ATOM_LIST_ITEM));
 
         if (atom == NULL)
           return ERROR_INSUFICIENT_MEMORY;
-
-        int shift;
 
         if (left_child->right->mask == 0xF0)
           shift = 0;
@@ -925,7 +943,7 @@ int yr_atoms_extract_triplets(
         left_grand_child->right->type == RE_NODE_LITERAL &&
         (left_child->right->type == RE_NODE_ANY))
     {
-      for (int i = 0; i < 256; i++)
+      for (i = 0; i < 256; i++)
       {
         YR_ATOM_LIST_ITEM* atom = (YR_ATOM_LIST_ITEM*)
             yr_malloc(sizeof(YR_ATOM_LIST_ITEM));
@@ -953,15 +971,13 @@ int yr_atoms_extract_triplets(
         left_grand_child->right->type == RE_NODE_LITERAL &&
         (left_child->right->type == RE_NODE_MASKED_LITERAL))
     {
-      for (int i = 0; i < 16; i++)
+      for (i = 0; i < 16; i++)
       {
         YR_ATOM_LIST_ITEM* atom = (YR_ATOM_LIST_ITEM*)
             yr_malloc(sizeof(YR_ATOM_LIST_ITEM));
 
         if (atom == NULL)
           return ERROR_INSUFICIENT_MEMORY;
-
-        int shift;
 
         if (left_child->right->mask == 0xF0)
           shift = 0;
@@ -1012,7 +1028,10 @@ int yr_atoms_extract_from_re(
   atom_tree->root_node = _yr_atoms_tree_node_create(ATOM_TREE_OR);
 
   if (atom_tree->root_node == NULL)
+  {
+    _yr_atoms_tree_destroy(atom_tree);
     return ERROR_INSUFICIENT_MEMORY;
+  }
 
   atom_tree->current_leaf = NULL;
 
@@ -1020,7 +1039,10 @@ int yr_atoms_extract_from_re(
       re->root_node, atom_tree, atom_tree->root_node);
 
   if (atom_tree->root_node == NULL)
+  {
+    _yr_atoms_tree_destroy(atom_tree);
     return ERROR_INSUFICIENT_MEMORY;
+  }
 
   if (atom_tree->current_leaf != NULL)
     _yr_atoms_tree_node_append(atom_tree->root_node, atom_tree->current_leaf);
@@ -1058,6 +1080,7 @@ int yr_atoms_extract_from_re(
         yr_atoms_extract_triplets(re->root_node, &triplet_atoms),
         {
           yr_atoms_list_destroy(*atoms);
+          yr_atoms_list_destroy(triplet_atoms);
           *atoms = NULL;
         });
 
@@ -1078,6 +1101,7 @@ int yr_atoms_extract_from_re(
         _yr_atoms_wide(*atoms, &wide_atoms),
         {
           yr_atoms_list_destroy(*atoms);
+          yr_atoms_list_destroy(wide_atoms);
           *atoms = NULL;
         });
 
@@ -1098,10 +1122,27 @@ int yr_atoms_extract_from_re(
         _yr_atoms_case_insentive(*atoms, &case_insentive_atoms),
         {
           yr_atoms_list_destroy(*atoms);
+          yr_atoms_list_destroy(case_insentive_atoms);
           *atoms = NULL;
         });
 
     *atoms = _yr_atoms_list_concat(*atoms, case_insentive_atoms);
+  }
+
+  // No atoms has been extracted, let's add a zero-length atom.
+
+  if (*atoms == NULL)
+  {
+    *atoms = (YR_ATOM_LIST_ITEM*) yr_malloc(sizeof(YR_ATOM_LIST_ITEM));
+
+    if (*atoms == NULL)
+      return ERROR_INSUFICIENT_MEMORY;
+
+    (*atoms)->atom_length = 0;
+    (*atoms)->backtrack = 0;
+    (*atoms)->forward_code = re->root_node->forward_code;
+    (*atoms)->backward_code = NULL;
+    (*atoms)->next = NULL;
   }
 
   return ERROR_SUCCESS;
@@ -1116,7 +1157,7 @@ int yr_atoms_extract_from_re(
 
 int yr_atoms_extract_from_string(
     uint8_t* string,
-    int string_length,
+    int32_t string_length,
     int flags,
     YR_ATOM_LIST_ITEM** atoms)
 {
@@ -1137,7 +1178,7 @@ int yr_atoms_extract_from_string(
   item->next = NULL;
   item->backtrack = 0;
 
-  length = min(string_length, MAX_ATOM_LENGTH);
+  length = yr_min(string_length, MAX_ATOM_LENGTH);
 
   for (i = 0; i < length; i++)
     item->atom[i] = string[i];
@@ -1169,6 +1210,7 @@ int yr_atoms_extract_from_string(
         _yr_atoms_wide(*atoms, &wide_atoms),
         {
           yr_atoms_list_destroy(*atoms);
+          yr_atoms_list_destroy(wide_atoms);
           *atoms = NULL;
         });
 
@@ -1189,6 +1231,7 @@ int yr_atoms_extract_from_string(
         _yr_atoms_case_insentive(*atoms, &case_insentive_atoms),
         {
           yr_atoms_list_destroy(*atoms);
+          yr_atoms_list_destroy(case_insentive_atoms);
           *atoms = NULL;
         });
 

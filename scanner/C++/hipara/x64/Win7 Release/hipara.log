@@ -1,5 +1,59 @@
-﻿Build started 18-06-2016 22:54:10.
+﻿Build started 21-08-2016 15:47:52.
+     1>Project "F:\VoidStarIndia\Anti_virus\Repository\hipara-private_3_5_0\scanner\C++\hipara\hipara.vcxproj" on node 2 (Build target(s)).
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\CL.exe /c /I.\hipara\libyara\include\yara /I.\hipara\libyara\include /I.\inc /I.\hipara\libyara\modules /I.\hipara\libyara\include\yara\openssl /I.\update\include /I.\update\include\curl /Zi /nologo /W3 /WX- /sdl- /Od /Oi /GL /D _WINDOWS /D NDEBUG /D _CRT_SECURE_NO_WARNINGS /D _UNICODE /D UNICODE /D _AFXDLL /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"x64\Win7 Release\\" /Fd"x64\Win7 Release\vc120.pdb" /Gd /TP /errorReport:prompt libyara\filemap.c
+         filemap.c
+     1>libyara\filemap.c(128): warning C4018: '>' : signed/unsigned mismatch
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"..\..\HiparaInstaller\files\64\hipara.exe" /INCREMENTAL:NO /NOLOGO /LIBPATH:.\hipara\libyara\lib\Release /LIBPATH:..\C++\hipara\libyara\lib\Release /LIBPATH:lib\Release /LIBPATH:..\update\lib\Release\x64 /LIBPATH:lib\Release\64 fltLib.lib jansson64.lib libcurlx64.lib VirusSignatureUpdate.lib hiparamemscandll.lib /MANIFEST /MANIFESTUAC:"level='requireAdministrator' uiAccess='false'" /manifest:embed /manifestinput:"C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\Include\Manifest\dpiaware.manifest" /DEBUG /PDB:"..\..\HiparaInstaller\files\64\hipara.pdb" /SUBSYSTEM:WINDOWS /OPT:REF /OPT:ICF /LTCG /TLBID:1 /ENTRY:"wWinMainCRTStartup" /DYNAMICBASE /NXCOMPAT /IMPLIB:"..\..\HiparaInstaller\files\64\hipara.lib" /MACHINE:X64 "x64\Win7 Release\hipara.res"
+         "x64\Win7 Release\cmdlog.obj"
+         "x64\Win7 Release\DlgProxy.obj"
+         "x64\Win7 Release\hipara.obj"
+         "x64\Win7 Release\hiparaDlg.obj"
+         "x64\Win7 Release\ahocorasick.obj"
+         "x64\Win7 Release\arena.obj"
+         "x64\Win7 Release\atoms.obj"
+         "x64\Win7 Release\compiler.obj"
+         "x64\Win7 Release\exec.obj"
+         "x64\Win7 Release\exefiles.obj"
+         "x64\Win7 Release\filemap.obj"
+         "x64\Win7 Release\grammar.obj"
+         "x64\Win7 Release\hash.obj"
+         "x64\Win7 Release\hex_grammar.obj"
+         "x64\Win7 Release\hex_lexer.obj"
+         "x64\Win7 Release\lexer.obj"
+         "x64\Win7 Release\libyara.obj"
+         "x64\Win7 Release\mem.obj"
+         "x64\Win7 Release\modules.obj"
+         "x64\Win7 Release\cuckoo.obj"
+         "x64\Win7 Release\elf.obj"
+         "x64\Win7 Release\math.obj"
+         "x64\Win7 Release\pe.obj"
+         "x64\Win7 Release\tests.obj"
+         "x64\Win7 Release\object.obj"
+         "x64\Win7 Release\parser.obj"
+         "x64\Win7 Release\proc.obj"
+         "x64\Win7 Release\re.obj"
+         "x64\Win7 Release\re_grammar.obj"
+         "x64\Win7 Release\re_lexer.obj"
+         "x64\Win7 Release\rules.obj"
+         "x64\Win7 Release\scan.obj"
+         "x64\Win7 Release\sizedstr.obj"
+         "x64\Win7 Release\stream.obj"
+         "x64\Win7 Release\strutils.obj"
+         "x64\Win7 Release\threading.obj"
+         "x64\Win7 Release\liveScan.obj"
+         "x64\Win7 Release\misc.obj"
+         "x64\Win7 Release\stdafx.obj"
+         "x64\Win7 Release\yara.obj"
+            Creating library ..\..\HiparaInstaller\files\64\hipara.lib and object ..\..\HiparaInstaller\files\64\hipara.exp
+         Generating code
+         Finished generating code
+     1>VirusSignatureUpdate.lib(Update.obj) : warning LNK4099: PDB 'vc120.pdb' was not found with 'VirusSignatureUpdate.lib(Update.obj)' or at 'F:\VoidStarIndia\Anti_virus\Repository\hipara-private_3_5_0\scanner\HiparaInstaller\files\64\vc120.pdb'; linking object as if no debug info
+     1>VirusSignatureUpdate.lib(MyCurl.obj) : warning LNK4099: PDB 'vc120.pdb' was not found with 'VirusSignatureUpdate.lib(MyCurl.obj)' or at 'F:\VoidStarIndia\Anti_virus\Repository\hipara-private_3_5_0\scanner\HiparaInstaller\files\64\vc120.pdb'; linking object as if no debug info
+         hipara.vcxproj -> F:\VoidStarIndia\Anti_virus\Repository\hipara-private_3_5_0\scanner\C++\hipara\..\..\HiparaInstaller\files\64\hipara.exe
+     1>Done Building Project "F:\VoidStarIndia\Anti_virus\Repository\hipara-private_3_5_0\scanner\C++\hipara\hipara.vcxproj" (Build target(s)).
 
 Build succeeded.
 
-Time Elapsed 00:00:00.12
+Time Elapsed 00:00:10.92

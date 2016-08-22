@@ -1,4 +1,4 @@
-//#include<Winternl.h>
+#include<Winternl.h>
 
 #define	SystemHandleInformation		16
 #define	MAX_NAME_LENGTH				260
@@ -120,7 +120,13 @@ BOOLEAN LogCmdProcess(DWORD dwProcessIdToLog, HANDLE hStopEvent, HANDLE hProcess
 
 BOOLEAN GetProcessName(ULONG ulProcessId, WCHAR *pwszProcessName, ULONG ulcbSize);
 
-BOOLEAN WriteProcessMemoryToFile(HANDLE hProcess, HANDLE hHandle, HANDLE hStopEvent, HANDLE hProcessEvent, USHORT *pushCommandCount);
+BOOLEAN WriteProcessMemoryToFile(HANDLE hProcess, HANDLE hHandle, HANDLE hStopEvent, HANDLE hProcessEvent, USHORT *pushCommandCount, DWORD dwParentProcessId);
+
+BOOLEAN
+GetParentProcessID(
+	DWORD dwPID,
+	DWORD *pdwPPID
+);
 
 BOOLEAN
 LogCmdActivityToFile(

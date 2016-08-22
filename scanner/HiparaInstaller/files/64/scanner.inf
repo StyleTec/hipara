@@ -10,7 +10,7 @@ Signature   = "$Windows NT$"
 Class       = "ContentScreener"                         ;This is determined by the work this filter driver does
 ClassGuid   = {3e3f0674-c83c-4558-bb26-9820e1eba5c5}    ;This value is determined by the Class
 Provider    = %Msft%
-DriverVer   = 04/28/2016,1.0.0.0
+DriverVer   = 08/04/2016,1.0.0.0
 CatalogFile = scanner.cat
 
 
@@ -52,7 +52,7 @@ Description      = %ServiceDescription%
 ServiceBinary    = %12%\%DriverName%.sys        ;%windir%\system32\drivers\
 Dependencies     = "FltMgr"
 ServiceType      = 2                            ;SERVICE_FILE_SYSTEM_DRIVER
-StartType        = 3                            ;SERVICE_DEMAND_START
+StartType        = 2                            ;SERVICE_DEMAND_START
 ErrorControl     = 1                            ;SERVICE_ERROR_NORMAL
 LoadOrderGroup   = "FSFilter Content Screener"
 AddReg           = Scanner.AddRegistry

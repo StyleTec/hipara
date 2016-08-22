@@ -1,32 +1,47 @@
 /*
 Copyright (c) 2013. The YARA Authors. All Rights Reserved.
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+Redistribution and use in source and binary forms, with or without modification,
+are permitted provided that the following conditions are met:
 
-   http://www.apache.org/licenses/LICENSE-2.0
+1. Redistributions of source code must retain the above copyright notice, this
+list of conditions and the following disclaimer.
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+2. Redistributions in binary form must reproduce the above copyright notice,
+this list of conditions and the following disclaimer in the documentation and/or
+other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its contributors
+may be used to endorse or promote products derived from this software without
+specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 %{
 
-#include <stdint.h>
-
-#include <libyara\include\yara\utils.h>
-#include <libyara\include\yara\error.h>
-#include <libyara\include\yara\yr_limits.h>
-#include <libyara\include\yara\mem.h>
-#include <libyara\include\yara\re.h>
-#include <libyara\include\yara\re_lexer.h>
+#include <yara/integers.h>
+#include <yara/utils.h>
+#include <yara/error.h>
+#include <yara/limits.h>
+#include <yara/mem.h>
+#include <yara/re.h>
+#include <yara/re_lexer.h>
 
 
 #define YYERROR_VERBOSE
+
+#define YYMALLOC yr_malloc
+#define YYFREE yr_free
 
 #define ERROR_IF(x, error) \
     if (x) \
@@ -42,8 +57,6 @@ limitations under the License.
     } \
 
 %}
-
-%debug
 
 %name-prefix="re_yy"
 %pure-parser
@@ -85,212 +98,247 @@ limitations under the License.
 
 %%
 
-re : alternative
-     {
+re  : alternative
+      {
         RE* re = yyget_extra(yyscanner);
         re->root_node = $1;
-     }
-   | error
-   ;
+      }
+    | error
+    ;
 
-alternative : concatenation
-              {
-                $$ = $1;
-              }
-            | alternative '|' concatenation
-              {
-                $$ = yr_re_node_create(RE_NODE_ALT, $1, $3);
+alternative
+    : concatenation
+      {
+        $$ = $1;
+      }
+    | alternative '|' concatenation
+      {
+        $$ = yr_re_node_create(RE_NODE_ALT, $1, $3);
 
-                DESTROY_NODE_IF($$ == NULL, $1);
-                DESTROY_NODE_IF($$ == NULL, $3);
+        DESTROY_NODE_IF($$ == NULL, $1);
+        DESTROY_NODE_IF($$ == NULL, $3);
 
-                ERROR_IF($$ == NULL, ERROR_INSUFICIENT_MEMORY);
-              }
-            | alternative '|'
-              {
-                RE_NODE* node;
+        ERROR_IF($$ == NULL, ERROR_INSUFICIENT_MEMORY);
+      }
+    | alternative '|'
+      {
+        RE_NODE* node = yr_re_node_create(RE_NODE_EMPTY, NULL, NULL);
 
-                node = yr_re_node_create(RE_NODE_EMPTY, NULL, NULL);
+        DESTROY_NODE_IF($$ == NULL, $1);
+        ERROR_IF(node == NULL, ERROR_INSUFICIENT_MEMORY);
 
-                DESTROY_NODE_IF($$ == NULL, $1);
-                ERROR_IF(node == NULL, ERROR_INSUFICIENT_MEMORY);
+        $$ = yr_re_node_create(RE_NODE_ALT, $1, node);
 
-                $$ = yr_re_node_create(RE_NODE_ALT, $1, node);
+        ERROR_IF($$ == NULL, ERROR_INSUFICIENT_MEMORY);
+      }
+    ;
 
-                ERROR_IF($$ == NULL, ERROR_INSUFICIENT_MEMORY);
-              }
-            ;
+concatenation
+    : repeat
+      {
+        $$ = $1;
+      }
+    | concatenation repeat
+      {
+        $$ = yr_re_node_create(RE_NODE_CONCAT, $1, $2);
 
-concatenation : repeat
-                {
-                  $$ = $1;
-                }
-              | concatenation repeat
-                {
-                  $$ = yr_re_node_create(RE_NODE_CONCAT, $1, $2);
+        DESTROY_NODE_IF($$ == NULL, $1);
+        DESTROY_NODE_IF($$ == NULL, $2);
+        ERROR_IF($$ == NULL, ERROR_INSUFICIENT_MEMORY);
+      }
+    ;
 
-                  DESTROY_NODE_IF($$ == NULL, $1);
-                  DESTROY_NODE_IF($$ == NULL, $2);
-                  ERROR_IF($$ == NULL, ERROR_INSUFICIENT_MEMORY);
-                }
-              ;
+repeat
+    : single '*'
+      {
+        RE* re = yyget_extra(yyscanner);
+        re->flags |= RE_FLAGS_GREEDY;
 
-repeat : single '*'
-         {
-            $$ = yr_re_node_create(RE_NODE_STAR, $1, NULL);
+        $$ = yr_re_node_create(RE_NODE_STAR, $1, NULL);
 
-            DESTROY_NODE_IF($$ == NULL, $1);
-            ERROR_IF($$ == NULL, ERROR_INSUFICIENT_MEMORY);
-         }
-       | single '*' '?'
-         {
-            $$ = yr_re_node_create(RE_NODE_STAR, $1, NULL);
+        DESTROY_NODE_IF($$ == NULL, $1);
+        ERROR_IF($$ == NULL, ERROR_INSUFICIENT_MEMORY);
+      }
+    | single '*' '?'
+      {
+        RE* re = yyget_extra(yyscanner);
+        re->flags |= RE_FLAGS_UNGREEDY;
 
-            DESTROY_NODE_IF($$ == NULL, $1);
-            ERROR_IF($$ == NULL, ERROR_INSUFICIENT_MEMORY);
+        $$ = yr_re_node_create(RE_NODE_STAR, $1, NULL);
 
-            $$->greedy = FALSE;
-         }
-       | single '+'
-         {
-            $$ = yr_re_node_create(RE_NODE_PLUS, $1, NULL);
+        DESTROY_NODE_IF($$ == NULL, $1);
+        ERROR_IF($$ == NULL, ERROR_INSUFICIENT_MEMORY);
 
-            DESTROY_NODE_IF($$ == NULL, $1);
-            ERROR_IF($$ == NULL, ERROR_INSUFICIENT_MEMORY);
-         }
-       | single '+' '?'
-         {
-            $$ = yr_re_node_create(RE_NODE_PLUS, $1, NULL);
+        $$->greedy = FALSE;
+      }
+    | single '+'
+      {
+        RE* re = yyget_extra(yyscanner);
+        re->flags |= RE_FLAGS_GREEDY;
 
-            DESTROY_NODE_IF($$ == NULL, $1);
-            ERROR_IF($$ == NULL, ERROR_INSUFICIENT_MEMORY);
+        $$ = yr_re_node_create(RE_NODE_PLUS, $1, NULL);
 
-            $$->greedy = FALSE;
-         }
-       | single '?'
-         {
-            $$ = yr_re_node_create(RE_NODE_RANGE, $1, NULL);
+        DESTROY_NODE_IF($$ == NULL, $1);
+        ERROR_IF($$ == NULL, ERROR_INSUFICIENT_MEMORY);
+      }
+    | single '+' '?'
+      {
+        RE* re = yyget_extra(yyscanner);
+        re->flags |= RE_FLAGS_UNGREEDY;
 
-            DESTROY_NODE_IF($$ == NULL, $1);
-            ERROR_IF($$ == NULL, ERROR_INSUFICIENT_MEMORY);
+        $$ = yr_re_node_create(RE_NODE_PLUS, $1, NULL);
 
-            $$->start = 0;
-            $$->end = 1;
-         }
-       | single '?' '?'
-         {
-            $$ = yr_re_node_create(RE_NODE_RANGE, $1, NULL);
+        DESTROY_NODE_IF($$ == NULL, $1);
+        ERROR_IF($$ == NULL, ERROR_INSUFICIENT_MEMORY);
 
-            DESTROY_NODE_IF($$ == NULL, $1);
-            ERROR_IF($$ == NULL, ERROR_INSUFICIENT_MEMORY);
+        $$->greedy = FALSE;
+      }
+    | single '?'
+      {
+        RE* re = yyget_extra(yyscanner);
+        re->flags |= RE_FLAGS_GREEDY;
 
-            $$->start = 0;
-            $$->end = 1;
-            $$->greedy = FALSE;
-         }
-       | single _RANGE_
-         {
-            $$ = yr_re_node_create(RE_NODE_RANGE, $1, NULL);
+        $$ = yr_re_node_create(RE_NODE_RANGE, $1, NULL);
 
-            DESTROY_NODE_IF($$ == NULL, $1);
-            ERROR_IF($$ == NULL, ERROR_INSUFICIENT_MEMORY);
+        DESTROY_NODE_IF($$ == NULL, $1);
+        ERROR_IF($$ == NULL, ERROR_INSUFICIENT_MEMORY);
 
-            $$->start = $2 & 0xFFFF;;
-            $$->end = $2 >> 16;;
-         }
-       | single
-         {
-            $$ = $1;
-         }
-       | _WORD_BOUNDARY_
-         {
-            $$ = yr_re_node_create(RE_NODE_WORD_BOUNDARY, NULL, NULL);
+        $$->start = 0;
+        $$->end = 1;
+      }
+    | single '?' '?'
+      {
+        RE* re = yyget_extra(yyscanner);
+        re->flags |= RE_FLAGS_UNGREEDY;
 
-            ERROR_IF($$ == NULL, ERROR_INSUFICIENT_MEMORY);
-         }
-       | _NON_WORD_BOUNDARY_
-         {
-            $$ = yr_re_node_create(RE_NODE_NON_WORD_BOUNDARY, NULL, NULL);
+        $$ = yr_re_node_create(RE_NODE_RANGE, $1, NULL);
 
-            ERROR_IF($$ == NULL, ERROR_INSUFICIENT_MEMORY);
-         }
-       | '^'
-         {
-            $$ = yr_re_node_create(RE_NODE_ANCHOR_START, NULL, NULL);
+        DESTROY_NODE_IF($$ == NULL, $1);
+        ERROR_IF($$ == NULL, ERROR_INSUFICIENT_MEMORY);
 
-            ERROR_IF($$ == NULL, ERROR_INSUFICIENT_MEMORY);
-         }
-       | '$'
-         {
-            $$ = yr_re_node_create(RE_NODE_ANCHOR_END, NULL, NULL);
+        $$->start = 0;
+        $$->end = 1;
+        $$->greedy = FALSE;
+      }
+    | single _RANGE_
+      {
+        RE* re = yyget_extra(yyscanner);
+        re->flags |= RE_FLAGS_GREEDY;
 
-            ERROR_IF($$ == NULL, ERROR_INSUFICIENT_MEMORY);
-         }
-       ;
+        $$ = yr_re_node_create(RE_NODE_RANGE, $1, NULL);
 
-single : '(' alternative ')'
-         {
-            $$ = $2;
-         }
-       | '.'
-         {
-            $$ = yr_re_node_create(RE_NODE_ANY, NULL, NULL);
+        DESTROY_NODE_IF($$ == NULL, $1);
+        ERROR_IF($$ == NULL, ERROR_INSUFICIENT_MEMORY);
 
-            ERROR_IF($$ == NULL, ERROR_INSUFICIENT_MEMORY);
-         }
-       | _CHAR_
-         {
-            $$ = yr_re_node_create(RE_NODE_LITERAL, NULL, NULL);
+        $$->start = $2 & 0xFFFF;;
+        $$->end = $2 >> 16;;
+      }
+    | single _RANGE_ '?'
+      {
+        RE* re = yyget_extra(yyscanner);
+        re->flags |= RE_FLAGS_UNGREEDY;
 
-            ERROR_IF($$ == NULL, ERROR_INSUFICIENT_MEMORY);
+        $$ = yr_re_node_create(RE_NODE_RANGE, $1, NULL);
 
-            $$->value = $1;
-         }
-       | _WORD_CHAR_
-         {
-            $$ = yr_re_node_create(RE_NODE_WORD_CHAR, NULL, NULL);
+        DESTROY_NODE_IF($$ == NULL, $1);
+        ERROR_IF($$ == NULL, ERROR_INSUFICIENT_MEMORY);
 
-            ERROR_IF($$ == NULL, ERROR_INSUFICIENT_MEMORY);
-         }
-       | _NON_WORD_CHAR_
-         {
-            $$ = yr_re_node_create(RE_NODE_NON_WORD_CHAR, NULL, NULL);
+        $$->start = $2 & 0xFFFF;;
+        $$->end = $2 >> 16;;
+        $$->greedy = FALSE;
+      }
+    | single
+      {
+        $$ = $1;
+      }
+    | _WORD_BOUNDARY_
+      {
+        $$ = yr_re_node_create(RE_NODE_WORD_BOUNDARY, NULL, NULL);
 
-            ERROR_IF($$ == NULL, ERROR_INSUFICIENT_MEMORY);
-         }
-       | _SPACE_
-         {
-            $$ = yr_re_node_create(RE_NODE_SPACE, NULL, NULL);
+        ERROR_IF($$ == NULL, ERROR_INSUFICIENT_MEMORY);
+      }
+    | _NON_WORD_BOUNDARY_
+      {
+        $$ = yr_re_node_create(RE_NODE_NON_WORD_BOUNDARY, NULL, NULL);
 
-            ERROR_IF($$ == NULL, ERROR_INSUFICIENT_MEMORY);
-         }
-       | _NON_SPACE_
-         {
-            $$ = yr_re_node_create(RE_NODE_NON_SPACE, NULL, NULL);
+        ERROR_IF($$ == NULL, ERROR_INSUFICIENT_MEMORY);
+      }
+    | '^'
+      {
+        $$ = yr_re_node_create(RE_NODE_ANCHOR_START, NULL, NULL);
 
-            ERROR_IF($$ == NULL, ERROR_INSUFICIENT_MEMORY);
-         }
-       | _DIGIT_
-         {
-            $$ = yr_re_node_create(RE_NODE_DIGIT, NULL, NULL);
+        ERROR_IF($$ == NULL, ERROR_INSUFICIENT_MEMORY);
+      }
+    | '$'
+      {
+        $$ = yr_re_node_create(RE_NODE_ANCHOR_END, NULL, NULL);
 
-            ERROR_IF($$ == NULL, ERROR_INSUFICIENT_MEMORY);
-         }
-       | _NON_DIGIT_
-         {
-            $$ = yr_re_node_create(RE_NODE_NON_DIGIT, NULL, NULL);
+        ERROR_IF($$ == NULL, ERROR_INSUFICIENT_MEMORY);
+      }
+    ;
 
-            ERROR_IF($$ == NULL, ERROR_INSUFICIENT_MEMORY);
-         }
-       | _CLASS_
-         {
-            $$ = yr_re_node_create(RE_NODE_CLASS, NULL, NULL);
+single
+    : '(' alternative ')'
+      {
+        $$ = $2;
+      }
+    | '.'
+      {
+        $$ = yr_re_node_create(RE_NODE_ANY, NULL, NULL);
 
-            ERROR_IF($$ == NULL, ERROR_INSUFICIENT_MEMORY);
+        ERROR_IF($$ == NULL, ERROR_INSUFICIENT_MEMORY);
+      }
+    | _CHAR_
+      {
+        $$ = yr_re_node_create(RE_NODE_LITERAL, NULL, NULL);
 
-            $$->class_vector = $1;
-         }
-       ;
+        ERROR_IF($$ == NULL, ERROR_INSUFICIENT_MEMORY);
 
+        $$->value = $1;
+      }
+    | _WORD_CHAR_
+      {
+        $$ = yr_re_node_create(RE_NODE_WORD_CHAR, NULL, NULL);
 
+        ERROR_IF($$ == NULL, ERROR_INSUFICIENT_MEMORY);
+      }
+    | _NON_WORD_CHAR_
+      {
+        $$ = yr_re_node_create(RE_NODE_NON_WORD_CHAR, NULL, NULL);
+
+        ERROR_IF($$ == NULL, ERROR_INSUFICIENT_MEMORY);
+      }
+    | _SPACE_
+      {
+        $$ = yr_re_node_create(RE_NODE_SPACE, NULL, NULL);
+
+        ERROR_IF($$ == NULL, ERROR_INSUFICIENT_MEMORY);
+      }
+    | _NON_SPACE_
+      {
+         $$ = yr_re_node_create(RE_NODE_NON_SPACE, NULL, NULL);
+
+         ERROR_IF($$ == NULL, ERROR_INSUFICIENT_MEMORY);
+      }
+    | _DIGIT_
+      {
+        $$ = yr_re_node_create(RE_NODE_DIGIT, NULL, NULL);
+
+        ERROR_IF($$ == NULL, ERROR_INSUFICIENT_MEMORY);
+      }
+    | _NON_DIGIT_
+      {
+        $$ = yr_re_node_create(RE_NODE_NON_DIGIT, NULL, NULL);
+
+        ERROR_IF($$ == NULL, ERROR_INSUFICIENT_MEMORY);
+      }
+    | _CLASS_
+      {
+        $$ = yr_re_node_create(RE_NODE_CLASS, NULL, NULL);
+
+        ERROR_IF($$ == NULL, ERROR_INSUFICIENT_MEMORY);
+
+        $$->class_vector = $1;
+      }
+    ;
 %%

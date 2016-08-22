@@ -10,7 +10,6 @@
 #include <strsafe.h>
 #include "libyara\include\yara\scan.h"
 #include "misc.h"
-#include "..\update\include\Update.h"
 #include "..\update\include\Error.h"
 #include "hiparamemscandll.h"
 #include "cmdlog.h"
@@ -29,6 +28,10 @@ CMD_THREAD_DATA CmdThreadData[MAX_CMD_MON_COUNT];
 CMD_THREAD_CTX  CmdThreadCtx[MAX_CMD_MON_COUNT];
 
 FILE* CHiparaDlg::mpLogFile = NULL;
+BYTE gbyOnlyLogToServer;
+
+CHiparaDlg *g_pThis;
+
 // CAboutDlg dialog used for App About
 
 class CAboutDlg : public CDialogEx
@@ -140,18 +143,37 @@ BOOL CHiparaDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
+	g_pThis = this;
+
+	bRetVal = InitUpdateLib();
+	if (FALSE == bRetVal)
+	{
+		OutputDebugString(_T("OnInitDialog: Update library initialization failed.\n"));
+		AfxMessageBox(_T("Update Library initialization failed."));
+		return FALSE;
+	}
+
+	bRetVal = LoadFilter(FILTER_SCANNER_NAME);
+	if (FALSE == bRetVal)
+	{
+		OutputDebugString(_T("OnInitDialog: LoadFilter() Failed for scanner.\n"));
+		AfxMessageBox(_T("Loading scanner driver failed.."));
+		return FALSE;
+	}
+
 	bRetVal = InstallMemoryScannerDriver(HIPARA_MEMORY_SCAN_DRIVER, HIPARA_MEMORY_SCAN_SERVICE);
 	if (FALSE == bRetVal)
 	{
 		//OutputDebugString(_T("OnInitDialog: Installing driver failed.\n"));
 		AfxMessageBox(_T("Installing Memory scanner driver failed."));
+
 		return FALSE;
 	}
 
 	iRetVal = initYara();
 	if (ERROR_SUCCESS != iRetVal)
 	{
-		//OutputDebugString(_T("OnInitDialog: initYara failed.\n"));
+		OutputDebugString(_T("OnInitDialog: initYara failed.\n"));
 		return FALSE;
 	}
 
@@ -160,26 +182,33 @@ BOOL CHiparaDlg::OnInitDialog()
 	mhStopEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
 	if (NULL == mhStopEvent)
 	{
-		//OutputDebugString(_T("OnInitDialog:: CreateEvent failed.\n"));
-		deinitYara();
+		OutputDebugString(_T("OnInitDialog:: CreateEvent failed.\n"));
+		return FALSE;
+	}
+
+	mhUpdateAvailableEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+	if (NULL == mhUpdateAvailableEvent)
+	{
+		OutputDebugString(_T("OnInitDialog:: CreateEvent for update event failed.\n"));
 		return FALSE;
 	}
 
 	hLiveScanThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)liveScanThread, this, 0, NULL);
 	if (NULL == hLiveScanThread)
 	{
-		//OutputDebugString(_T("OnInitDialog: Creating live scan thread failed.\n"));
-		deinitYara();
+		OutputDebugString(_T("OnInitDialog: Creating live scan thread failed.\n"));
 		return FALSE;
 	}
 
 	hCmdScanThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)CmdScanThread, this, 0, NULL);
 	if (NULL == hCmdScanThread)
 	{
-		//OutputDebugString(_T("OnInitDialog: Creating cmd scan thread failed.\n"));
-		SetEvent(mhStopEvent);
+		OutputDebugString(_T("OnInitDialog: Creating cmd scan thread failed.\n"));
+		/*SetEvent(mhStopEvent);
 		WaitForSingleObject(hLiveScanThread, INFINITE);
 		deinitYara();
+		UnInstallMemoryScannerDriver(HIPARA_MEMORY_SCAN_SERVICE);
+		DeInitUpdateLib();*/
 		return FALSE;
 	}
 
@@ -294,14 +323,23 @@ void CHiparaDlg::OnClose()
 	bRetVal = UnInstallMemoryScannerDriver(HIPARA_MEMORY_SCAN_SERVICE);
 	if (FALSE == bRetVal)
 	{
-		//OutputDebugString(_T("OnClose: UnInstallMemoryScannerDriver failed.\n"));
+		OutputDebugString(_T("OnClose: UnInstallMemoryScannerDriver failed.\n"));
 	}
 
 	CloseHandle(mhStopEvent);
 	mhStopEvent = NULL;
 
+	CloseHandle(mhUpdateAvailableEvent);
+	mhUpdateAvailableEvent = NULL;
+
 	OutputDebugString(_T("OnClose: Calling deinitYara.\n"));
 	deinitYara();
+
+	OutputDebugString(_T("OnClose: DeInitUpdateLib.\n"));
+	DeInitUpdateLib();
+	OutputDebugString(_T("OnClose: DeInitUpdateLib done.\n"));
+
+	UnloadFilter(FILTER_SCANNER_NAME);
 
 	if (CanExit())
 		CDialogEx::OnClose();
@@ -501,124 +539,32 @@ BOOLEAN CHiparaDlg::updateYaraSignatures()
 DWORD WINAPI CHiparaDlg::updateSignatures(LPVOID lpvParameter)
 {
 	int iRetVal;
-	UINT uiOutLen;
-	BOOLEAN bRetVal;
-	CHAR *pszUserName;
-	CHAR *pszPassword;
-	CHAR *pszServerUrl;
-	Update *pUpdateSig;
+	Update *pUpdate;
 	CHiparaDlg *pContext;
-	CHAR *pszSigFolderPath;
 	TCHAR errMsg[MAX_PATH];
-	WCHAR wszUserName[MAX_PATH];
-	WCHAR wszPassword[MAX_PATH];
-	WCHAR wszServerUrl[MAX_PATH];
 
 	if (NULL == lpvParameter)
 	{
 		//OutputDebugString(_T("updateSignatures: Invalid Parameter.\n"));
 	}
-	//OutputDebugString(_T("updateSignatures: Entry.\n"));
+	OutputDebugString(_T("updateSignatures: Entry.\n"));
 	pContext = (CHiparaDlg *)lpvParameter;
 
 	pContext->GetDlgItem(IDC_UPDATESIGNATURE)->EnableWindow(FALSE);
 
-	bRetVal = ConvertFromWideCharToMultiByte(gszSignatureFolderPath, _tcslen(gszSignatureFolderPath), &pszSigFolderPath, &uiOutLen);
-	if (FALSE == bRetVal)
-	{
-		//OutputDebugString(_T("updateSignatures: ConvertFromWideCharToMultiByte Failed.\n"));
-		pContext->GetDlgItem(IDC_UPDATESIGNATURE)->EnableWindow(TRUE);
-		AfxMessageBox(_T("Updating signatures failed.\n"));
-		return 0;
-	}
+	pUpdate = pContext->GetUpdateLibObj();
 
-	bRetVal = pContext->GetSignatureServerUrl(wszServerUrl, ARRAY_SIZE(wszServerUrl));
-	if (FALSE == bRetVal)
-	{
-		//OutputDebugString(_T("updateSignatures: GetSignatureServerUrl failed.\n"));
-		free(pszSigFolderPath);
-		pContext->GetDlgItem(IDC_UPDATESIGNATURE)->EnableWindow(TRUE);
-		AfxMessageBox(_T("Updating signatures failed.\n"));
-		return 0;
-	}
-
-	bRetVal = ConvertFromWideCharToMultiByte(wszServerUrl, _tcslen(wszServerUrl), &pszServerUrl, &uiOutLen);
-	if (FALSE == bRetVal)
-	{
-		//OutputDebugString(_T("updateSignatures: ConvertFromWideCharToMultiByte Failed.\n"));
-		free(pszSigFolderPath);
-		pContext->GetDlgItem(IDC_UPDATESIGNATURE)->EnableWindow(TRUE);
-		AfxMessageBox(_T("Updating signatures failed.\n"));
-		return 0;
-	}
-
-	//OutputDebugStringA(pszSigFolderPath);
-	//OutputDebugString(_T("\n"));
-	//OutputDebugStringA(pszSigFolderPath);
-
-	pUpdateSig = new Update(pszSigFolderPath, pszServerUrl);
-
-	if (NULL == pUpdateSig)
-	{
-		//OutputDebugString(_T("updateSignatures: Creating Update class object failed.\n"));
-		free(pszServerUrl);
-		free(pszSigFolderPath);
-		pContext->GetDlgItem(IDC_UPDATESIGNATURE)->EnableWindow(TRUE);
-		AfxMessageBox(_T("Updating signatures failed.\n"));
-		return 0;
-	}
-
-	bRetVal = pContext->GetServerUserNameAndPassword(wszUserName, ARRAY_SIZE(wszUserName), wszPassword, ARRAY_SIZE(wszPassword));
-	if (FALSE == bRetVal)
-	{
-		//OutputDebugString(_T("updateSignatures: GetServerUserNameAndPassword failed.\n"));
-		free(pszServerUrl);
-		free(pszSigFolderPath);
-		pContext->GetDlgItem(IDC_UPDATESIGNATURE)->EnableWindow(TRUE);
-		AfxMessageBox(_T("Updating signatures failed.\n"));
-		return 0;
-	}
-
-	bRetVal = ConvertFromWideCharToMultiByte(wszUserName, _tcslen(wszUserName), &pszUserName, &uiOutLen);
-	if (FALSE == bRetVal)
-	{
-		//OutputDebugString(_T("updateSignatures: ConvertFromWideCharToMultiByte Failed.\n"));
-		free(pszServerUrl);
-		free(pszSigFolderPath);
-		pContext->GetDlgItem(IDC_UPDATESIGNATURE)->EnableWindow(TRUE);
-		AfxMessageBox(_T("Updating signatures failed.\n"));
-		return 0;
-	}
-
-	bRetVal = ConvertFromWideCharToMultiByte(wszPassword, _tcslen(wszPassword), &pszPassword, &uiOutLen);
-	if (FALSE == bRetVal)
-	{
-		//OutputDebugString(_T("updateSignatures: ConvertFromWideCharToMultiByte Failed.\n"));
-		free(pszUserName);
-		free(pszServerUrl);
-		free(pszSigFolderPath);
-		pContext->GetDlgItem(IDC_UPDATESIGNATURE)->EnableWindow(TRUE);
-		AfxMessageBox(_T("Updating signatures failed.\n"));
-		return 0;
-	}
-
-	//OutputDebugStringA(pszUserName);
-	//OutputDebugString(_T("\n"));
-	//OutputDebugStringA(pszPassword);
-
-	//OutputDebugString(_T("updateSignatures: Calling updateSignature.\n"));
-	iRetVal = pUpdateSig->updateSignature(pszUserName, pszPassword);
+	OutputDebugString(_T("updateSignatures: Calling updateSignature.\n"));
+	iRetVal = pUpdate->updateSignature();
 	if (CurlError != 200)
 	{
 		_stprintf_s(errMsg, sizeof(errMsg), _T("The server is unreachable/unavailable at this time. Please check with your network administrator."));
 		//OutputDebugString(errMsg);
-		delete pUpdateSig;
-		free(pszPassword);
-		free(pszUserName);
-		free(pszServerUrl);
-		free(pszSigFolderPath);
 		pContext->GetDlgItem(IDC_UPDATESIGNATURE)->EnableWindow(TRUE);
 		AfxMessageBox(errMsg);
+
+		_stprintf_s(errMsg, sizeof(errMsg), _T("Curl Error: %d."), CurlError);
+		OutputDebugString(errMsg);
 		return 0;
 	}
 
@@ -626,58 +572,47 @@ DWORD WINAPI CHiparaDlg::updateSignatures(LPVOID lpvParameter)
 	{
 		_stprintf_s(errMsg, sizeof(errMsg), _T("Update signature failed, Please check network connection or contact administrator."));
 		//OutputDebugString(errMsg);
-		delete pUpdateSig;
-		free(pszPassword);
-		free(pszUserName);
-		free(pszServerUrl);
-		free(pszSigFolderPath);
 		pContext->GetDlgItem(IDC_UPDATESIGNATURE)->EnableWindow(TRUE);
 		AfxMessageBox(errMsg);
 		return 0;
 	}
 	else
 	{
-		//OutputDebugString(_T("updateSignatures: Yara signatures has been updated successfully.\n"));
+		OutputDebugString(_T("updateSignatures: Yara signatures has been updated successfully.\n"));
 	}
 
-	delete pUpdateSig;
-	free(pszPassword);
-	free(pszUserName);
-	free(pszServerUrl);
-	free(pszSigFolderPath);
-
-	if (NULL != pContext->mhStopEvent)
+	if (NULL != pContext->mhUpdateAvailableEvent)
 	{
-		//OutputDebugString(_T("updateSignatures: setting stop event.\n"));
-		SetEvent(pContext->mhStopEvent);
+		OutputDebugString(_T("updateSignatures: setting update available event.\n"));
+		SetEvent(pContext->mhUpdateAvailableEvent);
 	}
 
 	if (NULL != pContext->hLiveScanThread)
 	{
-		//OutputDebugString(_T("updateSignatures: Waiting for live scan thread to terminate.\n"));
+		OutputDebugString(_T("updateSignatures: Waiting for live scan thread to terminate.\n"));
 		WaitForSingleObject(pContext->hLiveScanThread, INFINITE);
 		CloseHandle(pContext->hLiveScanThread);
-		//OutputDebugString(_T("updateSignatures: Live scan thread terminated.\n"));
+		OutputDebugString(_T("updateSignatures: Live scan thread terminated.\n"));
 	}
 
 	if (pContext->isYaraLibraryInitialized())
 	{
-		//OutputDebugString(_T("updateSignatures: Yara library has been already initialized, so deinitializing previous one.\n"));
+		OutputDebugString(_T("updateSignatures: Yara library has been already initialized, so deinitializing previous one.\n"));
 		pContext->deinitYara();
 	}
 		
 	iRetVal = pContext->initYara();
 	if (ERROR_SUCCESS != iRetVal)
 	{
-		//OutputDebugString(_T("updateSignatures: initYara failed.\n"));
+		OutputDebugString(_T("updateSignatures: initYara failed.\n"));
 		pContext->GetDlgItem(IDC_UPDATESIGNATURE)->EnableWindow(TRUE);
 		AfxMessageBox(_T("Updating signatures failed.\n"));
 		return 0;
 	}
 
 	pContext->setYaraLibraryInitializedFlag(TRUE);
+	ResetEvent(pContext->mhUpdateAvailableEvent);
 
-	ResetEvent(pContext->mhStopEvent);
 	pContext->hLiveScanThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)CHiparaDlg::liveScanThread, lpvParameter, 0, NULL);
 	if (NULL == pContext->hLiveScanThread)
 	{
@@ -687,7 +622,7 @@ DWORD WINAPI CHiparaDlg::updateSignatures(LPVOID lpvParameter)
 	AfxMessageBox(_T("Signatures updated successfully"));
 	pContext->GetDlgItem(IDC_UPDATESIGNATURE)->EnableWindow(TRUE);
 
-	//OutputDebugString(_T("updateSignatures: Exit.\n"));
+	OutputDebugString(_T("updateSignatures: Exit.\n"));
 	return 0;
 }
 
@@ -814,20 +749,6 @@ int CHiparaDlg::initYara()
 				return iRetVal;
 			}
 
-			mpLogFile = fopen(gszReportFilePath, "w+");
-			if (NULL == mpLogFile)
-			{
-				yr_rules_destroy(mpYrRules);
-				yr_compiler_destroy(mpYrCompiler);
-				fclose(mpYarFile);
-				yr_finalize();
-
-				mpYrCompiler = NULL;
-				mpYarFile = NULL;
-				mpYrRules = NULL;
-				//OutputDebugString(_T("initYara: fopen for log file failed.\n"));
-				return -1;
-			}
 			return ERROR_SUCCESS;
 		}
 	} while (FindNextFile(hFileFind, &findData) != 0);
@@ -839,6 +760,12 @@ int CHiparaDlg::initYara()
 void CHiparaDlg::deinitYara()
 {
 	//OutputDebugString(_T("deinitYara: Entry.\n"));
+
+	if (FALSE == bIsYaraLibraryInitialize)
+	{
+		OutputDebugString(_T("deinitYara: Yara lib is not initialized.\n"));
+		return;
+	}
 	if (NULL != mpYrRules)
 	{
 		yr_rules_destroy(mpYrRules);
@@ -856,11 +783,6 @@ void CHiparaDlg::deinitYara()
 
 	yr_finalize();
 
-	if (NULL != mpLogFile)
-	{
-		fclose(mpLogFile);
-	}
-
 	bIsYaraLibraryInitialize = FALSE;
 	//OutputDebugString(_T("deinitYara: Exit.\n"));
 }
@@ -868,9 +790,6 @@ void CHiparaDlg::deinitYara()
 
 int CHiparaDlg::yaraScanCallback(int iMessage, void *pMessageData, void *pUserData)
 {
-	/*int iRetVal;
-	CHAR buff[80];
-	SYSTEMTIME sysTime;*/
 	P_YARA_CONTEXT pyaraContext;
 	////OutputDebugString(_T("yaraScanCalback: Entry.\n"));
 	pyaraContext = (YARA_CONTEXT *)pUserData;
@@ -878,10 +797,6 @@ int CHiparaDlg::yaraScanCallback(int iMessage, void *pMessageData, void *pUserDa
 	if (CALLBACK_MSG_RULE_MATCHING == iMessage)
 	{
 		pyaraContext->bScanResult = TRUE;
-		/*memset(buff, '0', 80);
-		GetLocalTime(&sysTime);
-		iRetVal = sprintf_s(buff, 80 * sizeof(CHAR), "Time : %d:%d = Virus Signature found\n", sysTime.wHour, sysTime.wMinute);
-		fwrite(buff, sizeof(CHAR), iRetVal, mpLogFile);*/
 		//OutputDebugString(_T("yaraScanCallback:: CALLBACK_MSG_RULE_MATCHING."));
 	}
 	else if (CALLBACK_MSG_RULE_NOT_MATCHING == iMessage)
@@ -930,6 +845,12 @@ DWORD CHiparaDlg::liveScanThread(LPVOID lpContext)
 	{
 		AfxMessageBox(_T("Yara signatures are out of date! Please update it first."));
 		return 0;
+	}
+
+	bRetVal = GetConfigInfo(&gbyOnlyLogToServer);
+	if (FALSE == bRetVal)
+	{
+		gbyOnlyLogToServer = 0;
 	}
 
 	dwThreadCount = SCANNER_DEFAULT_THREAD_COUNT;
@@ -1251,6 +1172,13 @@ DWORD CHiparaDlg::scannerWorker(LPVOID lpContext)
 				break;
 			}
 
+			dwWaitRet = WaitForSingleObject(pContext->mhUpdateAvailableEvent, 0);
+			if (WAIT_OBJECT_0 == dwWaitRet)
+			{
+				//OutputDebugString(_T("scannerWorker: Update available event.\n"));
+				break;
+			}
+
 			if (ERROR_ABANDONED_WAIT_0 == GetLastError())
 			{
 				//OutputDebugString(_T("scannerWorker: Connection with minifilter closed.\n"));
@@ -1263,6 +1191,13 @@ DWORD CHiparaDlg::scannerWorker(LPVOID lpContext)
 		if (WAIT_OBJECT_0 == dwWaitRet)
 		{
 			//OutputDebugString(_T("scannerWorker: Stop event has been set.\n"));
+			break;
+		}
+
+		dwWaitRet = WaitForSingleObject(pContext->mhUpdateAvailableEvent, 0);
+		if (WAIT_OBJECT_0 == dwWaitRet)
+		{
+			//OutputDebugString(_T("scannerWorker: Update available event.\n"));
 			break;
 		}
 
@@ -1301,24 +1236,36 @@ DWORD CHiparaDlg::scannerWorker(LPVOID lpContext)
 			//  foul language, in which case SafeToOpen should be set to false.
 			//
 
-			scannerReplyMsg.Reply.SafeToOpen = !result;
+			if (0 == gbyOnlyLogToServer)
+			{
+				scannerReplyMsg.Reply.SafeToOpen = !result;
+			}
 
 			//printf("Replying message, SafeToOpen: %d\n", replyMessage.Reply.SafeToOpen);
 		}
 		else
 		{
-			/*swprintf_s(tempBuf, 300, L"File: %s\n", pScannerNotification->szFilePath);
-			//OutputDebugString(tempBuf);*/
+			WCHAR tempBuf[300];
+			swprintf_s(tempBuf, 300, L"File: %s Thread(%u) Process(%u)\n", pScannerNotification->szFilePath, GetCurrentThreadId(), GetCurrentProcessId());
+			OutputDebugString(tempBuf);
 
 			result = pContext->scanFile(pScannerNotification->szFilePath);
 
-			/*swprintf_s(tempBuf, 300, L"Scan Finished: %s\n", pScannerNotification->szFilePath);
-			//OutputDebugString(tempBuf);*/
+			swprintf_s(tempBuf, 300, L"Scan Finished: %s Thread(%u) Process(%u)\n", pScannerNotification->szFilePath, GetCurrentThreadId(), GetCurrentProcessId());
+			OutputDebugString(tempBuf);
 
-			scannerReplyMsg.Reply.SafeToOpen = !result;
+			if (TRUE == result)
+			{
+				pContext->SendAlertMessageToServer(pScannerNotification->szFilePath, ALERT_FILE);
+			}
+
+			if (0 == gbyOnlyLogToServer)
+			{
+				scannerReplyMsg.Reply.SafeToOpen = !result;
+			}
 		}
 
-		////OutputDebugStringA("scannerWorker:: Replying to minifilter.\n");
+		//OutputDebugStringA("scannerWorker:: Replying to minifilter.\n");
 
 		hr = FilterReplyMessage(pContext->mScannerContext.Port,
 								(PFILTER_REPLY_HEADER)&scannerReplyMsg,
@@ -1330,7 +1277,7 @@ DWORD CHiparaDlg::scannerWorker(LPVOID lpContext)
 			break;
 		}
 
-		////OutputDebugStringA("scannerWorker:: Calling FilterGetMessage\n");
+		//OutputDebugStringA("scannerWorker:: Calling FilterGetMessage\n");
 		memset(&pScannerMsg->Ovlp, 0, sizeof(OVERLAPPED));
 
 		hr = FilterGetMessage(pContext->mScannerContext.Port,
@@ -1343,7 +1290,7 @@ DWORD CHiparaDlg::scannerWorker(LPVOID lpContext)
 			//OutputDebugString(_T("scannerWorker:: FilterGetMessage failed.\n"));
 			break;
 		}
-		////OutputDebugString(_T("scannerWorker:: Returned FilterGetMessage.\n"));
+		//OutputDebugString(_T("scannerWorker:: Returned FilterGetMessage.\n"));
 	}
 
 	if (!SUCCEEDED(hr))
@@ -1473,6 +1420,8 @@ DWORD CHiparaDlg::enumFilesThread(LPVOID lpContext)
 	TCHAR szSigFilePath[MAX_LENGTH_PATH] = { '\0' };
 	TCHAR szTempFolderPath[MAX_LENGTH_PATH] = { '\0' };
 
+	WCHAR errMsg[260];
+
 	//OutputDebugString(_T("enumFilesThread: Entry.\n"));
 
 	if (NULL == lpContext)
@@ -1562,7 +1511,7 @@ DWORD CHiparaDlg::enumFilesThread(LPVOID lpContext)
 				continue;
 			}
 			ReleaseMutex(pScanContext->queueInfo.hQueueMutex);
-			//OutputDebugString(_T("enumFilesThread: All tasks has been finished.So setting stop event.\n"));
+			OutputDebugString(_T("enumFilesThread: All tasks has been finished.So setting stop event.\n"));
 			//
 			// Tell all scanning threads to stop.
 			//
@@ -1571,10 +1520,11 @@ DWORD CHiparaDlg::enumFilesThread(LPVOID lpContext)
 		}
 	} while (TRUE);
 
+	//OutputDebugString(_T("enumFilesThread: Waiting for all threads to terminate.\n"));
 	dwWaitRet = WaitForMultipleObjects(uiThreadCount, hThreadPool, TRUE, INFINITE);
 	if (WAIT_FAILED == dwWaitRet)
 	{
-		//OutputDebugString(_T("enumFilesThread: Waiting on Threads from Pool Failed.\n"));
+		OutputDebugString(_T("enumFilesThread: Waiting on Threads from Pool Failed.\n"));
 	}
 	//OutputDebugString(_T("enumFilesThread: All threads has been closed.\n"));
 
@@ -1584,7 +1534,7 @@ DWORD CHiparaDlg::enumFilesThread(LPVOID lpContext)
 		hThreadPool[ushCnt] = NULL;
 	}
 
-	//OutputDebugString(_T("enumFilesThread: Exit.\n"));
+	OutputDebugString(_T("enumFilesThread: Exit.\n"));
 	return 0;
 }
 
@@ -1719,7 +1669,10 @@ void CHiparaDlg::enumerateFiles(TCHAR *pszFolderPath, SCAN_CONTEXT *pScanContext
 
 			if (findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 			{
-				enumerateFiles(szDirPath, pScanContext);
+				if (!StrStrI(szDirPath, gszInstallationDir))
+				{
+					enumerateFiles(szDirPath, pScanContext);
+				}
 			}
 			else
 			{
@@ -1771,10 +1724,8 @@ DWORD WINAPI CHiparaDlg::scanFiles(LPVOID lpvParameter)
 			bScanResult = pContext->scanFile(pszFilePath);
 			if (TRUE == bScanResult)
 			{
-				if (NULL != mpLogFile)
-				{
-					fwprintf(mpLogFile, L"File (%s) is infected.\n", pszFilePath);
-				}
+				pContext->SendAlertMessageToFile(pszFilePath, (_tcslen(pszFilePath) + 1) * sizeof(TCHAR));
+				pContext->SendAlertMessageToServer(pszFilePath, ALERT_FILE);
 			}
 			free(pszFilePath);
 			pszFilePath = NULL;
@@ -1783,6 +1734,7 @@ DWORD WINAPI CHiparaDlg::scanFiles(LPVOID lpvParameter)
 		dwWaitRet = WaitForSingleObject(pScanContext->hStopEvent, 0);
 		if (WAIT_OBJECT_0 == dwWaitRet)
 		{
+			OutputDebugString(_T("scanFiles: Stop event set, so terminating.\n"));
 			break;
 		}
 
@@ -2130,7 +2082,7 @@ DWORD CHiparaDlg::CmdWorker(LPVOID lpContext)
 		//
 		//  Poll for messages from the filter component to scan.
 		//
-		OutputDebugString(_T("CmdWorker: Calling GetQueuedCompletionStatus.\n"));
+		//OutputDebugString(_T("CmdWorker: Calling GetQueuedCompletionStatus.\n"));
 
 		result = GetQueuedCompletionStatus(pContext->mCmdFltContext.Completion, &outSize, &key, &pOvlp, 2000);
 		if (FALSE == result)
@@ -2180,8 +2132,8 @@ DWORD CHiparaDlg::CmdWorker(LPVOID lpContext)
 
 		if (TRUE == notification->bCreate)
 		{
-			_stprintf_s(errMsg, sizeof(errMsg), L"CmdWorker: Received message, Process create PID : (%u)", notification->ulProcessId);
-			OutputDebugString(errMsg);
+			/*_stprintf_s(errMsg, sizeof(errMsg), L"CmdWorker: Received message, Process create PID : (%u)", notification->ulProcessId);
+			OutputDebugString(errMsg);*/
 
 			if (dwIndex < MAX_CMD_MON_COUNT)
 			{
@@ -2191,8 +2143,8 @@ DWORD CHiparaDlg::CmdWorker(LPVOID lpContext)
 		}
 		else
 		{
-			_stprintf_s(errMsg, sizeof(errMsg), L"CmdWorker: Received message, Process terminate PID : (%u)", notification->ulProcessId);
-			OutputDebugString(errMsg);
+			/*_stprintf_s(errMsg, sizeof(errMsg), L"CmdWorker: Received message, Process terminate PID : (%u)", notification->ulProcessId);
+			OutputDebugString(errMsg);*/
 
 			pContext->ReleaseThreadSlot(notification->ulProcessId);
 			//OutputDebugString(_T("CmdWorker:After calling ReleaseThreadSlot.\n"));
@@ -2209,7 +2161,7 @@ DWORD CHiparaDlg::CmdWorker(LPVOID lpContext)
 
 			break;
 		}
-		OutputDebugString(_T("CmdWorker: FilterGetMessage succeed.\n"));
+		//OutputDebugString(_T("CmdWorker: FilterGetMessage succeed.\n"));
 	}
 
 	dwThreadCount = 0;
@@ -2225,8 +2177,8 @@ DWORD CHiparaDlg::CmdWorker(LPVOID lpContext)
 		}
 	}
 
-	_stprintf_s(errMsg, sizeof(errMsg), L"CmdWorker: dwThreadCount : (%u)", dwThreadCount);
-	OutputDebugString(errMsg);
+	/*_stprintf_s(errMsg, sizeof(errMsg), L"CmdWorker: dwThreadCount : (%u)", dwThreadCount);
+	OutputDebugString(errMsg);*/
 
 	WaitForMultipleObjects(dwThreadCount, hThread, TRUE, INFINITE);
 
@@ -2249,7 +2201,7 @@ DWORD CHiparaDlg::CmdWorker(LPVOID lpContext)
 
 	free(pScannerMsg);
 
-	OutputDebugString(_T("CmdWorker: Exit\n"));
+	//OutputDebugString(_T("CmdWorker: Exit\n"));
 	return hr;
 }
 
@@ -2330,7 +2282,7 @@ void* pArguments
 
 	while (TRUE)
 	{
-		OutputDebugString(_T("CmdMonThread: Waiting on process terminate OR App exit event.\n"));
+		//OutputDebugString(_T("CmdMonThread: Waiting on process terminate OR App exit event.\n"));
 
 		dwEvent = WaitForMultipleObjects(2, hWaitEvents, FALSE, 0);
 		if ((WAIT_OBJECT_0 + 0) == dwEvent)
@@ -2411,5 +2363,360 @@ DWORD dwProcessID
 		}
 	}
 
+	return TRUE;
+}
+
+
+BOOLEAN
+CHiparaDlg::InitUpdateLib(
+)
+{
+	int iRetVal;
+	UINT uiOutLen;
+	BOOLEAN bRetVal;
+	CHAR *pszUserName;
+	CHAR *pszPassword;
+	CHAR *pszServerUrl;
+	CHiparaDlg *pContext;
+	CHAR *pszSigFolderPath;
+	TCHAR errMsg[MAX_PATH];
+	WCHAR wszUserName[MAX_PATH];
+	WCHAR wszPassword[MAX_PATH];
+	WCHAR wszServerUrl[MAX_PATH];
+
+	bRetVal = ConvertFromWideCharToMultiByte(gszSignatureFolderPath, _tcslen(gszSignatureFolderPath), &pszSigFolderPath, &uiOutLen);
+	if (FALSE == bRetVal)
+	{
+		//OutputDebugString(_T("InitUpdateLib: ConvertFromWideCharToMultiByte Failed.\n"));
+		return 0;
+	}
+
+	bRetVal = GetSignatureServerUrl(wszServerUrl, ARRAY_SIZE(wszServerUrl));
+	if (FALSE == bRetVal)
+	{
+		//OutputDebugString(_T("InitUpdateLib: GetSignatureServerUrl failed.\n"));
+		free(pszSigFolderPath);
+		return 0;
+	}
+
+	bRetVal = ConvertFromWideCharToMultiByte(wszServerUrl, _tcslen(wszServerUrl), &pszServerUrl, &uiOutLen);
+	if (FALSE == bRetVal)
+	{
+		//OutputDebugString(_T("InitUpdateLib: ConvertFromWideCharToMultiByte Failed.\n"));
+		free(pszSigFolderPath);
+		return 0;
+	}
+
+	OutputDebugStringA(pszSigFolderPath);
+	OutputDebugString(_T("\n"));
+	OutputDebugStringA(pszSigFolderPath);
+
+	pObjUpdate = new Update(pszSigFolderPath, pszServerUrl);
+
+	if (NULL == pObjUpdate)
+	{
+		//OutputDebugString(_T("InitUpdateLib: Creating Update class object failed.\n"));
+		free(pszServerUrl);
+		free(pszSigFolderPath);
+		return 0;
+	}
+
+	//
+	//	Not needed now.
+	//
+	free(pszServerUrl);
+	free(pszSigFolderPath);
+
+	iRetVal = pObjUpdate->init();
+	if (0 != iRetVal)
+	{
+		OutputDebugString(_T("InitUpdateLib: Init failed.\n"));
+		return 0;
+	}
+
+	bRetVal = GetServerUserNameAndPassword(wszUserName, ARRAY_SIZE(wszUserName), wszPassword, ARRAY_SIZE(wszPassword));
+	if (FALSE == bRetVal)
+	{
+		//OutputDebugString(_T("InitUpdateLib: GetServerUserNameAndPassword failed.\n"));
+		return 0;
+	}
+
+	bRetVal = ConvertFromWideCharToMultiByte(wszUserName, _tcslen(wszUserName), &pszUserName, &uiOutLen);
+	if (FALSE == bRetVal)
+	{
+		//OutputDebugString(_T("InitUpdateLib: ConvertFromWideCharToMultiByte Failed.\n"));
+		return 0;
+	}
+
+	bRetVal = ConvertFromWideCharToMultiByte(wszPassword, _tcslen(wszPassword), &pszPassword, &uiOutLen);
+	if (FALSE == bRetVal)
+	{
+		//OutputDebugString(_T("InitUpdateLib: ConvertFromWideCharToMultiByte Failed.\n"));
+		free(pszUserName);
+		return 0;
+	}
+
+	OutputDebugStringA(pszUserName);
+	OutputDebugStringA(pszPassword);
+
+	iRetVal = pObjUpdate->login(pszUserName, pszPassword);
+	if (0 != iRetVal)
+	{
+		OutputDebugString(_T("InitUpdateLib: Login failed.\n"));
+		free(pszPassword);
+		free(pszUserName);
+		return 0;
+	}
+
+	free(pszPassword);
+	free(pszUserName);
+
+	return 1;
+}
+
+BOOLEAN
+CHiparaDlg::DeInitUpdateLib(
+)
+{
+	int iRetVal;
+
+	OutputDebugString(_T("DeInitUpdateLib: Entry.\n"));
+	if (NULL == pObjUpdate)
+	{
+		return FALSE;
+	}
+
+	//
+	//	Logout.
+	//
+	OutputDebugString(_T("DeInitUpdateLib: Calling logout.\n"));
+	iRetVal = pObjUpdate->logout();
+	if (0 != iRetVal)
+	{
+		OutputDebugString(_T("DeInitUpdateLib: logout failed.\n"));
+		return FALSE;
+	}
+	OutputDebugString(_T("DeInitUpdateLib: logout done.\n"));
+
+	//
+	//	Free update lib object.
+	//
+	delete pObjUpdate;
+	pObjUpdate = NULL;
+
+	OutputDebugString(_T("DeInitUpdateLib: Exit.\n"));
+	return TRUE;
+}
+
+
+Update*
+CHiparaDlg::GetUpdateLibObj(
+)
+{
+	return pObjUpdate;
+}
+
+
+BOOLEAN
+CHiparaDlg::SendAlertMessageToServer(
+	WCHAR *pwszFilePath,
+	ALERT_TYPE alertType,
+	DWORD dwParentProcessId
+)
+{
+	int iRetVal;
+	UINT uiOutLen;
+	DWORD dwcchLen;
+	BOOLEAN bRetVal;
+	Update *pUpdate;
+	HRESULT hResult;
+	CHAR *pszFilePath;
+	SYSTEMTIME localTime;
+	AlertMessage alertMessage;
+	CHAR szLocalTime[MAX_ALERT_MSG_SIZE];
+	CHAR szAlertMessage[MAX_ALERT_MSG_SIZE];
+	CHAR szComputerName[MAX_COMPUTERNAME_LENGTH];
+
+	WCHAR errMsg[MAX_PATH];
+
+	//OutputDebugString(_T("SendAlertMessageToServer: Entry\n"));
+	
+	if (NULL == pwszFilePath)
+	{
+		return FALSE;
+	}
+
+	bRetVal = ConvertFromWideCharToMultiByte(pwszFilePath, _tcslen(pwszFilePath), &pszFilePath, &uiOutLen);
+	if (FALSE == bRetVal)
+	{
+		OutputDebugString(_T("SendAlertMessageToServer: ConvertFromWideCharToMultiByte Failed.\n"));
+		return FALSE;
+	}
+
+	GetLocalTime(&localTime);
+
+	iRetVal = sprintf_s(szLocalTime, sizeof(szLocalTime), "%d:%d, %d/%d/%d", localTime.wHour, localTime.wMinute, localTime.wDay, localTime.wMonth, localTime.wYear);
+	if (-1 == iRetVal)
+	{
+		OutputDebugString(_T("SendAlertMessageToServer: Formatting date and time failed.\n"));
+		free(pszFilePath);
+		return FALSE;
+	}
+
+	memset(errMsg, 0, sizeof(errMsg));
+	_stprintf_s(errMsg, sizeof(errMsg), L"SendAlertMessageToServer:Time(%S)", szLocalTime);
+	OutputDebugString(errMsg);
+
+	dwcchLen = ARRAY_SIZE(szComputerName);
+	bRetVal = GetComputerNameA(szComputerName, &dwcchLen);
+	if (0 == bRetVal)
+	{
+		OutputDebugString(_T("SendAlertMessageToServer: GetComputerNameA failed\n"));
+		free(pszFilePath);
+		return FALSE;
+	}
+
+	memset(errMsg, 0, sizeof(errMsg));
+	_stprintf_s(errMsg, sizeof(errMsg), L"SendAlertMessageToServer:Computer Name(%S)", szComputerName);
+	OutputDebugString(errMsg);
+
+	memset(szAlertMessage, 0, sizeof(szAlertMessage));
+	hResult = StringCchCopyA(szAlertMessage, ARRAY_SIZE(szAlertMessage), "Sample Alert");
+	if (FAILED(hResult))
+	{
+		OutputDebugString(_T("SendAlertMessageToServer: StringCchCopy failed.\n"));
+		free(pszFilePath);
+		return FALSE;
+	}
+
+	memset(&alertMessage, 0, sizeof(alertMessage));
+
+	if (ALERT_CMD == alertType)
+	{
+		alertMessage.command = pszFilePath;
+		alertMessage.parentProcessId = (LONG)dwParentProcessId;
+		alertMessage.fileName = NULL;
+	}
+	else
+	{
+		alertMessage.fileName = pszFilePath;
+		alertMessage.command = NULL;
+	}
+
+	alertMessage.hostName = szComputerName;
+	alertMessage.alertMessage = szAlertMessage;
+	alertMessage.timeStamp = szLocalTime;
+	alertMessage.alertType = alertType;
+
+	pUpdate = GetUpdateLibObj();
+	if (NULL == pUpdate)
+	{
+		OutputDebugString(_T("SendAlertMessageToServer: Server library not initialized.\n"));
+		free(pszFilePath);
+		return FALSE;
+	}
+
+	/*memset(errMsg, 0, sizeof(errMsg));
+	_stprintf_s(errMsg, sizeof(errMsg), L"Alert: File(%S) Host Name(%S) Time(%S) ParentProcessId(%d)", alertMessage.fileName, alertMessage.hostName, alertMessage.timeStamp, alertMessage.parentProcessId);
+	OutputDebugString(errMsg);*/
+
+	iRetVal = pUpdate->alert(&alertMessage);
+	if (0 != iRetVal)
+	{
+		OutputDebugString(_T("Alert function failed.\n"));
+		free(pszFilePath);
+		return FALSE;
+	}
+
+	free(pszFilePath);
+	//OutputDebugString(_T("SendAlertMessageToServer: Exit\n"));
+
+	return TRUE;
+}
+
+
+BOOLEAN
+CHiparaDlg::SendAlertMessageToFile(
+	WCHAR *pwszFilePath,
+	DWORD dwcbFilePathLen
+)
+{
+	HANDLE hFile;
+	BOOL boRetVal;
+	time_t timer;
+	struct tm* tm_info;
+	WCHAR wszbuffer[26];
+	TCHAR ErrMgg[MAX_PATH];
+	DWORD dwNumberOfBytesReturned;
+	LARGE_INTEGER liDistanceToMove;
+
+	OutputDebugString(_T("SendAlertMessageToFile() Entry."));
+
+	if (NULL == pwszFilePath || 0 == dwcbFilePathLen)
+	{
+		_stprintf_s(ErrMgg, sizeof(ErrMgg), L"Invalid parameter.");
+		OutputDebugString(ErrMgg);
+
+		return FALSE;
+	}
+
+	hFile = CreateFileA(gszReportFilePath, GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+	if (INVALID_HANDLE_VALUE == hFile)
+	{
+		_stprintf_s(ErrMgg, sizeof(ErrMgg), L"CreateFileW() Failed. Error(%u).", GetLastError());
+		OutputDebugString(ErrMgg);
+
+		return FALSE;
+	}
+
+	liDistanceToMove.QuadPart = 0;
+	boRetVal = SetFilePointerEx(hFile, liDistanceToMove, NULL, FILE_END);
+	if (FALSE == boRetVal)
+	{
+		_stprintf_s(ErrMgg, sizeof(ErrMgg), L"SetFilePointerEx() Failed. Error(%u).", GetLastError());
+		OutputDebugString(ErrMgg);
+
+		CloseHandle(hFile);
+		return FALSE;
+	}
+
+	time(&timer);
+	tm_info = localtime(&timer);
+
+	wcsftime(wszbuffer, ARRAY_SIZE(wszbuffer), L"%Y:%m:%d %H:%M:%S ", tm_info);
+
+	boRetVal = WriteFile(hFile, wszbuffer, wcslen(wszbuffer) * sizeof(wszbuffer[0]), &dwNumberOfBytesReturned, NULL);
+	if (FALSE == boRetVal)
+	{
+		_stprintf_s(ErrMgg, sizeof(ErrMgg), L"WriteFile() Failed. Error(%u).", GetLastError());
+		OutputDebugString(ErrMgg);
+
+		CloseHandle(hFile);
+		return FALSE;
+	}
+
+	boRetVal = WriteFile(hFile, pwszFilePath, dwcbFilePathLen, &dwNumberOfBytesReturned, NULL);
+	if (FALSE == boRetVal)
+	{
+		_stprintf_s(ErrMgg, sizeof(ErrMgg), L"WriteFile() Failed. Error(%u).", GetLastError());
+		OutputDebugString(ErrMgg);
+
+		CloseHandle(hFile);
+		return FALSE;
+	}
+
+	boRetVal = WriteFile(hFile, L"\r\n", wcslen(L"\r\n") * sizeof(WCHAR), &dwNumberOfBytesReturned, NULL);
+	if (FALSE == boRetVal)
+	{
+		_stprintf_s(ErrMgg, sizeof(ErrMgg), L"WriteFile() Failed. Error(%u).", GetLastError());
+		OutputDebugString(ErrMgg);
+
+		CloseHandle(hFile);
+		return FALSE;
+	}
+
+	OutputDebugString(_T("SendAlertMessageToFile() Exit."));
+
+	CloseHandle(hFile);
 	return TRUE;
 }

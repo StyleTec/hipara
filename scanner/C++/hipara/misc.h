@@ -9,6 +9,16 @@
 #define MAX_LENGTH_PATH						260
 #define	ARRAY_SIZE(X)						((sizeof(X)) / (sizeof(X[0])))
 
+#define	HIPARA_UPDATE_SECTION_NAME			L"Update"
+#define HIPARA_UPDATE_URL_KEY_NAME			L"URL"
+#define	HIPARA_UPDATE_USERNAME_KEY_NAME		L"USERNAME"
+#define	HIPARA_UPDATE_PASSWORD_KEY_NAME		L"PWD"
+
+#define	HIPARA_CONFIG_INFO_SECTION_NAME		L"Options"
+#define	HIPARA_ONLY_LOG_TO_SERVER_KEY_NAME	L"LOGTOSERVER"
+
+#define	HIPARA_CONFIG_FILE_NAME				L"config.ini"
+
 BOOLEAN
 ConvertFromWideCharToMultiByte(
 	WCHAR *pwszInput,
@@ -27,4 +37,30 @@ BOOLEAN
 UnInstallMemoryScannerDriver(
 	WCHAR *pwszServiceName
 );
+
+BOOLEAN
+GetConfigInfo(
+BYTE *pbyLogToServer
+);
+
+
+BOOLEAN
+LoadFilter(
+	WCHAR *pwszFilterName
+);
+
+
+BOOLEAN
+UnloadFilter(
+	WCHAR *pwszFilterName
+);
+
+
+BOOLEAN
+SetPrivilege(
+	const TCHAR *pcszPrivilegeStr,
+	BOOL bEnablePrivilege,
+	DWORD *pdwError
+);
+
 #endif		// __MISC_H__

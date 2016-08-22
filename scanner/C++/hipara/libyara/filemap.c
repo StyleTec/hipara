@@ -1,22 +1,35 @@
 /*
 Copyright (c) 2007-2015. The YARA Authors. All Rights Reserved.
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+Redistribution and use in source and binary forms, with or without modification,
+are permitted provided that the following conditions are met:
 
-   http://www.apache.org/licenses/LICENSE-2.0
+1. Redistributions of source code must retain the above copyright notice, this
+list of conditions and the following disclaimer.
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+2. Redistributions in binary form must reproduce the above copyright notice,
+this list of conditions and the following disclaimer in the documentation and/or
+other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its contributors
+may be used to endorse or promote products derived from this software without
+specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include <fcntl.h>
 
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__CYGWIN__)
 #include <windows.h>
 #else
 #include <sys/stat.h>
@@ -49,17 +62,17 @@ YR_API int yr_filemap_map(
     const char* file_path,
     YR_MAPPED_FILE* pmapped_file)
 {
-	//OutputDebugStringA("yr_filemap_map: Entry.\n");
   return yr_filemap_map_ex(file_path, 0, 0, pmapped_file);
 }
 
 //
-// yr_filemap_map_ex
+// yr_filemap_map_fd
 //
-// Maps a portion of a file into memory.
+// Maps a portion of a file (specified by descriptor) into memory.
 //
 // Args:
-//    const char* file_path        - Path of the file to map.
+//    YR_FILE_DESCRIPTOR file      - File descriptor representing the file to
+//                                   map
 //    off_t offset                 - File offset where the mapping will begin.
 //                                   This offset must be multiple of 1MB and not
 //                                   greater than the actual file size.
@@ -77,48 +90,25 @@ YR_API int yr_filemap_map(
 //       ERROR_COULD_NOT_MAP_FILE
 //
 
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__CYGWIN__)
 
-YR_API int yr_filemap_map_ex(
-    const char* file_path,
+YR_API int yr_filemap_map_fd(
+    YR_FILE_DESCRIPTOR file,
     off_t offset,
     size_t size,
     YR_MAPPED_FILE* pmapped_file)
 {
-	LARGE_INTEGER fs;
-	size_t file_size;
-	//OutputDebugStringA("yr_filemap_map_ex: Entry.\n");
-  pmapped_file->file = INVALID_HANDLE_VALUE;
+  LARGE_INTEGER fs;
+  size_t file_size;
+
+  pmapped_file->file = file;
   pmapped_file->mapping = NULL;
   pmapped_file->data = NULL;
   pmapped_file->size = 0;
 
-  if (file_path == NULL)
-    return ERROR_INVALID_ARGUMENT;
-
   // Ensure that offset is aligned to 1MB
   if (offset >> 20 << 20 != offset)
     return ERROR_INVALID_ARGUMENT;
-
-  //OutputDebugStringA("yr_filemap_map_ex: calling CreateFileA.\n");
-
-  pmapped_file->file = CreateFileA(
-      file_path,
-      GENERIC_READ,
-      FILE_SHARE_READ,
-      NULL,
-      OPEN_EXISTING,
-      FILE_FLAG_SEQUENTIAL_SCAN,
-      NULL);
-
-  if (pmapped_file->file == INVALID_HANDLE_VALUE)
-  {
-	  //OutputDebugStringA("yr_filemap_map_ex: CreateFileA failed.\n");
-	  return ERROR_COULD_NOT_OPEN_FILE;
-  }
-  //OutputDebugStringA("yr_filemap_map_ex: CreateFileA succeed.\n");
-  /*LARGE_INTEGER fs;
-  size_t file_size;*/
 
   if (GetFileSizeEx(pmapped_file->file, &fs))
   {
@@ -139,10 +129,10 @@ YR_API int yr_filemap_map_ex(
     return ERROR_COULD_NOT_MAP_FILE;
 
   if (size == 0)
-    size = file_size - offset;
+    size = (size_t) (file_size - offset);
 
-  pmapped_file->size = min(size, file_size - offset);
-  //OutputDebugStringA("yr_filemap_map_ex: Calling CreateFileMapping.\n");
+  pmapped_file->size = yr_min(size, (size_t) (file_size - offset));
+
   if (pmapped_file->size != 0)
   {
     pmapped_file->mapping = CreateFileMapping(
@@ -159,7 +149,7 @@ YR_API int yr_filemap_map_ex(
       pmapped_file->file = INVALID_HANDLE_VALUE;
       return ERROR_COULD_NOT_MAP_FILE;
     }
-	//OutputDebugStringA("yr_filemap_map_ex: CreateFileMapping succeed.\n");
+
     pmapped_file->data = (uint8_t*) MapViewOfFile(
         pmapped_file->mapping,
         FILE_MAP_READ,
@@ -181,46 +171,38 @@ YR_API int yr_filemap_map_ex(
     pmapped_file->mapping = NULL;
     pmapped_file->data = NULL;
   }
-  //OutputDebugStringA("yr_filemap_map_ex: Exit.\n");
+
   return ERROR_SUCCESS;
 }
 
 #else // POSIX
 
-YR_API int yr_filemap_map_ex(
-    const char* file_path,
+YR_API int yr_filemap_map_fd(
+    YR_FILE_DESCRIPTOR file,
     off_t offset,
     size_t size,
     YR_MAPPED_FILE* pmapped_file)
 {
-  struct stat fstat;
+  struct stat st;
 
+  pmapped_file->file = file;
   pmapped_file->data = NULL;
   pmapped_file->size = 0;
-  pmapped_file->file = -1;
-
-  if (file_path == NULL)
-    return ERROR_INVALID_ARGUMENT;
 
   // Ensure that offset is aligned to 1MB
   if (offset >> 20 << 20 != offset)
     return ERROR_INVALID_ARGUMENT;
 
-  if (stat(file_path, &fstat) != 0 || S_ISDIR(fstat.st_mode))
-      return ERROR_COULD_NOT_OPEN_FILE;
+  if (fstat(file, &st) != 0 || S_ISDIR(st.st_mode))
+    return ERROR_COULD_NOT_OPEN_FILE;
 
-  if (offset > fstat.st_size)
+  if (offset > st.st_size)
     return ERROR_COULD_NOT_MAP_FILE;
 
   if (size == 0)
-    size = fstat.st_size - offset;
+    size = (size_t) (st.st_size - offset);
 
-  pmapped_file->file = open(file_path, O_RDONLY);
-
-  if (pmapped_file->file == -1)
-    return ERROR_COULD_NOT_OPEN_FILE;
-
-  pmapped_file->size = min(size, fstat.st_size - offset);
+  pmapped_file->size = yr_min(size, (size_t) (st.st_size - offset));
 
   if (pmapped_file->size != 0)
   {
@@ -242,6 +224,8 @@ YR_API int yr_filemap_map_ex(
 
       return ERROR_COULD_NOT_MAP_FILE;
     }
+
+    madvise(pmapped_file->data, pmapped_file->size, MADV_SEQUENTIAL);
   }
   else
   {
@@ -249,6 +233,81 @@ YR_API int yr_filemap_map_ex(
   }
 
   return ERROR_SUCCESS;
+}
+
+#endif
+
+//
+// yr_filemap_map_ex
+//
+// Maps a portion of a file (specified by path) into memory.
+//
+// Args:
+//    const char* file_path        - Path of the file to map.
+//    off_t offset                 - File offset where the mapping will begin.
+//                                   This offset must be multiple of 1MB and not
+//                                   greater than the actual file size.
+//    size_t size                  - Number of bytes that will be mapped. If
+//                                   zero or greater than the actual file size
+//                                   all content until the end of the file will
+//                                   be mapped.
+//    YR_MAPPED_FILE* pmapped_file - Pointer to a YR_MAPPED_FILE struct that
+//                                   will be filled with the new mapping.
+// Returns:
+//    One of the following error codes:
+//       ERROR_SUCCESS
+//       ERROR_INVALID_ARGUMENT
+//       ERROR_COULD_NOT_OPEN_FILE
+//       ERROR_COULD_NOT_MAP_FILE
+//
+
+#if defined(_WIN32) || defined(__CYGWIN__)
+
+YR_API int yr_filemap_map_ex(
+    const char* file_path,
+    off_t offset,
+    size_t size,
+    YR_MAPPED_FILE* pmapped_file)
+{
+  YR_FILE_DESCRIPTOR fd;
+
+  if (file_path == NULL)
+    return ERROR_INVALID_ARGUMENT;
+
+  fd = CreateFileA(
+      file_path,
+      GENERIC_READ,
+      FILE_SHARE_READ,
+      NULL,
+      OPEN_EXISTING,
+      FILE_FLAG_SEQUENTIAL_SCAN,
+      NULL);
+
+  if (fd == INVALID_HANDLE_VALUE)
+    return ERROR_COULD_NOT_OPEN_FILE;
+
+  return yr_filemap_map_fd(fd, offset, size, pmapped_file);
+}
+
+#else // POSIX
+
+YR_API int yr_filemap_map_ex(
+    const char* file_path,
+    off_t offset,
+    size_t size,
+    YR_MAPPED_FILE* pmapped_file)
+{
+  YR_FILE_DESCRIPTOR fd;
+
+  if (file_path == NULL)
+    return ERROR_INVALID_ARGUMENT;
+
+  fd = open(file_path, O_RDONLY);
+
+  if (fd == -1)
+    return ERROR_COULD_NOT_OPEN_FILE;
+
+  return yr_filemap_map_fd(fd, offset, size, pmapped_file);
 }
 
 #endif
@@ -265,7 +324,7 @@ YR_API int yr_filemap_map_ex(
 
 #ifdef WIN32
 
-YR_API void yr_filemap_unmap(
+YR_API void yr_filemap_unmap_fd(
     YR_MAPPED_FILE* pmapped_file)
 {
   if (pmapped_file->data != NULL)
@@ -274,29 +333,45 @@ YR_API void yr_filemap_unmap(
   if (pmapped_file->mapping != NULL)
     CloseHandle(pmapped_file->mapping);
 
-  if (pmapped_file->file != INVALID_HANDLE_VALUE)
-    CloseHandle(pmapped_file->file);
-
-  pmapped_file->file = INVALID_HANDLE_VALUE;
   pmapped_file->mapping = NULL;
   pmapped_file->data = NULL;
   pmapped_file->size = 0;
 }
 
+YR_API void yr_filemap_unmap(
+    YR_MAPPED_FILE* pmapped_file)
+{
+  yr_filemap_unmap_fd(pmapped_file);
+
+  if (pmapped_file->file != INVALID_HANDLE_VALUE)
+  {
+    CloseHandle(pmapped_file->file);
+    pmapped_file->file = INVALID_HANDLE_VALUE;
+  }
+}
+
 #else // POSIX
 
-YR_API void yr_filemap_unmap(
+YR_API void yr_filemap_unmap_fd(
     YR_MAPPED_FILE* pmapped_file)
 {
   if (pmapped_file->data != NULL)
     munmap(pmapped_file->data, pmapped_file->size);
 
-  if (pmapped_file->file != -1)
-    close(pmapped_file->file);
-
-  pmapped_file->file = -1;
   pmapped_file->data = NULL;
   pmapped_file->size = 0;
+}
+
+YR_API void yr_filemap_unmap(
+    YR_MAPPED_FILE* pmapped_file)
+{
+  yr_filemap_unmap_fd(pmapped_file);
+
+  if (pmapped_file->file != -1)
+    {
+      close(pmapped_file->file);
+      pmapped_file->file = -1;
+    }
 }
 
 #endif

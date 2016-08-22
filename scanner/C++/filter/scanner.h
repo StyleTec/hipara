@@ -19,7 +19,6 @@ Environment:
 #ifndef __SCANNER_H__
 #define __SCANNER_H__
 
-
 ///////////////////////////////////////////////////////////////////////////
 //
 //  Macros
@@ -74,8 +73,13 @@ extern SCANNER_DATA ScannerData;
 
 typedef struct _SCANNER_STREAM_HANDLE_CONTEXT {
 
-    BOOLEAN RescanRequired;
-    
+	BOOLEAN RescanRequired;
+	BOOLEAN bModify;
+
+	WCHAR wszFilePath[MAX_FILE_PATH];
+	UNICODE_STRING usFilePath;
+	ULONG ulFilePathHash;
+
 } SCANNER_STREAM_HANDLE_CONTEXT, *PSCANNER_STREAM_HANDLE_CONTEXT;
 
 typedef struct _SCANNER_INSTANCE_CONTEXT
@@ -151,6 +155,14 @@ ScannerPreWrite (
     _Flt_CompletionContext_Outptr_ PVOID *CompletionContext
     );
 
+FLT_POSTOP_CALLBACK_STATUS
+ScannerPostWrite(
+	_Inout_ PFLT_CALLBACK_DATA Data,
+	_In_ PCFLT_RELATED_OBJECTS FltObjects,
+	_In_opt_ PVOID CompletionContext,
+	_In_ FLT_POST_OPERATION_FLAGS Flags
+	);
+
 #if (WINVER >= 0x0602)
 
 FLT_PREOP_CALLBACK_STATUS
@@ -197,6 +209,11 @@ BOOLEAN
 IsSubstringPresentInString(
 	PUNICODE_STRING pusString,
 	PUNICODE_STRING pusSubString
+);
+
+BOOLEAN
+ScannerpCheckExtension(
+_In_ PUNICODE_STRING Extension
 );
 
 

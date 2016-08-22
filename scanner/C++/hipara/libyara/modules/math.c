@@ -1,24 +1,36 @@
 /*
 Copyright (c) 2014-2015. The YARA Authors. All Rights Reserved.
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+Redistribution and use in source and binary forms, with or without modification,
+are permitted provided that the following conditions are met:
 
-   http://www.apache.org/licenses/LICENSE-2.0
+1. Redistributions of source code must retain the above copyright notice, this
+list of conditions and the following disclaimer.
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+2. Redistributions in binary form must reproduce the above copyright notice,
+this list of conditions and the following disclaimer in the documentation and/or
+other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its contributors
+may be used to endorse or promote products derived from this software without
+specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include <math.h>
 
 #include "..\include\yara\modules.h"
 #include "..\include\yara\mem.h"
-
 
 #define MODULE_NAME math
 
@@ -36,6 +48,9 @@ double log2(double n)
 
 define_function(string_entropy)
 {
+  size_t i;
+  double entropy = 0.0;
+
   SIZED_STRING* s = sized_string_argument(1);
 
   uint32_t* data = (uint32_t*) yr_calloc(256, sizeof(uint32_t));
@@ -43,15 +58,13 @@ define_function(string_entropy)
   if (data == NULL)
     return_float(UNDEFINED);
 
-  for (int i = 0; i < s->length; i++)
+  for (i = 0; i < s->length; i++)
   {
     uint8_t c = s->c_string[i];
     data[c] += 1;
   }
 
-  double entropy = 0.0;
-
-  for (int i = 0; i < 256; i++)
+  for (i = 0; i < 256; i++)
   {
     if (data[i] != 0)
     {
@@ -67,40 +80,53 @@ define_function(string_entropy)
 
 define_function(data_entropy)
 {
+  int past_first_block = FALSE;
+  double entropy = 0.0;
+
+  size_t total_len = 0;
+  size_t i;
+
+  uint32_t* data;
+
   int64_t offset = integer_argument(1);   // offset where to start
   int64_t length = integer_argument(2);   // length of bytes we want entropy on
 
   YR_SCAN_CONTEXT* context = scan_context();
-  YR_MEMORY_BLOCK* block = NULL;
+  YR_MEMORY_BLOCK* block = first_memory_block(context);
+  YR_MEMORY_BLOCK_ITERATOR* iterator = context->iterator;
 
-  if (offset < 0 || length < 0 || offset < context->mem_block->base)
-  {
-    return ERROR_WRONG_ARGUMENTS;
-  }
+  if (offset < 0 || length < 0 || offset < block->base)
+    return_float(UNDEFINED);
 
-  uint32_t* data = (uint32_t*) yr_calloc(256, sizeof(uint32_t));
+  data = (uint32_t*) yr_calloc(256, sizeof(uint32_t));
 
   if (data == NULL)
     return_float(UNDEFINED);
 
-  int past_first_block = FALSE;
-  uint64_t total_len = 0;
-
-  foreach_memory_block(context, block)
+  foreach_memory_block(iterator, block)
   {
     if (offset >= block->base &&
         offset < block->base + block->size)
     {
-      uint64_t data_offset = offset - block->base;
-      uint64_t data_len = min(length, block->size - data_offset);
+      size_t data_offset = (size_t) (offset - block->base);
+      size_t data_len = (size_t) yr_min(
+          length, (size_t) (block->size - data_offset));
+
+      uint8_t* block_data = block->fetch_data(block);
+
+      if (block_data == NULL)
+      {
+        yr_free(data);
+        return_float(UNDEFINED);
+      }
 
       total_len += data_len;
       offset += data_len;
       length -= data_len;
 
-      for (int i = 0; i < data_len; i++)
+      for (i = 0; i < data_len; i++)
       {
-        uint8_t c = *(block->data + data_offset + i);
+        uint8_t c = *(block_data + data_offset + i);
         data[c] += 1;
       }
 
@@ -128,9 +154,7 @@ define_function(data_entropy)
     return_float(UNDEFINED);
   }
 
-  double entropy = 0.0;
-
-  for (int i = 0; i < 256; i++)
+  for (i = 0; i < 256; i++)
   {
     if (data[i] != 0)
     {
@@ -147,10 +171,13 @@ define_function(data_entropy)
 define_function(string_deviation)
 {
   SIZED_STRING* s = sized_string_argument(1);
+
   double mean = float_argument(2);
   double sum = 0.0;
 
-  for (int i = 0; i < s->length; i++)
+  size_t i;
+
+  for (i = 0; i < s->length; i++)
     sum += fabs(((double) s->c_string[i]) - mean);
 
   return_float(sum / s->length);
@@ -159,37 +186,47 @@ define_function(string_deviation)
 
 define_function(data_deviation)
 {
+  int past_first_block = FALSE;
+
   int64_t offset = integer_argument(1);
   int64_t length = integer_argument(2);
 
   double mean = float_argument(3);
   double sum = 0.0;
 
+  size_t total_len = 0;
+  size_t i;
+
+  size_t data_offset = 0;
+  size_t data_len = 0;
+  uint8_t* block_data = NULL;
+
   YR_SCAN_CONTEXT* context = scan_context();
-  YR_MEMORY_BLOCK* block = NULL;
+  YR_MEMORY_BLOCK* block = first_memory_block(context);
+  YR_MEMORY_BLOCK_ITERATOR* iterator = context->iterator;
 
-  if (offset < 0 || length < 0 || offset < context->mem_block->base)
-  {
-    return ERROR_WRONG_ARGUMENTS;
-  }
+  if (offset < 0 || length < 0 || offset < block->base)
+    return_float(UNDEFINED);
 
-  int past_first_block = FALSE;
-  uint64_t total_len = 0;
-
-  foreach_memory_block(context, block)
+  foreach_memory_block(iterator, block)
   {
     if (offset >= block->base &&
         offset < block->base + block->size)
     {
-      uint64_t data_offset = offset - block->base;
-      uint64_t data_len = min(length, block->size - data_offset);
+      data_offset = (size_t)(offset - block->base);
+      data_len = (size_t)yr_min(
+          length, (size_t)(block->size - data_offset));
+      block_data = block->fetch_data(block);
+
+      if (block_data == NULL)
+        return_float(UNDEFINED);
 
       total_len += data_len;
       offset += data_len;
       length -= data_len;
 
-      for (int i = 0; i < data_len; i++)
-        sum += fabs(((double) *(block->data + data_offset + i)) - mean);
+      for (i = 0; i < data_len; i++)
+        sum += fabs(((double)* (block_data + data_offset + i)) - mean);
 
       past_first_block = TRUE;
     }
@@ -216,11 +253,12 @@ define_function(data_deviation)
 
 define_function(string_mean)
 {
-  SIZED_STRING* s = sized_string_argument(1);
-
+  size_t i;
   double sum = 0.0;
 
-  for (int i = 0; i < s->length; i++)
+  SIZED_STRING* s = sized_string_argument(1);
+
+  for (i = 0; i < s->length; i++)
     sum += (double) s->c_string[i];
 
   return_float(sum / s->length);
@@ -229,35 +267,42 @@ define_function(string_mean)
 
 define_function(data_mean)
 {
+  int past_first_block = FALSE;
+  double sum = 0.0;
+
   int64_t offset = integer_argument(1);
   int64_t length = integer_argument(2);
 
   YR_SCAN_CONTEXT* context = scan_context();
-  YR_MEMORY_BLOCK* block = NULL;
+  YR_MEMORY_BLOCK* block = first_memory_block(context);
+  YR_MEMORY_BLOCK_ITERATOR* iterator = context->iterator;
 
-  if (offset < 0 || length < 0 || offset < context->mem_block->base)
-  {
-    return ERROR_WRONG_ARGUMENTS;
-  }
+  size_t total_len = 0;
+  size_t i;
 
-  int past_first_block = FALSE;
-  uint64_t total_len = 0;
-  double sum = 0.0;
+  if (offset < 0 || length < 0 || offset < block->base)
+    return_float(UNDEFINED);
 
-  foreach_memory_block(context, block)
+  foreach_memory_block(iterator, block)
   {
     if (offset >= block->base &&
         offset < block->base + block->size)
     {
-      uint64_t data_offset = offset - block->base;
-      uint64_t data_len = min(length, block->size - data_offset);
+      size_t data_offset = (size_t) (offset - block->base);
+      size_t data_len = (size_t) yr_min(
+          length, (size_t) (block->size - data_offset));
+
+      uint8_t* block_data = block->fetch_data(block);
+
+      if (block_data == NULL)
+        return_float(UNDEFINED);
 
       total_len += data_len;
       offset += data_len;
       length -= data_len;
 
-      for (int i = 0; i < data_len; i++)
-        sum += (double) *(block->data + data_offset + i);
+      for (i = 0; i < data_len; i++)
+        sum += (double)* (block_data + data_offset + i);
 
       past_first_block = TRUE;
     }
@@ -285,40 +330,48 @@ define_function(data_mean)
 define_function(data_serial_correlation)
 {
   int past_first_block = FALSE;
-  uint64_t total_len = 0;
+
+  size_t total_len = 0;
+  size_t i;
 
   int64_t offset = integer_argument(1);
   int64_t length = integer_argument(2);
 
   YR_SCAN_CONTEXT* context = scan_context();
-  YR_MEMORY_BLOCK* block = NULL;
-
-  if (offset < 0 || length < 0 || offset < context->mem_block->base)
-  {
-    return ERROR_WRONG_ARGUMENTS;
-  }
+  YR_MEMORY_BLOCK* block = first_memory_block(context);
+  YR_MEMORY_BLOCK_ITERATOR* iterator = context->iterator;
 
   double sccun = 0;
   double scclast = 0;
   double scct1 = 0;
   double scct2 = 0;
   double scct3 = 0;
+  double scc = 0;
 
-  foreach_memory_block(context, block)
+  if (offset < 0 || length < 0 || offset < block->base)
+    return_float(UNDEFINED);
+
+  foreach_memory_block(iterator, block)
   {
     if (offset >= block->base &&
         offset < block->base + block->size)
     {
-      uint64_t data_offset = offset - block->base;
-      uint64_t data_len = min(length, block->size - data_offset);
+      size_t data_offset = (size_t)(offset - block->base);
+      size_t data_len = (size_t) yr_min(
+          length, (size_t) (block->size - data_offset));
+
+      uint8_t* block_data = block->fetch_data(block);
+
+      if (block_data == NULL)
+        return_float(UNDEFINED);
 
       total_len += data_len;
       offset += data_len;
       length -= data_len;
 
-      for (int i = 0; i < data_len; i++)
+      for (i = 0; i < data_len; i++)
       {
-        sccun = (double) *(block->data + data_offset + i);
+        sccun = (double)* (block_data + data_offset + i);
         scct1 += scclast * sccun;
         scct2 += sccun;
         scct3 += sccun * sccun;
@@ -347,7 +400,7 @@ define_function(data_serial_correlation)
   scct1 += scclast * sccun;
   scct2 *= scct2;
 
-  double scc = total_len * scct3 - scct2;
+  scc = total_len * scct3 - scct2;
 
   if (scc == 0)
     scc = -100000;
@@ -367,8 +420,11 @@ define_function(string_serial_correlation)
   double scct1 = 0;
   double scct2 = 0;
   double scct3 = 0;
+  double scc = 0;
 
-  for (int i = 0; i < s->length; i++)
+  size_t i;
+
+  for (i = 0; i < s->length; i++)
   {
     sccun = (double) s->c_string[i];
     scct1 += scclast * sccun;
@@ -380,7 +436,7 @@ define_function(string_serial_correlation)
   scct1 += scclast * sccun;
   scct2 *= scct2;
 
-  double scc = s->length * scct3 - scct2;
+  scc = s->length * scct3 - scct2;
 
   if (scc == 0)
     scc = -100000;
@@ -393,49 +449,57 @@ define_function(string_serial_correlation)
 
 define_function(data_monte_carlo_pi)
 {
+  int past_first_block = FALSE;
+  int mcount = 0;
+  int inmont = 0;
+
+  double INCIRC = pow(pow(256.0, 3.0) - 1, 2.0);
+  double mpi = 0;
+
+  size_t i;
+
   int64_t offset = integer_argument(1);
   int64_t length = integer_argument(2);
 
   YR_SCAN_CONTEXT* context = scan_context();
-  YR_MEMORY_BLOCK* block = NULL;
+  YR_MEMORY_BLOCK* block = first_memory_block(context);
+  YR_MEMORY_BLOCK_ITERATOR* iterator = context->iterator;
 
-  if (offset < 0 || length < 0 || offset < context->mem_block->base)
-  {
-    return ERROR_WRONG_ARGUMENTS;
-  }
+  if (offset < 0 || length < 0 || offset < block->base)
+    return_float(UNDEFINED);
 
-  double INCIRC = pow(pow(256.0, 3.0) - 1, 2.0);
-
-  int mcount = 0;
-  int inmont = 0;
-
-  int past_first_block = FALSE;
-
-  foreach_memory_block(context, block)
+  foreach_memory_block(iterator, block)
   {
     if (offset >= block->base &&
         offset < block->base + block->size)
     {
-      uint64_t data_offset = offset - block->base;
-      uint64_t data_len = min(length, block->size - data_offset);
+      unsigned int monte[6];
+
+      size_t data_offset = (size_t) (offset - block->base);
+      size_t data_len = (size_t) yr_min(
+          length, (size_t) (block->size - data_offset));
+
+      uint8_t* block_data = block->fetch_data(block);
+
+      if (block_data == NULL)
+        return_float(UNDEFINED);
 
       offset += data_len;
       length -= data_len;
 
-      unsigned int monte[6];
-
-      for (int i = 0; i < data_len; i++)
+      for (i = 0; i < data_len; i++)
       {
-        monte[i % 6] = (unsigned int) *(block->data + data_offset + i);
+        monte[i % 6] = (unsigned int)* (block_data + data_offset + i);
 
         if (i % 6 == 5)
         {
-          mcount++;
-
           double mx = 0;
           double my = 0;
+          int j;
 
-          for (int j = 0; j < 3; j++)
+          mcount++;
+
+          for (j = 0; j < 3; j++)
           {
             mx = (mx * 256.0) + monte[j];
             my = (my * 256.0) + monte[j + 3];
@@ -462,10 +526,10 @@ define_function(data_monte_carlo_pi)
       break;
   }
 
-  if (!past_first_block)
+  if (!past_first_block || mcount == 0)
     return_float(UNDEFINED);
 
-  double mpi = 4.0 * ((double) inmont / mcount);
+  mpi = 4.0 * ((double) inmont / mcount);
 
   return_float(fabs((mpi - PI) / PI));
 }
@@ -476,23 +540,29 @@ define_function(string_monte_carlo_pi)
   SIZED_STRING* s = sized_string_argument(1);
 
   double INCIRC = pow(pow(256.0, 3.0) - 1, 2.0);
+  double mpi = 0;
+
   unsigned int monte[6];
 
   int mcount = 0;
   int inmont = 0;
 
-  for (int i = 0; i < s->length; i++)
+  size_t i;
+
+  for (i = 0; i < s->length; i++)
   {
     monte[i % 6] = (unsigned int) s->c_string[i];
 
     if (i % 6 == 5)
     {
-      mcount++;
-
       double mx = 0;
       double my = 0;
 
-      for (int j = 0; j < 3; j++)
+      int j;
+
+      mcount++;
+
+      for (j = 0; j < 3; j++)
       {
         mx = (mx * 256.0) + monte[j];
         my = (my * 256.0) + monte[j + 3];
@@ -503,7 +573,10 @@ define_function(string_monte_carlo_pi)
     }
   }
 
-  double mpi = 4.0 * ((double) inmont / mcount);
+  if (mcount == 0)
+    return_float(UNDEFINED);
+
+  mpi = 4.0 * ((double) inmont / mcount);
   return_float(fabs((mpi - PI) / PI));
 }
 

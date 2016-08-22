@@ -1,17 +1,30 @@
 /*
 Copyright (c) 2013-2014. The YARA Authors. All Rights Reserved.
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+Redistribution and use in source and binary forms, with or without modification,
+are permitted provided that the following conditions are met:
 
-   http://www.apache.org/licenses/LICENSE-2.0
+1. Redistributions of source code must retain the above copyright notice, this
+list of conditions and the following disclaimer.
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+2. Redistributions in binary form must reproduce the above copyright notice,
+this list of conditions and the following disclaimer in the documentation and/or
+other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its contributors
+may be used to endorse or promote products derived from this software without
+specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #define _GNU_SOURCE
@@ -29,27 +42,36 @@ limitations under the License.
 #include "include\yara\re.h"
 #include "include\yara\strutils.h"
 #include "include\yara\utils.h"
+#include "include\yara\mem.h"
 
 #include "include\yara.h"
 
 
-#define STACK_SIZE 16384
 #define MEM_SIZE   MAX_LOOP_NESTING * LOOP_LOCAL_VARS
 
-union STACK_ITEM {
+typedef union _STACK_ITEM {
+
   int64_t i;
   double d;
   void* p;
   YR_OBJECT* o;
   YR_STRING* s;
   SIZED_STRING* ss;
-};
+
+} STACK_ITEM;
+
 
 #define push(x)  \
-    do { \
-      if (sp < STACK_SIZE) stack[sp++] = (x); \
-      else return ERROR_EXEC_STACK_OVERFLOW; \
-    } while(0)
+    if (sp < stack_size) \
+    { \
+      stack[sp++] = (x); \
+    } \
+    else \
+    { \
+      result = ERROR_EXEC_STACK_OVERFLOW; \
+      stop = TRUE; \
+      break; \
+    } \
 
 
 #define pop(x)  x = stack[--sp]
@@ -90,19 +112,24 @@ union STACK_ITEM {
 
 
 #define function_read(type, endianess) \
-    int64_t read_##type##_##endianess(YR_MEMORY_BLOCK* block, size_t offset) \
+    int64_t read_##type##_##endianess(YR_MEMORY_BLOCK_ITERATOR* iterator, size_t offset) \
     { \
+      YR_MEMORY_BLOCK* block = iterator->first(iterator); \
       while (block != NULL) \
       { \
         if (offset >= block->base && \
             block->size >= sizeof(type) && \
             offset <= block->base + block->size - sizeof(type)) \
         { \
-          type result = *(type *)(block->data + offset - block->base); \
+          type result; \
+          uint8_t* data = block->fetch_data(block); \
+          if (data == NULL) \
+            return UNDEFINED; \
+          result = *(type *)(data + offset - block->base); \
           result = endianess##_##type(result); \
           return result; \
         } \
-        block = block->next; \
+        block = iterator->next(iterator); \
       } \
       return UNDEFINED; \
     };
@@ -122,6 +149,30 @@ function_read(int16_t, big_endian)
 function_read(int32_t, big_endian)
 
 
+static uint8_t* jmp_if(
+    int condition,
+    uint8_t* ip)
+{
+  uint8_t* result;
+
+  if (condition)
+  {
+    result = *(uint8_t**)(ip + 1);
+
+    // ip will be incremented at the end of the execution loop,
+    // decrement it here to compensate.
+
+    result--;
+  }
+  else
+  {
+    result = ip + sizeof(uint64_t);
+  }
+
+  return result;
+}
+
+
 int yr_execute_code(
     YR_RULES* rules,
     YR_SCAN_CONTEXT* context,
@@ -133,38 +184,50 @@ int yr_execute_code(
   int32_t sp = 0;
   uint8_t* ip = rules->code_start;
 
-  union STACK_ITEM stack[STACK_SIZE];
-  union STACK_ITEM r1;
-  union STACK_ITEM r2;
-  union STACK_ITEM r3;
+  STACK_ITEM *stack;
+  STACK_ITEM r1;
+  STACK_ITEM r2;
+  STACK_ITEM r3;
+
+  #ifdef PROFILING_ENABLED
+  YR_RULE* current_rule = NULL;
+  #endif
 
   YR_RULE* rule;
   YR_MATCH* match;
   YR_OBJECT_FUNCTION* function;
 
-  char* identifier = NULL;
-  char* args_fmt = NULL;
+  char* identifier;
+  char* args_fmt;
 
   int i;
   int found;
   int count;
-  int result;
+  int result = ERROR_SUCCESS;
+  int stop = FALSE;
   int cycle = 0;
-  int tidx = yr_get_tidx();
+  int tidx = context->tidx;
+  int stack_size;
 
   #ifdef PROFILING_ENABLED
   clock_t start = clock();
   #endif
 
-  while(1)
+  yr_get_configuration(YR_CONFIG_STACK_SIZE, (void*) &stack_size);
+
+  stack = (STACK_ITEM*) yr_malloc(stack_size * sizeof(STACK_ITEM));
+
+  if (stack == NULL)
+    return ERROR_INSUFICIENT_MEMORY;
+
+  while(!stop)
   {
     switch(*ip)
     {
       case OP_HALT:
-        // When the halt instruction is reached the stack
-        // should be empty.
-        assert(sp == 0);
-        return ERROR_SUCCESS;
+        assert(sp == 0); // When HALT is reached the stack should be empty.
+        stop = TRUE;
+        break;
 
       case OP_PUSH:
         r1.i = *(uint64_t*)(ip + 1);
@@ -214,6 +277,7 @@ int yr_execute_code(
         r1.i = *(uint64_t*)(ip + 1);
         ip += sizeof(uint64_t);
         pop(r2);
+
         if (is_undef(r2))
         {
           r1.i = mem[r1.i];
@@ -228,17 +292,8 @@ int yr_execute_code(
       case OP_JNUNDEF:
         pop(r1);
         push(r1);
-        if (!is_undef(r1))
-        {
-          ip = *(uint8_t**)(ip + 1);
-          // ip will be incremented at the end of the loop,
-          // decrement it here to compensate.
-          ip--;
-        }
-        else
-        {
-          ip += sizeof(uint64_t);
-        }
+
+        ip = jmp_if(!is_undef(r1), ip);
         break;
 
       case OP_JLE:
@@ -247,17 +302,21 @@ int yr_execute_code(
         push(r1);
         push(r2);
 
-        if (r1.i <= r2.i)
-        {
-          ip = *(uint8_t**)(ip + 1);
-          // ip will be incremented at the end of the loop,
-          // decrement it here to compensate.
-          ip--;
-        }
-        else
-        {
-          ip += sizeof(uint64_t);
-        }
+        ip = jmp_if(r1.i <= r2.i, ip);
+        break;
+
+      case OP_JTRUE:
+        pop(r1);
+        push(r1);
+
+        ip = jmp_if(!is_undef(r1) && r1.i, ip);
+        break;
+
+      case OP_JFALSE:
+        pop(r1);
+        push(r1);
+
+        ip = jmp_if(is_undef(r1) || !r1.i, ip);
         break;
 
       case OP_AND:
@@ -307,7 +366,10 @@ int yr_execute_code(
         pop(r1);
         ensure_defined(r2);
         ensure_defined(r1);
-        r1.i = r1.i % r2.i;
+        if (r2.i != 0)
+          r1.i = r1.i % r2.i;
+        else
+          r1.i = UNDEFINED;
         push(r1);
         break;
 
@@ -370,6 +432,13 @@ int yr_execute_code(
         push(r1);
         break;
 
+      case OP_INIT_RULE:
+        #ifdef PROFILING_ENABLED
+        current_rule = *(YR_RULE**)(ip + 1);
+        #endif
+        ip += sizeof(uint64_t);
+        break;
+
       case OP_MATCH_RULE:
         pop(r1);
         rule = *(YR_RULE**)(ip + 1);
@@ -377,6 +446,8 @@ int yr_execute_code(
 
         if (!is_undef(r1) && r1.i)
           rule->t_flags[tidx] |= RULE_TFLAGS_MATCH;
+        else if (RULE_IS_GLOBAL(rule))
+          rule->ns->t_flags[tidx] |= NAMESPACE_TFLAGS_UNSATISFIED_GLOBAL;
 
         #ifdef PROFILING_ENABLED
         rule->clock_ticks += clock() - start;
@@ -446,9 +517,10 @@ int yr_execute_code(
         pop(r2);  // array
 
         ensure_defined(r1);
+        ensure_defined(r2);
         assert(r2.o->type == OBJECT_TYPE_ARRAY);
 
-        r1.o = yr_object_array_get_item(r2.o, 0, r1.i);
+        r1.o = yr_object_array_get_item(r2.o, 0, (int) r1.i);
 
         if (r1.o == NULL)
           r1.i = UNDEFINED;
@@ -461,6 +533,7 @@ int yr_execute_code(
         pop(r2);  // dictionary
 
         ensure_defined(r1);
+        ensure_defined(r2);
         assert(r2.o->type == OBJECT_TYPE_DICTIONARY);
 
         r1.o = yr_object_dict_get_item(
@@ -476,7 +549,7 @@ int yr_execute_code(
         args_fmt = *(char**)(ip + 1);
         ip += sizeof(uint64_t);
 
-        i = strlen(args_fmt);
+        i = (int) strlen(args_fmt);
         count = 0;
 
         // pop arguments from stack and copy them to args array
@@ -533,7 +606,7 @@ int yr_execute_code(
         }
         else
         {
-          return result;
+          stop = TRUE;
         }
 
         break;
@@ -631,6 +704,28 @@ int yr_execute_code(
         push(r3);
         break;
 
+      case OP_LENGTH:
+        pop(r2);
+        pop(r1);
+
+        ensure_defined(r1);
+
+        match = r2.s->matches[tidx].head;
+        i = 1;
+        r3.i = UNDEFINED;
+
+        while (match != NULL && r3.i == UNDEFINED)
+        {
+          if (r1.i == i)
+            r3.i = match->match_length;
+
+          i++;
+          match = match->next;
+        }
+
+        push(r3);
+        break;
+
       case OP_OF:
         found = 0;
         count = 0;
@@ -666,73 +761,73 @@ int yr_execute_code(
 
       case OP_INT8:
         pop(r1);
-        r1.i = read_int8_t_little_endian(context->mem_block, r1.i);
+        r1.i = read_int8_t_little_endian(context->iterator, (size_t) r1.i);
         push(r1);
         break;
 
       case OP_INT16:
         pop(r1);
-        r1.i = read_int16_t_little_endian(context->mem_block, r1.i);
+        r1.i = read_int16_t_little_endian(context->iterator, (size_t) r1.i);
         push(r1);
         break;
 
       case OP_INT32:
         pop(r1);
-        r1.i = read_int32_t_little_endian(context->mem_block, r1.i);
+        r1.i = read_int32_t_little_endian(context->iterator, (size_t) r1.i);
         push(r1);
         break;
 
       case OP_UINT8:
         pop(r1);
-        r1.i = read_uint8_t_little_endian(context->mem_block, r1.i);
+        r1.i = read_uint8_t_little_endian(context->iterator, (size_t) r1.i);
         push(r1);
         break;
 
       case OP_UINT16:
         pop(r1);
-        r1.i = read_uint16_t_little_endian(context->mem_block, r1.i);
+        r1.i = read_uint16_t_little_endian(context->iterator, (size_t) r1.i);
         push(r1);
         break;
 
       case OP_UINT32:
         pop(r1);
-        r1.i = read_uint32_t_little_endian(context->mem_block, r1.i);
+        r1.i = read_uint32_t_little_endian(context->iterator, (size_t) r1.i);
         push(r1);
         break;
 
       case OP_INT8BE:
         pop(r1);
-        r1.i = read_int8_t_big_endian(context->mem_block, r1.i);
+        r1.i = read_int8_t_big_endian(context->iterator, (size_t) r1.i);
         push(r1);
         break;
 
       case OP_INT16BE:
         pop(r1);
-        r1.i = read_int16_t_big_endian(context->mem_block, r1.i);
+        r1.i = read_int16_t_big_endian(context->iterator, (size_t) r1.i);
         push(r1);
         break;
 
       case OP_INT32BE:
         pop(r1);
-        r1.i = read_int32_t_big_endian(context->mem_block, r1.i);
+        r1.i = read_int32_t_big_endian(context->iterator, (size_t) r1.i);
         push(r1);
         break;
 
       case OP_UINT8BE:
         pop(r1);
-        r1.i = read_uint8_t_big_endian(context->mem_block, r1.i);
+        r1.i = read_uint8_t_big_endian(context->iterator, (size_t) r1.i);
         push(r1);
         break;
 
       case OP_UINT16BE:
         pop(r1);
-        r1.i = read_uint16_t_big_endian(context->mem_block, r1.i);
+        r1.i = read_uint16_t_big_endian(context->iterator, (size_t) r1.i);
         push(r1);
         break;
 
       case OP_UINT32BE:
         pop(r1);
-        r1.i = read_uint32_t_big_endian(context->mem_block, r1.i);
+        r1.i = read_uint32_t_big_endian(context->iterator, (size_t) r1.i);
         push(r1);
         break;
 
@@ -752,15 +847,19 @@ int yr_execute_code(
         r1.i = *(uint64_t*)(ip + 1);
         ip += sizeof(uint64_t);
 
-        FAIL_ON_ERROR(yr_modules_load(
-            (char*) r1.p,
-            context));
+        result = yr_modules_load((char*) r1.p, context);
+
+        if (result != ERROR_SUCCESS)
+          stop = TRUE;
 
         break;
 
       case OP_MATCHES:
         pop(r2);
         pop(r1);
+
+        ensure_defined(r2);
+        ensure_defined(r1);
 
         if (r1.ss->length == 0)
         {
@@ -769,15 +868,14 @@ int yr_execute_code(
           break;
         }
 
-        result = yr_re_exec(
+        r1.i = yr_re_exec(
           (uint8_t*) r2.p,
           (uint8_t*) r1.ss->c_string,
           r1.ss->length,
           RE_FLAGS_SCAN,
           NULL,
-          NULL);
+          NULL) >= 0;
 
-        r1.i = result >= 0;
         push(r1);
         break;
 
@@ -788,7 +886,7 @@ int yr_execute_code(
         if (is_undef(r2))
           stack[sp - r1.i].i = UNDEFINED;
         else
-          stack[sp - r1.i].d = r2.i;
+          stack[sp - r1.i].d = (double) r2.i;
         break;
 
       case OP_STR_TO_BOOL:
@@ -884,7 +982,10 @@ int yr_execute_code(
         pop(r1);
         ensure_defined(r2);
         ensure_defined(r1);
-        r1.i = r1.i / r2.i;
+        if (r2.i != 0)
+          r1.i = r1.i / r2.i;
+        else
+          r1.i = UNDEFINED;
         push(r1);
         break;
 
@@ -1005,27 +1106,25 @@ int yr_execute_code(
         ensure_defined(r1);
         ensure_defined(r2);
 
-        result = sized_string_cmp(r1.ss, r2.ss);
-
         switch(*ip)
         {
           case OP_STR_EQ:
-            r1.i = (result == 0);
+            r1.i = (sized_string_cmp(r1.ss, r2.ss) == 0);
             break;
           case OP_STR_NEQ:
-            r1.i = (result != 0);
+            r1.i = (sized_string_cmp(r1.ss, r2.ss) != 0);
             break;
           case OP_STR_LT:
-            r1.i = (result < 0);
+            r1.i = (sized_string_cmp(r1.ss, r2.ss) < 0);
             break;
           case OP_STR_LE:
-            r1.i = (result <= 0);
+            r1.i = (sized_string_cmp(r1.ss, r2.ss) <= 0);
             break;
           case OP_STR_GT:
-            r1.i = (result > 0);
+            r1.i = (sized_string_cmp(r1.ss, r2.ss) > 0);
             break;
           case OP_STR_GE:
-            r1.i = (result >= 0);
+            r1.i = (sized_string_cmp(r1.ss, r2.ss) >= 0);
             break;
         }
 
@@ -1044,7 +1143,14 @@ int yr_execute_code(
       if (++cycle == 10)
       {
         if (difftime(time(NULL), start_time) > timeout)
-          return ERROR_SCAN_TIMEOUT;
+        {
+          #ifdef PROFILING_ENABLED
+          assert(current_rule != NULL);
+          current_rule->clock_ticks += clock() - start;
+          #endif
+          result = ERROR_SCAN_TIMEOUT;
+          stop = TRUE;
+        }
 
         cycle = 0;
       }
@@ -1053,8 +1159,8 @@ int yr_execute_code(
     ip++;
   }
 
-  // After executing the code the stack should be empty.
-  assert(sp == 0);
+  yr_modules_unload_all(context);
+  yr_free(stack);
 
-  return ERROR_SUCCESS;
+  return result;
 }
