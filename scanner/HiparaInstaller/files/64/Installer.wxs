@@ -1,0 +1,161 @@
+<?xml version='1.0' encoding='windows-1252'?>
+ 
+<?if $(sys.BUILDARCH) = x64 ?>
+  <?define ProductUpgradeCode = "EE25F08C-3599-A764-8AB6-0E40889481B4" ?>
+  <?define Win64 = "yes" ?>
+  <?define PlatformSystemFolder = "System64Folder" ?>
+  <?define PlatformProgramFilesFolder = "ProgramFiles64Folder" ?>
+  <?define Folder="64"?>
+<?else ?>
+  <?define ProductUpgradeCode = "E7E6A731-1D12-5823-4153-D5100B0E64CB" ?>
+  <?define Win64 = "no" ?>
+  <?define PlatformSystemFolder = "SystemFolder" ?>
+  <?define PlatformProgramFilesFolder = "ProgramFilesFolder" ?>
+  <?define Folder="32"?>
+<?endif ?>
+ 
+<Wix xmlns='http://schemas.microsoft.com/wix/2006/wi'
+     xmlns:difx='http://schemas.microsoft.com/wix/DifxAppExtension'>
+  <Product Name='Hipara Endpoint Security' Id='*' UpgradeCode='EE9DED37-5F61-4EBF-A81D-A39EC89D383C'
+    Language='1033' Codepage='1252' Version='1.0.0' Manufacturer='Allsum LLC'>
+ 
+    <Package Id='*' Keywords='Installer'
+      Description="Allsum's Hipara Installer"
+      Comments='Hipara is a registered trademark of Allsum LLC' Manufacturer='Allsum LLC'
+      InstallerVersion='200' Languages='1033' Compressed='yes' SummaryCodepage='1252'
+      Platform='x64'/>
+ 
+    <MajorUpgrade DowngradeErrorMessage="A later version of [ProductName] is already installed. Setup will now exit."/>
+   
+    <Media Id='1' Cabinet='Sample.cab' EmbedCab='yes' DiskPrompt="Hipara Media" CompressionLevel="high" />
+    <Property Id='DiskPrompt' Value="Allsum's Hipara Installation" />
+ 
+    <Directory Id='TARGETDIR' Name='SourceDir'>
+      <Directory Id='ProgramFiles64Folder' Name='PFiles'>
+        <Directory Id='MANF' Name='Allsum'>
+          <Directory Id='INSTALLDIR' Name='Hipara'>
+ 
+ 
+            <Directory Id='MEMSCAN' Name='memscanner'>
+              <Component Id='MemINF' Win64='yes'>
+                <File Id='MemInf' Source='hiparamemscan.inf' KeyPath='yes' />
+              </Component>
+ 
+              <Component Id='MemSYS' Win64='yes'>
+                <File Id='MemSYS' Source='hiparamemscan.sys' KeyPath='yes' />
+              </Component>
+            </Directory>
+ 
+            <Component Id='MemDLL' Win64='yes'>
+              <File Id='MemDll' Source='hiparamemscandll.dll' KeyPath='yes' />
+            </Component>
+ 
+            <Directory Id='SIGSDIR' Name='signatures'>
+              <Component Id='DefaultSignatures' Win64='yes'>
+                <File Id='DefaultSignatures' Source='signatures.yar' KeyPath='yes' />
+              </Component>
+            </Directory>
+ 
+          </Directory>
+        </Directory>
+      </Directory>
+ 
+      <Directory Id="ProgramMenuFolder" Name="Programs">
+        <Directory Id="ProgramMenuDir" Name="Hipara">
+          <Component Id="ProgramMenuDir">
+            <RemoveFolder Id='ProgramMenuDir' On='uninstall' />
+            <RegistryValue Root='HKCU' Key='Software\[Manufacturer]\[ProductName]' Type='string' Value='' KeyPath='yes' />
+          </Component>
+        </Directory>
+      </Directory>
+    </Directory>
+ 
+    <ComponentGroup Id='MyFiles' Directory='INSTALLDIR'>
+ 
+      <Component Id="RegistryEntries" Win64='yes'>
+        <RegistryKey Root="HKLM"
+                     Key="Software\Microsoft\Windows\CurrentVersion\Run">
+          <RegistryValue Type="string" Name="Hipara" Value="[INSTALLDIR]hipara.exe" KeyPath="yes"/>
+        </RegistryKey>
+      </Component>
+ 
+      <Component Id='ScannerDriver' Win64='yes'>
+        <File Id='ScannerSYS' Source='scanner.sys' KeyPath='yes' />
+        <File Id='ScannerINF' Source='scanner.inf' />
+        <File Id='ScannerCAT' Source='scanner.cat' />
+        <difx:Driver Legacy='yes' />
+      </Component>
+
+      <Component Win64='yes'>
+        <File Id='HiparaEXE' Source='hipara.exe' />
+        <Shortcut Id="startmenHipara" Directory="ProgramMenuDir" Name="Hipara" WorkingDirectory='INSTALLDIR' Icon="hipara.exe" IconIndex="0" Advertise="yes" />
+      </Component>
+ 
+      <Component Id='msvcrLibrary' Win64='yes'>
+        <File Id='msvcrLibrary' Source='msvcr120.dll' KeyPath='yes' />
+      </Component>
+ 
+      <Component Id='msvcpLibrary' Win64='yes'>
+        <File Id='msvcpLibrary' Source='msvcp120.dll' KeyPath='yes' />
+      </Component>
+ 
+      <Component Id='mfcLibrary' Win64='yes'>
+        <File Id='mfcLibrary' Source='mfc120u.dll' KeyPath='yes' />
+      </Component>
+ 
+      <Component Id='config' Win64='yes'>
+        <File Id='config' Source='config.ini' KeyPath='yes' />
+      </Component>
+ 
+      <Component Id='Jansson' Win64='yes'>
+        <File Id='Jansson' Source='jansson64.dll' KeyPath='yes' />
+      </Component>
+ 
+      <Component Id='Libcurl' Win64='yes'>
+        <File Id='Libcurl' Source='libcurl.dll' KeyPath='yes' />
+      </Component>
+    </ComponentGroup>
+   
+    <Feature Id='Complete' Title='Hipara' Description='The complete package.'
+      Display='expand' Level='1' ConfigurableDirectory='INSTALLDIR'>
+      <Feature Id='Hipara' Title='Hipara' Description='The main executable.' Level='1'>
+        <ComponentGroupRef Id='MyFiles' />
+        <ComponentRef Id='MemINF' />
+        <ComponentRef Id='MemDLL' />
+        <ComponentRef Id='MemSYS' />
+        <ComponentRef Id='DefaultSignatures' />
+       
+        <ComponentRef Id='ProgramMenuDir' />
+        <ComponentRef Id="RegistryEntries" />
+      </Feature>
+    </Feature>
+ 
+    <CustomAction Id="LaunchHiparaEXE"
+              Directory="INSTALLDIR"
+              ExeCommand="[INSTALLDIR]hipara.exe"
+              Return="asyncNoWait"
+                  >
+    </CustomAction>
+ 
+    <InstallExecuteSequence>
+      <Custom Action="LaunchHiparaEXE" After="InstallFinalize">NOT Installed AND UILevel &lt; 5</Custom>
+    </InstallExecuteSequence>
+   
+ 
+    <Property Id="WixShellExecTarget" Value="[#HiparaEXE]" />
+    <CustomAction Id="LaunchApplication" BinaryKey="WixCA" DllEntry="WixShellExec" Impersonate="yes" />
+ 
+    <UI>
+      <UIRef Id="WixUI_Minimal" />
+      <Publish Dialog="ExitDialog"
+          Control="Finish"
+          Event="DoAction"
+          Value="LaunchApplication">NOT Installed</Publish>
+    </UI>
+   
+    <Property Id="WIXUI_INSTALLDIR" Value="INSTALLDIR" />
+    <WixVariable Id="WixUILicenseRtf" Value="License.rtf" />
+    <Icon Id="hipara.exe" SourceFile="hipara.exe" />
+   
+  </Product>
+</Wix>
