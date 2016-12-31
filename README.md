@@ -74,10 +74,10 @@ The types of files to be scanned are currently defined in ____.inf. This needs s
 
 ## Roadmap
 
-Anti-Ransomware module: < 90 days - measures the entropy of a file when it is opened and closed. If the difference in entropy is great, a process may be attempting to encrypt files without the user's knowledge. This module will check to see if the process is trusted, as defined by System Admins and/or Incident Responders. If it is not a trusted process, Hipara will suspend the process, prompt the user and generate an alert for Incident Responders.
+Anti-Ransomware module: Done!
 
-HUNT module: < 90 days - This module will generate metadata from files on the endpoint using the popular exiftool library. Output will be sent to the Hipara Server, which acts as a relay to send the logs to a SIEM. Incident Responders can hunt for evil by looking for mispellings of common technology vendors like Microsoft, alert on well-known weaponization tools (Trey De Lah), and other hunting techniques Incident Responders can come up with!
+HUNT module: This module will generate metadata from files on the endpoint using the popular exiftool library. Output will be sent to the Hipara Server, which acts as a relay to send the logs to a SIEM. Incident Responders can hunt for evil by looking for mispellings of common technology vendors like Microsoft, alert on well-known weaponization tools (Trey De Lah), and other hunting techniques Incident Responders can come up with!
 
-Pick and choose block/alert: < 90 days - Hipara currently can do 100% blocking or 100% alerting. In the future, security professionals will be able to pick and choose which Yara signatures they want to block, which you only want to alert on.
+Pick and choose block/alert: Hipara currently can do 100% blocking or 100% alerting. In the future, security professionals will be able to pick and choose which Yara signatures they want to block, which you only want to alert on.
 
-GRR (Google Rapid Response) integration: 60-180 days - Hipara is currently focused on detection of evil. By integrating the world-class GRR package, security teams will have a single product that performs both detection and response.
+GRR (Google Rapid Response) integration: Done in Hipara-Server!
