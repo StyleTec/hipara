@@ -1,0 +1,59 @@
+;
+; hiparamemscan.inf
+;
+
+[Version]
+Signature			= "$WINDOWS NT$"
+Class				= System
+Provider			= %HIPARA%
+DriverVer			= 12/02/2015,1.0
+CatalogFile			= hiparamemscan.cat
+
+; Section related to driver files and path.
+[DestinationDirs]
+DefaultDestDir		= 12
+
+[SourceDisksNames]
+1					= %DiskName%,,,""
+
+[SourceDisksFiles]
+hiparamemscan.sys	= 1
+
+[DestinationDirs]
+DefaultDestDir		= 12
+hipara.DriverFiles	= 12	;%windir%\system32\drivers
+
+[Hipara.DriverFiles]
+hiparamemscan.sys
+
+;	Default Install and Uninstall section.
+
+[DefaultInstall]
+OptionDesc			= %HiparaServiceDesc%
+CopyFiles			= Hipara.DriverFiles
+AddReg				= Hipara.AddReg
+
+[DefaultInstall.Services]
+AddService			= %HiparaServiceName%,,Hipara.Service
+
+[DefaultUninstall]
+DelReg				= Hipara.DelReg
+DelFiles			= Hipara.DriverFiles
+
+[DefaultUninstall.Services]
+DelService			= hiparamemscan, 0x204
+
+; Section related to registry entry.
+[Hipara.Service]
+DisplayName			= %HiparaServiceName%
+Description			= %HiparaServiceDesc%
+ServiceBinary		= %12%\hiparamemscan.sys
+ServiceType			= 1						;	SERVICE_KERNEL_DRIVER
+StartType			= 3						;	SERVICE_DEMAND_START
+ErrorControl		= 1						;	SERVICE_ERROR_NORMAL
+
+[Strings]
+HIPARA				= "Hipara"
+HiparaServiceDesc	= "Hipara memory scanner"
+HiparaServiceName	= "hiparamemscan"
+DiskName			= "hiparamemscan Source Disk"

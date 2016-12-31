@@ -1,0 +1,3 @@
+LIBRARY hiparamemscandll
+EXPORTS
+    hiparamemscan  @1

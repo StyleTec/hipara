@@ -1,0 +1,242 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files\libyara">
+      <UniqueIdentifier>{ec796eee-50d1-4e30-a6b6-f680412f434b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\libyara">
+      <UniqueIdentifier>{8906a796-2e21-4c0b-b27b-78e9ac2c836d}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="hiparamemscandll.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="libyara\ahocorasick.c">
+      <Filter>Source Files\libyara</Filter>
+    </ClCompile>
+    <ClCompile Include="libyara\arena.c">
+      <Filter>Source Files\libyara</Filter>
+    </ClCompile>
+    <ClCompile Include="libyara\atoms.c">
+      <Filter>Source Files\libyara</Filter>
+    </ClCompile>
+    <ClCompile Include="libyara\compiler.c">
+      <Filter>Source Files\libyara</Filter>
+    </ClCompile>
+    <ClCompile Include="libyara\modules\cuckoo.c">
+      <Filter>Source Files\libyara</Filter>
+    </ClCompile>
+    <ClCompile Include="libyara\modules\elf.c">
+      <Filter>Source Files\libyara</Filter>
+    </ClCompile>
+    <ClCompile Include="libyara\exec.c">
+      <Filter>Source Files\libyara</Filter>
+    </ClCompile>
+    <ClCompile Include="libyara\exefiles.c">
+      <Filter>Source Files\libyara</Filter>
+    </ClCompile>
+    <ClCompile Include="libyara\filemap.c">
+      <Filter>Source Files\libyara</Filter>
+    </ClCompile>
+    <ClCompile Include="libyara\grammar.c">
+      <Filter>Source Files\libyara</Filter>
+    </ClCompile>
+    <ClCompile Include="libyara\hash.c">
+      <Filter>Source Files\libyara</Filter>
+    </ClCompile>
+    <ClCompile Include="libyara\hex_grammar.c">
+      <Filter>Source Files\libyara</Filter>
+    </ClCompile>
+    <ClCompile Include="libyara\hex_lexer.c">
+      <Filter>Source Files\libyara</Filter>
+    </ClCompile>
+    <ClCompile Include="libyara\lexer.c">
+      <Filter>Source Files\libyara</Filter>
+    </ClCompile>
+    <ClCompile Include="libyara\libyara.c">
+      <Filter>Source Files\libyara</Filter>
+    </ClCompile>
+    <ClCompile Include="libyara\mem.c">
+      <Filter>Source Files\libyara</Filter>
+    </ClCompile>
+    <ClCompile Include="libyara\modules.c">
+      <Filter>Source Files\libyara</Filter>
+    </ClCompile>
+    <ClCompile Include="libyara\object.c">
+      <Filter>Source Files\libyara</Filter>
+    </ClCompile>
+    <ClCompile Include="libyara\parser.c">
+      <Filter>Source Files\libyara</Filter>
+    </ClCompile>
+    <ClCompile Include="libyara\proc.c">
+      <Filter>Source Files\libyara</Filter>
+    </ClCompile>
+    <ClCompile Include="libyara\re.c">
+      <Filter>Source Files\libyara</Filter>
+    </ClCompile>
+    <ClCompile Include="libyara\re_grammar.c">
+      <Filter>Source Files\libyara</Filter>
+    </ClCompile>
+    <ClCompile Include="libyara\re_lexer.c">
+      <Filter>Source Files\libyara</Filter>
+    </ClCompile>
+    <ClCompile Include="libyara\rules.c">
+      <Filter>Source Files\libyara</Filter>
+    </ClCompile>
+    <ClCompile Include="libyara\scan.c">
+      <Filter>Source Files\libyara</Filter>
+    </ClCompile>
+    <ClCompile Include="libyara\strutils.c">
+      <Filter>Source Files\libyara</Filter>
+    </ClCompile>
+    <ClCompile Include="libyara\modules\math.c">
+      <Filter>Source Files\libyara</Filter>
+    </ClCompile>
+    <ClCompile Include="libyara\modules\pe.c">
+      <Filter>Source Files\libyara</Filter>
+    </ClCompile>
+    <ClCompile Include="libyara\modules\tests.c">
+      <Filter>Source Files\libyara</Filter>
+    </ClCompile>
+    <ClCompile Include="libyara\sizedstr.c">
+      <Filter>Source Files\libyara</Filter>
+    </ClCompile>
+    <ClCompile Include="hiparahelper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="hiparascanopenfiles.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="hiparamemscandll.def">
+      <Filter>Header Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="hiparahelper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="hiparamemscandll.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="libyara\include\yara\libyara.h">
+      <Filter>Header Files\libyara</Filter>
+    </ClInclude>
+    <ClInclude Include="libyara\include\yara\ahocorasick.h">
+      <Filter>Header Files\libyara</Filter>
+    </ClInclude>
+    <ClInclude Include="libyara\include\yara\arena.h">
+      <Filter>Header Files\libyara</Filter>
+    </ClInclude>
+    <ClInclude Include="libyara\include\yara\atoms.h">
+      <Filter>Header Files\libyara</Filter>
+    </ClInclude>
+    <ClInclude Include="libyara\include\yara\compiler.h">
+      <Filter>Header Files\libyara</Filter>
+    </ClInclude>
+    <ClInclude Include="libyara\include\yara\config.h">
+      <Filter>Header Files\libyara</Filter>
+    </ClInclude>
+    <ClInclude Include="libyara\include\yara\elf.h">
+      <Filter>Header Files\libyara</Filter>
+    </ClInclude>
+    <ClInclude Include="libyara\include\yara\error.h">
+      <Filter>Header Files\libyara</Filter>
+    </ClInclude>
+    <ClInclude Include="libyara\include\yara\exec.h">
+      <Filter>Header Files\libyara</Filter>
+    </ClInclude>
+    <ClInclude Include="libyara\include\yara\exefiles.h">
+      <Filter>Header Files\libyara</Filter>
+    </ClInclude>
+    <ClInclude Include="libyara\include\yara\filemap.h">
+      <Filter>Header Files\libyara</Filter>
+    </ClInclude>
+    <ClInclude Include="libyara\include\yara\globals.h">
+      <Filter>Header Files\libyara</Filter>
+    </ClInclude>
+    <ClInclude Include="libyara\include\yara\hash.h">
+      <Filter>Header Files\libyara</Filter>
+    </ClInclude>
+    <ClInclude Include="libyara\include\yara\hex_grammar.h">
+      <Filter>Header Files\libyara</Filter>
+    </ClInclude>
+    <ClInclude Include="libyara\include\yara\hex_lexer.h">
+      <Filter>Header Files\libyara</Filter>
+    </ClInclude>
+    <ClInclude Include="libyara\include\yara\jansson.h">
+      <Filter>Header Files\libyara</Filter>
+    </ClInclude>
+    <ClInclude Include="libyara\include\yara\jansson_config.h">
+      <Filter>Header Files\libyara</Filter>
+    </ClInclude>
+    <ClInclude Include="libyara\include\yara\lexer.h">
+      <Filter>Header Files\libyara</Filter>
+    </ClInclude>
+    <ClInclude Include="libyara\include\yara\mem.h">
+      <Filter>Header Files\libyara</Filter>
+    </ClInclude>
+    <ClInclude Include="libyara\include\yara\modules.h">
+      <Filter>Header Files\libyara</Filter>
+    </ClInclude>
+    <ClInclude Include="libyara\include\yara\object.h">
+      <Filter>Header Files\libyara</Filter>
+    </ClInclude>
+    <ClInclude Include="libyara\include\yara\parser.h">
+      <Filter>Header Files\libyara</Filter>
+    </ClInclude>
+    <ClInclude Include="libyara\include\yara\pe.h">
+      <Filter>Header Files\libyara</Filter>
+    </ClInclude>
+    <ClInclude Include="libyara\include\yara\proc.h">
+      <Filter>Header Files\libyara</Filter>
+    </ClInclude>
+    <ClInclude Include="libyara\include\yara\re.h">
+      <Filter>Header Files\libyara</Filter>
+    </ClInclude>
+    <ClInclude Include="libyara\include\yara\re_grammar.h">
+      <Filter>Header Files\libyara</Filter>
+    </ClInclude>
+    <ClInclude Include="libyara\include\yara\re_lexer.h">
+      <Filter>Header Files\libyara</Filter>
+    </ClInclude>
+    <ClInclude Include="libyara\include\yara\rules.h">
+      <Filter>Header Files\libyara</Filter>
+    </ClInclude>
+    <ClInclude Include="libyara\include\yara\scan.h">
+      <Filter>Header Files\libyara</Filter>
+    </ClInclude>
+    <ClInclude Include="libyara\include\yara\sizedstr.h">
+      <Filter>Header Files\libyara</Filter>
+    </ClInclude>
+    <ClInclude Include="libyara\include\yara\types.h">
+      <Filter>Header Files\libyara</Filter>
+    </ClInclude>
+    <ClInclude Include="libyara\include\yara\utils.h">
+      <Filter>Header Files\libyara</Filter>
+    </ClInclude>
+    <ClInclude Include="libyara\include\yara\yr_limits.h">
+      <Filter>Header Files\libyara</Filter>
+    </ClInclude>
+    <ClInclude Include="libyara\include\yara.h">
+      <Filter>Header Files\libyara</Filter>
+    </ClInclude>
+    <ClInclude Include="hiparascanopenfiles.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

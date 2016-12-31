@@ -1,0 +1,419 @@
+﻿Build started 12/28/2016 2:02:37 PM.
+Project "Z:\code\hipara-private\hiparamemscandll\hiparamemscandll\hiparamemscandll.vcxproj" on node 2 (Build target(s)).
+ClCompile:
+  C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\CL.exe /c /Zi /nologo /W3 /WX- /O2 /Oi /GL /D WIN32 /D NDEBUG /D _WINDOWS /D _USRDLL /D HIPARAMEMSCANDLL_EXPORTS /D _CRT_SECURE_NO_WARNINGS /D PSAPI_VERSION=1 /D _WINDLL /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"x64\Release\\" /Fd"x64\Release\vc120.pdb" /Gd /TP /errorReport:prompt hiparahelper.cpp hiparamemscandll.cpp hiparascanopenfiles.cpp libyara\ahocorasick.c libyara\arena.c libyara\atoms.c libyara\compiler.c libyara\exec.c libyara\exefiles.c libyara\filemap.c libyara\grammar.c libyara\hash.c libyara\hex_grammar.c libyara\hex_lexer.c libyara\lexer.c libyara\libyara.c libyara\mem.c libyara\modules.c libyara\modules\cuckoo.c libyara\modules\elf.c libyara\modules\math.c libyara\modules\pe.c libyara\modules\tests.c libyara\object.c libyara\parser.c libyara\proc.c libyara\re.c libyara\re_grammar.c libyara\re_lexer.c libyara\rules.c libyara\scan.c libyara\sizedstr.c libyara\strutils.c
+  hiparahelper.cpp
+hiparahelper.cpp(67): warning C4996: 'swprintf': swprintf has been changed to conform with the ISO C standard, adding an extra character count parameter. To use traditional Microsoft swprintf, set _CRT_NON_CONFORMING_SWPRINTFS.
+          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\swprintf.inl(85) : see declaration of 'swprintf'
+hiparahelper.cpp(123): warning C4267: 'argument' : conversion from 'size_t' to 'UINT', possible loss of data
+hiparahelper.cpp(284): warning C4996: 'swprintf': swprintf has been changed to conform with the ISO C standard, adding an extra character count parameter. To use traditional Microsoft swprintf, set _CRT_NON_CONFORMING_SWPRINTFS.
+          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\swprintf.inl(85) : see declaration of 'swprintf'
+hiparahelper.cpp(302): warning C4996: 'swprintf': swprintf has been changed to conform with the ISO C standard, adding an extra character count parameter. To use traditional Microsoft swprintf, set _CRT_NON_CONFORMING_SWPRINTFS.
+          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\swprintf.inl(85) : see declaration of 'swprintf'
+hiparahelper.cpp(335): warning C4996: 'swprintf': swprintf has been changed to conform with the ISO C standard, adding an extra character count parameter. To use traditional Microsoft swprintf, set _CRT_NON_CONFORMING_SWPRINTFS.
+          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\swprintf.inl(85) : see declaration of 'swprintf'
+hiparahelper.cpp(353): warning C4996: 'swprintf': swprintf has been changed to conform with the ISO C standard, adding an extra character count parameter. To use traditional Microsoft swprintf, set _CRT_NON_CONFORMING_SWPRINTFS.
+          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\swprintf.inl(85) : see declaration of 'swprintf'
+hiparahelper.cpp(364): warning C4996: 'swprintf': swprintf has been changed to conform with the ISO C standard, adding an extra character count parameter. To use traditional Microsoft swprintf, set _CRT_NON_CONFORMING_SWPRINTFS.
+          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\swprintf.inl(85) : see declaration of 'swprintf'
+hiparahelper.cpp(443): warning C4996: 'swprintf': swprintf has been changed to conform with the ISO C standard, adding an extra character count parameter. To use traditional Microsoft swprintf, set _CRT_NON_CONFORMING_SWPRINTFS.
+          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\swprintf.inl(85) : see declaration of 'swprintf'
+hiparahelper.cpp(453): warning C4996: 'swprintf': swprintf has been changed to conform with the ISO C standard, adding an extra character count parameter. To use traditional Microsoft swprintf, set _CRT_NON_CONFORMING_SWPRINTFS.
+          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\swprintf.inl(85) : see declaration of 'swprintf'
+hiparahelper.cpp(459): warning C4996: 'swprintf': swprintf has been changed to conform with the ISO C standard, adding an extra character count parameter. To use traditional Microsoft swprintf, set _CRT_NON_CONFORMING_SWPRINTFS.
+          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\swprintf.inl(85) : see declaration of 'swprintf'
+hiparahelper.cpp(515): warning C4244: 'argument' : conversion from 'SIZE_T' to 'unsigned int', possible loss of data
+hiparahelper.cpp(518): warning C4996: 'swprintf': swprintf has been changed to conform with the ISO C standard, adding an extra character count parameter. To use traditional Microsoft swprintf, set _CRT_NON_CONFORMING_SWPRINTFS.
+          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\swprintf.inl(85) : see declaration of 'swprintf'
+hiparahelper.cpp(539): warning C4996: 'swprintf': swprintf has been changed to conform with the ISO C standard, adding an extra character count parameter. To use traditional Microsoft swprintf, set _CRT_NON_CONFORMING_SWPRINTFS.
+          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\swprintf.inl(85) : see declaration of 'swprintf'
+hiparahelper.cpp(548): warning C4996: 'swprintf': swprintf has been changed to conform with the ISO C standard, adding an extra character count parameter. To use traditional Microsoft swprintf, set _CRT_NON_CONFORMING_SWPRINTFS.
+          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\swprintf.inl(85) : see declaration of 'swprintf'
+hiparahelper.cpp(563): warning C4996: 'swprintf': swprintf has been changed to conform with the ISO C standard, adding an extra character count parameter. To use traditional Microsoft swprintf, set _CRT_NON_CONFORMING_SWPRINTFS.
+          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\swprintf.inl(85) : see declaration of 'swprintf'
+hiparahelper.cpp(693): warning C4002: too many actual parameters for macro '_T'
+hiparahelper.cpp(723): warning C4996: 'swprintf': swprintf has been changed to conform with the ISO C standard, adding an extra character count parameter. To use traditional Microsoft swprintf, set _CRT_NON_CONFORMING_SWPRINTFS.
+          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\swprintf.inl(85) : see declaration of 'swprintf'
+hiparahelper.cpp(733): warning C4002: too many actual parameters for macro '_T'
+hiparahelper.cpp(737): warning C4996: 'swprintf': swprintf has been changed to conform with the ISO C standard, adding an extra character count parameter. To use traditional Microsoft swprintf, set _CRT_NON_CONFORMING_SWPRINTFS.
+          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\swprintf.inl(85) : see declaration of 'swprintf'
+hiparahelper.cpp(750): warning C4996: 'swprintf': swprintf has been changed to conform with the ISO C standard, adding an extra character count parameter. To use traditional Microsoft swprintf, set _CRT_NON_CONFORMING_SWPRINTFS.
+          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\swprintf.inl(85) : see declaration of 'swprintf'
+hiparahelper.cpp(759): warning C4996: 'swprintf': swprintf has been changed to conform with the ISO C standard, adding an extra character count parameter. To use traditional Microsoft swprintf, set _CRT_NON_CONFORMING_SWPRINTFS.
+          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\swprintf.inl(85) : see declaration of 'swprintf'
+hiparahelper.cpp(800): warning C4996: 'swprintf': swprintf has been changed to conform with the ISO C standard, adding an extra character count parameter. To use traditional Microsoft swprintf, set _CRT_NON_CONFORMING_SWPRINTFS.
+          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\swprintf.inl(85) : see declaration of 'swprintf'
+hiparahelper.cpp(823): warning C4996: 'swprintf': swprintf has been changed to conform with the ISO C standard, adding an extra character count parameter. To use traditional Microsoft swprintf, set _CRT_NON_CONFORMING_SWPRINTFS.
+          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\swprintf.inl(85) : see declaration of 'swprintf'
+hiparahelper.cpp(829): warning C4018: '<' : signed/unsigned mismatch
+hiparahelper.cpp(844): warning C4996: 'swprintf': swprintf has been changed to conform with the ISO C standard, adding an extra character count parameter. To use traditional Microsoft swprintf, set _CRT_NON_CONFORMING_SWPRINTFS.
+          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\swprintf.inl(85) : see declaration of 'swprintf'
+hiparahelper.cpp(852): warning C4996: 'swprintf': swprintf has been changed to conform with the ISO C standard, adding an extra character count parameter. To use traditional Microsoft swprintf, set _CRT_NON_CONFORMING_SWPRINTFS.
+          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\swprintf.inl(85) : see declaration of 'swprintf'
+hiparahelper.cpp(860): warning C4996: 'swprintf': swprintf has been changed to conform with the ISO C standard, adding an extra character count parameter. To use traditional Microsoft swprintf, set _CRT_NON_CONFORMING_SWPRINTFS.
+          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\swprintf.inl(85) : see declaration of 'swprintf'
+hiparahelper.cpp(874): warning C4996: 'swprintf': swprintf has been changed to conform with the ISO C standard, adding an extra character count parameter. To use traditional Microsoft swprintf, set _CRT_NON_CONFORMING_SWPRINTFS.
+          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\swprintf.inl(85) : see declaration of 'swprintf'
+hiparahelper.cpp(908): warning C4996: 'swprintf': swprintf has been changed to conform with the ISO C standard, adding an extra character count parameter. To use traditional Microsoft swprintf, set _CRT_NON_CONFORMING_SWPRINTFS.
+          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\swprintf.inl(85) : see declaration of 'swprintf'
+hiparahelper.cpp(918): warning C4996: 'swprintf': swprintf has been changed to conform with the ISO C standard, adding an extra character count parameter. To use traditional Microsoft swprintf, set _CRT_NON_CONFORMING_SWPRINTFS.
+          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\swprintf.inl(85) : see declaration of 'swprintf'
+hiparahelper.cpp(934): warning C4996: 'swprintf': swprintf has been changed to conform with the ISO C standard, adding an extra character count parameter. To use traditional Microsoft swprintf, set _CRT_NON_CONFORMING_SWPRINTFS.
+          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\swprintf.inl(85) : see declaration of 'swprintf'
+hiparahelper.cpp(966): warning C4996: 'swprintf': swprintf has been changed to conform with the ISO C standard, adding an extra character count parameter. To use traditional Microsoft swprintf, set _CRT_NON_CONFORMING_SWPRINTFS.
+          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\swprintf.inl(85) : see declaration of 'swprintf'
+hiparahelper.cpp(971): warning C4996: 'swprintf': swprintf has been changed to conform with the ISO C standard, adding an extra character count parameter. To use traditional Microsoft swprintf, set _CRT_NON_CONFORMING_SWPRINTFS.
+          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\swprintf.inl(85) : see declaration of 'swprintf'
+hiparahelper.cpp(980): warning C4996: 'swprintf': swprintf has been changed to conform with the ISO C standard, adding an extra character count parameter. To use traditional Microsoft swprintf, set _CRT_NON_CONFORMING_SWPRINTFS.
+          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\swprintf.inl(85) : see declaration of 'swprintf'
+hiparahelper.cpp(1005): warning C4996: 'swprintf': swprintf has been changed to conform with the ISO C standard, adding an extra character count parameter. To use traditional Microsoft swprintf, set _CRT_NON_CONFORMING_SWPRINTFS.
+          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\swprintf.inl(85) : see declaration of 'swprintf'
+hiparahelper.cpp(1020): warning C4996: 'swprintf': swprintf has been changed to conform with the ISO C standard, adding an extra character count parameter. To use traditional Microsoft swprintf, set _CRT_NON_CONFORMING_SWPRINTFS.
+          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\swprintf.inl(85) : see declaration of 'swprintf'
+hiparahelper.cpp(1025): warning C4996: 'swprintf': swprintf has been changed to conform with the ISO C standard, adding an extra character count parameter. To use traditional Microsoft swprintf, set _CRT_NON_CONFORMING_SWPRINTFS.
+          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\swprintf.inl(85) : see declaration of 'swprintf'
+hiparahelper.cpp(1034): warning C4996: 'swprintf': swprintf has been changed to conform with the ISO C standard, adding an extra character count parameter. To use traditional Microsoft swprintf, set _CRT_NON_CONFORMING_SWPRINTFS.
+          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\swprintf.inl(85) : see declaration of 'swprintf'
+hiparahelper.cpp(1078): warning C4996: 'swprintf': swprintf has been changed to conform with the ISO C standard, adding an extra character count parameter. To use traditional Microsoft swprintf, set _CRT_NON_CONFORMING_SWPRINTFS.
+          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\swprintf.inl(85) : see declaration of 'swprintf'
+hiparahelper.cpp(1094): warning C4996: 'swprintf': swprintf has been changed to conform with the ISO C standard, adding an extra character count parameter. To use traditional Microsoft swprintf, set _CRT_NON_CONFORMING_SWPRINTFS.
+          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\swprintf.inl(85) : see declaration of 'swprintf'
+hiparahelper.cpp(1103): warning C4996: 'swprintf': swprintf has been changed to conform with the ISO C standard, adding an extra character count parameter. To use traditional Microsoft swprintf, set _CRT_NON_CONFORMING_SWPRINTFS.
+          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\swprintf.inl(85) : see declaration of 'swprintf'
+hiparahelper.cpp(1149): warning C4996: 'swprintf': swprintf has been changed to conform with the ISO C standard, adding an extra character count parameter. To use traditional Microsoft swprintf, set _CRT_NON_CONFORMING_SWPRINTFS.
+          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\swprintf.inl(85) : see declaration of 'swprintf'
+hiparahelper.cpp(1178): warning C4996: 'swprintf': swprintf has been changed to conform with the ISO C standard, adding an extra character count parameter. To use traditional Microsoft swprintf, set _CRT_NON_CONFORMING_SWPRINTFS.
+          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\swprintf.inl(85) : see declaration of 'swprintf'
+hiparahelper.cpp(1187): warning C4996: 'swprintf': swprintf has been changed to conform with the ISO C standard, adding an extra character count parameter. To use traditional Microsoft swprintf, set _CRT_NON_CONFORMING_SWPRINTFS.
+          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\swprintf.inl(85) : see declaration of 'swprintf'
+hiparahelper.cpp(1217): warning C4996: 'swprintf': swprintf has been changed to conform with the ISO C standard, adding an extra character count parameter. To use traditional Microsoft swprintf, set _CRT_NON_CONFORMING_SWPRINTFS.
+          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\swprintf.inl(85) : see declaration of 'swprintf'
+hiparahelper.cpp(1231): warning C4996: 'swprintf': swprintf has been changed to conform with the ISO C standard, adding an extra character count parameter. To use traditional Microsoft swprintf, set _CRT_NON_CONFORMING_SWPRINTFS.
+          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\swprintf.inl(85) : see declaration of 'swprintf'
+hiparahelper.cpp(1240): warning C4996: 'swprintf': swprintf has been changed to conform with the ISO C standard, adding an extra character count parameter. To use traditional Microsoft swprintf, set _CRT_NON_CONFORMING_SWPRINTFS.
+          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\swprintf.inl(85) : see declaration of 'swprintf'
+hiparahelper.cpp(1256): warning C4996: 'swprintf': swprintf has been changed to conform with the ISO C standard, adding an extra character count parameter. To use traditional Microsoft swprintf, set _CRT_NON_CONFORMING_SWPRINTFS.
+          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\swprintf.inl(85) : see declaration of 'swprintf'
+hiparahelper.cpp(1264): warning C4996: 'swprintf': swprintf has been changed to conform with the ISO C standard, adding an extra character count parameter. To use traditional Microsoft swprintf, set _CRT_NON_CONFORMING_SWPRINTFS.
+          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\swprintf.inl(85) : see declaration of 'swprintf'
+hiparahelper.cpp(1279): warning C4996: 'swprintf': swprintf has been changed to conform with the ISO C standard, adding an extra character count parameter. To use traditional Microsoft swprintf, set _CRT_NON_CONFORMING_SWPRINTFS.
+          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\swprintf.inl(85) : see declaration of 'swprintf'
+hiparahelper.cpp(1287): warning C4996: 'swprintf': swprintf has been changed to conform with the ISO C standard, adding an extra character count parameter. To use traditional Microsoft swprintf, set _CRT_NON_CONFORMING_SWPRINTFS.
+          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\swprintf.inl(85) : see declaration of 'swprintf'
+hiparahelper.cpp(1298): warning C4996: 'swprintf': swprintf has been changed to conform with the ISO C standard, adding an extra character count parameter. To use traditional Microsoft swprintf, set _CRT_NON_CONFORMING_SWPRINTFS.
+          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\swprintf.inl(85) : see declaration of 'swprintf'
+  hiparamemscandll.cpp
+hiparamemscandll.cpp(19): warning C4101: 'szErrorMessage' : unreferenced local variable
+  hiparascanopenfiles.cpp
+hiparascanopenfiles.cpp(137): warning C4313: 'wprintf'  : '%x' in format string conflicts with argument 1 of type 'HANDLE'
+hiparascanopenfiles.cpp(153): warning C4800: 'BOOLEAN' : forcing value to bool 'true' or 'false' (performance warning)
+hiparascanopenfiles.cpp(159): warning C4996: 'swprintf': swprintf has been changed to conform with the ISO C standard, adding an extra character count parameter. To use traditional Microsoft swprintf, set _CRT_NON_CONFORMING_SWPRINTFS.
+          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\swprintf.inl(85) : see declaration of 'swprintf'
+hiparascanopenfiles.cpp(168): warning C4996: 'swprintf': swprintf has been changed to conform with the ISO C standard, adding an extra character count parameter. To use traditional Microsoft swprintf, set _CRT_NON_CONFORMING_SWPRINTFS.
+          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\swprintf.inl(85) : see declaration of 'swprintf'
+  ahocorasick.c
+C:\Program Files (x86)\Windows Kits\8.1\Include\shared\minwindef.h(60): warning C4005: 'MAX_PATH' : macro redefinition
+          z:\code\hipara-private\hiparamemscandll\hiparamemscandll\libyara\include\yara\yr_limits.h(29) : see previous definition of 'MAX_PATH'
+  arena.c
+libyara\arena.c(186): warning C4267: '=' : conversion from 'size_t' to 'int32_t', possible loss of data
+libyara\arena.c(354): warning C4267: '-=' : conversion from 'size_t' to 'int', possible loss of data
+libyara\arena.c(362): warning C4267: '-=' : conversion from 'size_t' to 'int', possible loss of data
+libyara\arena.c(368): warning C4267: '+=' : conversion from 'size_t' to 'int', possible loss of data
+libyara\arena.c(376): warning C4267: '+=' : conversion from 'size_t' to 'int', possible loss of data
+libyara\arena.c(414): warning C4267: '+=' : conversion from 'size_t' to 'int', possible loss of data
+libyara\arena.c(436): warning C4267: '+=' : conversion from 'size_t' to 'int32_t', possible loss of data
+libyara\arena.c(937): warning C4267: '=' : conversion from 'size_t' to 'uint32_t', possible loss of data
+libyara\arena.c(1022): warning C4018: '>=' : signed/unsigned mismatch
+  atoms.c
+C:\Program Files (x86)\Windows Kits\8.1\Include\shared\minwindef.h(60): warning C4005: 'MAX_PATH' : macro redefinition
+          z:\code\hipara-private\hiparamemscandll\hiparamemscandll\libyara\include\yara\yr_limits.h(29) : see previous definition of 'MAX_PATH'
+C:\Program Files (x86)\Windows Kits\8.1\Include\shared\winerror.h(209): warning C4005: 'ERROR_SUCCESS' : macro redefinition
+          z:\code\hipara-private\hiparamemscandll\hiparamemscandll\libyara\include/yara/error.h(23) : see previous definition of 'ERROR_SUCCESS'
+  compiler.c
+C:\Program Files (x86)\Windows Kits\8.1\Include\shared\minwindef.h(60): warning C4005: 'MAX_PATH' : macro redefinition
+          z:\code\hipara-private\hiparamemscandll\hiparamemscandll\libyara\include\yara\yr_limits.h(29) : see previous definition of 'MAX_PATH'
+libyara\compiler.c(373): warning C4309: 'initializing' : truncation of constant value
+  exec.c
+C:\Program Files (x86)\Windows Kits\8.1\Include\shared\minwindef.h(60): warning C4005: 'MAX_PATH' : macro redefinition
+          z:\code\hipara-private\hiparamemscandll\hiparamemscandll\libyara\include\yara\yr_limits.h(29) : see previous definition of 'MAX_PATH'
+z:\code\hipara-private\hiparamemscandll\hiparamemscandll\libyara\include\yara\object.h(23): warning C4005: 'INFINITY' : macro redefinition
+          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\math.h(102) : see previous definition of 'INFINITY'
+z:\code\hipara-private\hiparamemscandll\hiparamemscandll\libyara\include\yara\object.h(24): warning C4005: 'NAN' : macro redefinition
+          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\math.h(106) : see previous definition of 'NAN'
+libyara\exec.c(451): warning C4244: 'argument' : conversion from 'int64_t' to 'int', possible loss of data
+libyara\exec.c(479): warning C4267: '=' : conversion from 'size_t' to 'int', possible loss of data
+libyara\exec.c(791): warning C4244: '=' : conversion from 'int64_t' to 'double', possible loss of data
+  exefiles.c
+z:\code\hipara-private\hiparamemscandll\hiparamemscandll\libyara\include/yara/pe.h(426): warning C4200: nonstandard extension used : zero-sized array in struct/union
+          Cannot generate copy-ctor or copy-assignment operator when UDT contains a zero-sized array
+  filemap.c
+libyara\filemap.c(138): warning C4018: '>' : signed/unsigned mismatch
+  grammar.c
+C:\Program Files (x86)\Windows Kits\8.1\Include\shared\minwindef.h(60): warning C4005: 'MAX_PATH' : macro redefinition
+          z:\code\hipara-private\hiparamemscandll\hiparamemscandll\libyara\include\yara\yr_limits.h(29) : see previous definition of 'MAX_PATH'
+grammar.c(1049): warning C4065: switch statement contains 'default' but no 'case' labels
+grammar.y(222): warning C4244: 'argument' : conversion from 'int64_t' to 'int', possible loss of data
+grammar.y(365): warning C4267: 'argument' : conversion from 'size_t' to 'int', possible loss of data
+grammar.y(414): warning C4244: 'argument' : conversion from 'int64_t' to 'int32_t', possible loss of data
+grammar.y(462): warning C4244: 'argument' : conversion from 'int64_t' to 'int', possible loss of data
+grammar.y(479): warning C4244: 'argument' : conversion from 'int64_t' to 'int', possible loss of data
+grammar.y(1439): warning C4244: 'argument' : conversion from 'int64_t' to 'int8_t', possible loss of data
+grammar.y(1598): warning C4309: 'argument' : truncation of constant value
+  hash.c
+libyara\hash.c(155): warning C4267: 'argument' : conversion from 'size_t' to 'int', possible loss of data
+libyara\hash.c(158): warning C4267: 'argument' : conversion from 'size_t' to 'int', possible loss of data
+libyara\hash.c(219): warning C4267: 'argument' : conversion from 'size_t' to 'int', possible loss of data
+libyara\hash.c(222): warning C4267: 'argument' : conversion from 'size_t' to 'int', possible loss of data
+  hex_grammar.c
+hex_grammar.c(703): warning C4065: switch statement contains 'default' but no 'case' labels
+  hex_lexer.c
+C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdint.h(57): warning C4005: 'INT8_MIN' : macro redefinition
+          hex_lexer.c(61) : see previous definition of 'INT8_MIN'
+C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdint.h(58): warning C4005: 'INT16_MIN' : macro redefinition
+          hex_lexer.c(64) : see previous definition of 'INT16_MIN'
+C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdint.h(59): warning C4005: 'INT32_MIN' : macro redefinition
+          hex_lexer.c(67) : see previous definition of 'INT32_MIN'
+C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdint.h(61): warning C4005: 'INT8_MAX' : macro redefinition
+          hex_lexer.c(70) : see previous definition of 'INT8_MAX'
+C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdint.h(62): warning C4005: 'INT16_MAX' : macro redefinition
+          hex_lexer.c(73) : see previous definition of 'INT16_MAX'
+C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdint.h(63): warning C4005: 'INT32_MAX' : macro redefinition
+          hex_lexer.c(76) : see previous definition of 'INT32_MAX'
+C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdint.h(65): warning C4005: 'UINT8_MAX' : macro redefinition
+          hex_lexer.c(79) : see previous definition of 'UINT8_MAX'
+C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdint.h(66): warning C4005: 'UINT16_MAX' : macro redefinition
+          hex_lexer.c(82) : see previous definition of 'UINT16_MAX'
+C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdint.h(67): warning C4005: 'UINT32_MAX' : macro redefinition
+          hex_lexer.c(85) : see previous definition of 'UINT32_MAX'
+hex_lexer.l(72): warning C4244: '=' : conversion from 'uint64_t' to 'int', possible loss of data
+hex_lexer.l(79): warning C4244: '=' : conversion from 'uint64_t' to 'int', possible loss of data
+hex_lexer.l(86): warning C4244: '=' : conversion from 'uint64_t' to 'int', possible loss of data
+C:\Program Files (x86)\Windows Kits\8.1\Include\shared\minwindef.h(60): warning C4005: 'MAX_PATH' : macro redefinition
+          z:\code\hipara-private\hiparamemscandll\hiparamemscandll\libyara\include\yara\yr_limits.h(29) : see previous definition of 'MAX_PATH'
+C:\Program Files (x86)\Windows Kits\8.1\Include\shared\winerror.h(209): warning C4005: 'ERROR_SUCCESS' : macro redefinition
+          z:\code\hipara-private\hiparamemscandll\hiparamemscandll\libyara\include\yara\error.h(23) : see previous definition of 'ERROR_SUCCESS'
+  lexer.c
+C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdint.h(57): warning C4005: 'INT8_MIN' : macro redefinition
+          lexer.c(62) : see previous definition of 'INT8_MIN'
+C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdint.h(58): warning C4005: 'INT16_MIN' : macro redefinition
+          lexer.c(65) : see previous definition of 'INT16_MIN'
+C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdint.h(59): warning C4005: 'INT32_MIN' : macro redefinition
+          lexer.c(68) : see previous definition of 'INT32_MIN'
+C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdint.h(61): warning C4005: 'INT8_MAX' : macro redefinition
+          lexer.c(71) : see previous definition of 'INT8_MAX'
+C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdint.h(62): warning C4005: 'INT16_MAX' : macro redefinition
+          lexer.c(74) : see previous definition of 'INT16_MAX'
+C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdint.h(63): warning C4005: 'INT32_MAX' : macro redefinition
+          lexer.c(77) : see previous definition of 'INT32_MAX'
+C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdint.h(65): warning C4005: 'UINT8_MAX' : macro redefinition
+          lexer.c(80) : see previous definition of 'UINT8_MAX'
+C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdint.h(66): warning C4005: 'UINT16_MAX' : macro redefinition
+          lexer.c(83) : see previous definition of 'UINT16_MAX'
+C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdint.h(67): warning C4005: 'UINT32_MAX' : macro redefinition
+          lexer.c(86) : see previous definition of 'UINT32_MAX'
+C:\Program Files (x86)\Windows Kits\8.1\Include\shared\minwindef.h(60): warning C4005: 'MAX_PATH' : macro redefinition
+          z:\code\hipara-private\hiparamemscandll\hiparamemscandll\libyara\include\yara\yr_limits.h(29) : see previous definition of 'MAX_PATH'
+lexer.l(571): warning C4267: '=' : conversion from 'size_t' to 'int', possible loss of data
+  libyara.c
+C:\Program Files (x86)\Windows Kits\8.1\Include\shared\minwindef.h(60): warning C4005: 'MAX_PATH' : macro redefinition
+          z:\code\hipara-private\hiparamemscandll\hiparamemscandll\libyara\include\yara\yr_limits.h(29) : see previous definition of 'MAX_PATH'
+C:\Program Files (x86)\Windows Kits\8.1\Include\shared\winerror.h(209): warning C4005: 'ERROR_SUCCESS' : macro redefinition
+          z:\code\hipara-private\hiparamemscandll\hiparamemscandll\libyara\include\yara\error.h(23) : see previous definition of 'ERROR_SUCCESS'
+z:\code\hipara-private\hiparamemscandll\hiparamemscandll\libyara\include\yara\object.h(23): warning C4005: 'INFINITY' : macro redefinition
+          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\math.h(102) : see previous definition of 'INFINITY'
+z:\code\hipara-private\hiparamemscandll\hiparamemscandll\libyara\include\yara\object.h(24): warning C4005: 'NAN' : macro redefinition
+          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\math.h(106) : see previous definition of 'NAN'
+  mem.c
+  modules.c
+C:\Program Files (x86)\Windows Kits\8.1\Include\shared\minwindef.h(60): warning C4005: 'MAX_PATH' : macro redefinition
+          z:\code\hipara-private\hiparamemscandll\hiparamemscandll\libyara\include\yara\yr_limits.h(29) : see previous definition of 'MAX_PATH'
+z:\code\hipara-private\hiparamemscandll\hiparamemscandll\libyara\include\yara\object.h(23): warning C4005: 'INFINITY' : macro redefinition
+          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\math.h(102) : see previous definition of 'INFINITY'
+z:\code\hipara-private\hiparamemscandll\hiparamemscandll\libyara\include\yara\object.h(24): warning C4005: 'NAN' : macro redefinition
+          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\math.h(106) : see previous definition of 'NAN'
+  cuckoo.c
+C:\Program Files (x86)\Windows Kits\8.1\Include\shared\minwindef.h(60): warning C4005: 'MAX_PATH' : macro redefinition
+          z:\code\hipara-private\hiparamemscandll\hiparamemscandll\libyara\include\yara\yr_limits.h(29) : see previous definition of 'MAX_PATH'
+C:\Program Files (x86)\Windows Kits\8.1\Include\shared\winerror.h(209): warning C4005: 'ERROR_SUCCESS' : macro redefinition
+          z:\code\hipara-private\hiparamemscandll\hiparamemscandll\libyara\include\yara\error.h(23) : see previous definition of 'ERROR_SUCCESS'
+z:\code\hipara-private\hiparamemscandll\hiparamemscandll\libyara\include\yara\object.h(23): warning C4005: 'INFINITY' : macro redefinition
+          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\math.h(102) : see previous definition of 'INFINITY'
+z:\code\hipara-private\hiparamemscandll\hiparamemscandll\libyara\include\yara\object.h(24): warning C4005: 'NAN' : macro redefinition
+          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\math.h(106) : see previous definition of 'NAN'
+  elf.c
+C:\Program Files (x86)\Windows Kits\8.1\Include\shared\minwindef.h(60): warning C4005: 'MAX_PATH' : macro redefinition
+          z:\code\hipara-private\hiparamemscandll\hiparamemscandll\libyara\include\yara\yr_limits.h(29) : see previous definition of 'MAX_PATH'
+C:\Program Files (x86)\Windows Kits\8.1\Include\shared\winerror.h(209): warning C4005: 'ERROR_SUCCESS' : macro redefinition
+          z:\code\hipara-private\hiparamemscandll\hiparamemscandll\libyara\include\yara\error.h(23) : see previous definition of 'ERROR_SUCCESS'
+z:\code\hipara-private\hiparamemscandll\hiparamemscandll\libyara\include\yara\object.h(23): warning C4005: 'INFINITY' : macro redefinition
+          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\math.h(102) : see previous definition of 'INFINITY'
+z:\code\hipara-private\hiparamemscandll\hiparamemscandll\libyara\include\yara\object.h(24): warning C4005: 'NAN' : macro redefinition
+          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\math.h(106) : see previous definition of 'NAN'
+  Compiling...
+  math.c
+C:\Program Files (x86)\Windows Kits\8.1\Include\shared\minwindef.h(60): warning C4005: 'MAX_PATH' : macro redefinition
+          z:\code\hipara-private\hiparamemscandll\hiparamemscandll\libyara\include\yara\yr_limits.h(29) : see previous definition of 'MAX_PATH'
+C:\Program Files (x86)\Windows Kits\8.1\Include\shared\winerror.h(209): warning C4005: 'ERROR_SUCCESS' : macro redefinition
+          z:\code\hipara-private\hiparamemscandll\hiparamemscandll\libyara\include\yara\error.h(23) : see previous definition of 'ERROR_SUCCESS'
+z:\code\hipara-private\hiparamemscandll\hiparamemscandll\libyara\include\yara\object.h(23): warning C4005: 'INFINITY' : macro redefinition
+          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\math.h(102) : see previous definition of 'INFINITY'
+z:\code\hipara-private\hiparamemscandll\hiparamemscandll\libyara\include\yara\object.h(24): warning C4005: 'NAN' : macro redefinition
+          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\math.h(106) : see previous definition of 'NAN'
+libyara\modules\math.c(31): warning C4273: 'log2' : inconsistent dll linkage
+          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\math.h(504) : see previous definition of 'log2'
+libyara\modules\math.c(76): warning C4018: '<' : signed/unsigned mismatch
+libyara\modules\math.c(91): warning C4018: '>=' : signed/unsigned mismatch
+libyara\modules\math.c(92): warning C4018: '<' : signed/unsigned mismatch
+libyara\modules\math.c(95): warning C4018: '<' : signed/unsigned mismatch
+libyara\modules\math.c(121): warning C4018: '>' : signed/unsigned mismatch
+libyara\modules\math.c(171): warning C4018: '<' : signed/unsigned mismatch
+libyara\modules\math.c(181): warning C4018: '>=' : signed/unsigned mismatch
+libyara\modules\math.c(182): warning C4018: '<' : signed/unsigned mismatch
+libyara\modules\math.c(185): warning C4018: '<' : signed/unsigned mismatch
+libyara\modules\math.c(206): warning C4018: '>' : signed/unsigned mismatch
+libyara\modules\math.c(238): warning C4018: '<' : signed/unsigned mismatch
+libyara\modules\math.c(249): warning C4018: '>=' : signed/unsigned mismatch
+libyara\modules\math.c(250): warning C4018: '<' : signed/unsigned mismatch
+libyara\modules\math.c(253): warning C4018: '<' : signed/unsigned mismatch
+libyara\modules\math.c(274): warning C4018: '>' : signed/unsigned mismatch
+libyara\modules\math.c(296): warning C4018: '<' : signed/unsigned mismatch
+libyara\modules\math.c(309): warning C4018: '>=' : signed/unsigned mismatch
+libyara\modules\math.c(310): warning C4018: '<' : signed/unsigned mismatch
+libyara\modules\math.c(313): warning C4018: '<' : signed/unsigned mismatch
+libyara\modules\math.c(340): warning C4018: '>' : signed/unsigned mismatch
+libyara\modules\math.c(402): warning C4018: '<' : signed/unsigned mismatch
+libyara\modules\math.c(416): warning C4018: '>=' : signed/unsigned mismatch
+libyara\modules\math.c(417): warning C4018: '<' : signed/unsigned mismatch
+libyara\modules\math.c(420): warning C4018: '<' : signed/unsigned mismatch
+libyara\modules\math.c(461): warning C4018: '>' : signed/unsigned mismatch
+  pe.c
+z:\code\hipara-private\hiparamemscandll\hiparamemscandll\libyara\modules\..\include\yara\pe.h(426): warning C4200: nonstandard extension used : zero-sized array in struct/union
+          Cannot generate copy-ctor or copy-assignment operator when UDT contains a zero-sized array
+z:\code\hipara-private\hiparamemscandll\hiparamemscandll\libyara\include\yara\object.h(23): warning C4005: 'INFINITY' : macro redefinition
+          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\math.h(102) : see previous definition of 'INFINITY'
+z:\code\hipara-private\hiparamemscandll\hiparamemscandll\libyara\include\yara\object.h(24): warning C4005: 'NAN' : macro redefinition
+          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\math.h(106) : see previous definition of 'NAN'
+libyara\modules\pe.c(227): warning C4101: 'pe_header' : unreferenced local variable
+libyara\modules\pe.c(1404): warning C4018: '<' : signed/unsigned mismatch
+  tests.c
+C:\Program Files (x86)\Windows Kits\8.1\Include\shared\minwindef.h(60): warning C4005: 'MAX_PATH' : macro redefinition
+          z:\code\hipara-private\hiparamemscandll\hiparamemscandll\libyara\include\yara\yr_limits.h(29) : see previous definition of 'MAX_PATH'
+C:\Program Files (x86)\Windows Kits\8.1\Include\shared\winerror.h(209): warning C4005: 'ERROR_SUCCESS' : macro redefinition
+          z:\code\hipara-private\hiparamemscandll\hiparamemscandll\libyara\include\yara\error.h(23) : see previous definition of 'ERROR_SUCCESS'
+z:\code\hipara-private\hiparamemscandll\hiparamemscandll\libyara\include\yara\object.h(23): warning C4005: 'INFINITY' : macro redefinition
+          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\math.h(102) : see previous definition of 'INFINITY'
+z:\code\hipara-private\hiparamemscandll\hiparamemscandll\libyara\include\yara\object.h(24): warning C4005: 'NAN' : macro redefinition
+          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\math.h(106) : see previous definition of 'NAN'
+  object.c
+z:\code\hipara-private\hiparamemscandll\hiparamemscandll\libyara\include\yara\object.h(23): warning C4005: 'INFINITY' : macro redefinition
+          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\math.h(102) : see previous definition of 'INFINITY'
+z:\code\hipara-private\hiparamemscandll\hiparamemscandll\libyara\include\yara\object.h(24): warning C4005: 'NAN' : macro redefinition
+          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\math.h(106) : see previous definition of 'NAN'
+C:\Program Files (x86)\Windows Kits\8.1\Include\shared\minwindef.h(60): warning C4005: 'MAX_PATH' : macro redefinition
+          z:\code\hipara-private\hiparamemscandll\hiparamemscandll\libyara\include\yara\yr_limits.h(29) : see previous definition of 'MAX_PATH'
+C:\Program Files (x86)\Windows Kits\8.1\Include\shared\winerror.h(209): warning C4005: 'ERROR_SUCCESS' : macro redefinition
+          z:\code\hipara-private\hiparamemscandll\hiparamemscandll\libyara\include\yara\error.h(23) : see previous definition of 'ERROR_SUCCESS'
+libyara\object.c(894): warning C4002: too many actual parameters for macro 'assertf'
+libyara\object.c(921): warning C4002: too many actual parameters for macro 'assertf'
+libyara\object.c(948): warning C4002: too many actual parameters for macro 'assertf'
+libyara\object.c(1043): warning C4267: '=' : conversion from 'size_t' to 'int', possible loss of data
+  parser.c
+C:\Program Files (x86)\Windows Kits\8.1\Include\shared\minwindef.h(60): warning C4005: 'MAX_PATH' : macro redefinition
+          z:\code\hipara-private\hiparamemscandll\hiparamemscandll\libyara\include\yara\yr_limits.h(29) : see previous definition of 'MAX_PATH'
+C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\math.h(102): warning C4005: 'INFINITY' : macro redefinition
+          z:\code\hipara-private\hiparamemscandll\hiparamemscandll\libyara\include\yara\object.h(23) : see previous definition of 'INFINITY'
+C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\math.h(106): warning C4005: 'NAN' : macro redefinition
+          z:\code\hipara-private\hiparamemscandll\hiparamemscandll\libyara\include\yara\object.h(24) : see previous definition of 'NAN'
+  proc.c
+  re.c
+libyara\re.c(1582): warning C4267: '=' : conversion from 'size_t' to 'int', possible loss of data
+  re_grammar.c
+re_grammar.c(737): warning C4065: switch statement contains 'default' but no 'case' labels
+  re_lexer.c
+C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdint.h(57): warning C4005: 'INT8_MIN' : macro redefinition
+          re_lexer.c(95) : see previous definition of 'INT8_MIN'
+C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdint.h(58): warning C4005: 'INT16_MIN' : macro redefinition
+          re_lexer.c(98) : see previous definition of 'INT16_MIN'
+C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdint.h(59): warning C4005: 'INT32_MIN' : macro redefinition
+          re_lexer.c(101) : see previous definition of 'INT32_MIN'
+C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdint.h(61): warning C4005: 'INT8_MAX' : macro redefinition
+          re_lexer.c(104) : see previous definition of 'INT8_MAX'
+C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdint.h(62): warning C4005: 'INT16_MAX' : macro redefinition
+          re_lexer.c(107) : see previous definition of 'INT16_MAX'
+C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdint.h(63): warning C4005: 'INT32_MAX' : macro redefinition
+          re_lexer.c(110) : see previous definition of 'INT32_MAX'
+C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdint.h(65): warning C4005: 'UINT8_MAX' : macro redefinition
+          re_lexer.c(113) : see previous definition of 'UINT8_MAX'
+C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdint.h(66): warning C4005: 'UINT16_MAX' : macro redefinition
+          re_lexer.c(116) : see previous definition of 'UINT16_MAX'
+C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdint.h(67): warning C4005: 'UINT32_MAX' : macro redefinition
+          re_lexer.c(119) : see previous definition of 'UINT32_MAX'
+re_lexer.l(281): warning C4309: 'initializing' : truncation of constant value
+re_lexer.l(293): warning C4309: 'initializing' : truncation of constant value
+C:\Program Files (x86)\Windows Kits\8.1\Include\shared\minwindef.h(60): warning C4005: 'MAX_PATH' : macro redefinition
+          z:\code\hipara-private\hiparamemscandll\hiparamemscandll\libyara\include\yara\yr_limits.h(29) : see previous definition of 'MAX_PATH'
+C:\Program Files (x86)\Windows Kits\8.1\Include\shared\winerror.h(209): warning C4005: 'ERROR_SUCCESS' : macro redefinition
+          z:\code\hipara-private\hiparamemscandll\hiparamemscandll\libyara\include\yara\error.h(23) : see previous definition of 'ERROR_SUCCESS'
+  rules.c
+C:\Program Files (x86)\Windows Kits\8.1\Include\shared\minwindef.h(60): warning C4005: 'MAX_PATH' : macro redefinition
+          z:\code\hipara-private\hiparamemscandll\hiparamemscandll\libyara\include\yara\yr_limits.h(29) : see previous definition of 'MAX_PATH'
+C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\math.h(102): warning C4005: 'INFINITY' : macro redefinition
+          z:\code\hipara-private\hiparamemscandll\hiparamemscandll\libyara\include\yara\object.h(23) : see previous definition of 'INFINITY'
+C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\math.h(106): warning C4005: 'NAN' : macro redefinition
+          z:\code\hipara-private\hiparamemscandll\hiparamemscandll\libyara\include\yara\object.h(24) : see previous definition of 'NAN'
+  scan.c
+C:\Program Files (x86)\Windows Kits\8.1\Include\shared\minwindef.h(60): warning C4005: 'MAX_PATH' : macro redefinition
+          z:\code\hipara-private\hiparamemscandll\hiparamemscandll\libyara\include\yara\yr_limits.h(29) : see previous definition of 'MAX_PATH'
+libyara\scan.c(341): warning C4018: '>=' : signed/unsigned mismatch
+libyara\scan.c(342): warning C4018: '<=' : signed/unsigned mismatch
+libyara\scan.c(521): warning C4267: '=' : conversion from 'size_t' to 'int32_t', possible loss of data
+libyara\scan.c(771): warning C4267: 'argument' : conversion from 'size_t' to 'int', possible loss of data
+libyara\scan.c(780): warning C4267: 'argument' : conversion from 'size_t' to 'int', possible loss of data
+libyara\scan.c(791): warning C4267: 'argument' : conversion from 'size_t' to 'int', possible loss of data
+libyara\scan.c(800): warning C4267: 'argument' : conversion from 'size_t' to 'int', possible loss of data
+  sizedstr.c
+  strutils.c
+libyara\strutils.c(27): warning C4267: 'initializing' : conversion from 'size_t' to 'int', possible loss of data
+Link:
+  C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"Z:\code\hipara-private\hiparamemscandll\x64\Release\hiparamemscandll.dll" /INCREMENTAL:NO /NOLOGO /LIBPATH:..\..\scanner\C++\hipara\lib\Release kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib jansson64.lib Psapi.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /DEF:"hiparamemscandll.def" /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"Z:\code\hipara-private\hiparamemscandll\x64\Release\hiparamemscandll.pdb" /SUBSYSTEM:WINDOWS /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"Z:\code\hipara-private\hiparamemscandll\x64\Release\hiparamemscandll.lib" /MACHINE:X64 /DLL x64\Release\hiparahelper.obj
+  x64\Release\hiparamemscandll.obj
+  x64\Release\hiparascanopenfiles.obj
+  x64\Release\ahocorasick.obj
+  x64\Release\arena.obj
+  x64\Release\atoms.obj
+  x64\Release\compiler.obj
+  x64\Release\exec.obj
+  x64\Release\exefiles.obj
+  x64\Release\filemap.obj
+  x64\Release\grammar.obj
+  x64\Release\hash.obj
+  x64\Release\hex_grammar.obj
+  x64\Release\hex_lexer.obj
+  x64\Release\lexer.obj
+  x64\Release\libyara.obj
+  x64\Release\mem.obj
+  x64\Release\modules.obj
+  x64\Release\cuckoo.obj
+  x64\Release\elf.obj
+  x64\Release\math.obj
+  x64\Release\pe.obj
+  x64\Release\tests.obj
+  x64\Release\object.obj
+  x64\Release\parser.obj
+  x64\Release\proc.obj
+  x64\Release\re.obj
+  x64\Release\re_grammar.obj
+  x64\Release\re_lexer.obj
+  x64\Release\rules.obj
+  x64\Release\scan.obj
+  x64\Release\sizedstr.obj
+  x64\Release\strutils.obj
+     Creating library Z:\code\hipara-private\hiparamemscandll\x64\Release\hiparamemscandll.lib and object Z:\code\hipara-private\hiparamemscandll\x64\Release\hiparamemscandll.exp
+  Generating code
+  Finished generating code
+  hiparamemscandll.vcxproj -> Z:\code\hipara-private\hiparamemscandll\x64\Release\hiparamemscandll.dll
+Done Building Project "Z:\code\hipara-private\hiparamemscandll\hiparamemscandll\hiparamemscandll.vcxproj" (Build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:01:13.95
